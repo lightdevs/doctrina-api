@@ -1,0 +1,24 @@
+{
+  "name": "doctrina-backend",
+  "version": "1.0.0",
+  "description": "task management system for distance learning",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lightdevs/doctrina-backend.git"
+  },
+  "keywords": [
+    "node",
+    "graphql",
+    "mongodb"
+  ],
+  "author": " <lightdevs@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lightdevs/doctrina-backend/issues"
+  },
+  "homepage": "https://github.com/lightdevs/doctrina-backend#readme"
+}
