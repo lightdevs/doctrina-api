@@ -1,14 +1,14 @@
-const Cource = require("../../models/cource")
+const Course = require("../../models/course")
 
 module.exports = {
-    cources: async () => {
+    courses: async () => {
         try {
-            const courcesFetched = await Cource.find()
-            return courcesFetched.map(cource => {
+            const coursesFetched = await Course.find()
+            return coursesFetched.map(course => {
                 return {
-                    ...cource._doc,
-                    _id: cource.id,
-                    createdAt: new Date(cource._doc.createdAt).toISOString(),
+                    ...course._doc,
+                    _id: course.id,
+                    createdAt: new Date(course._doc.createdAt).toISOString(),
                 }
             })
         } catch (error) {
@@ -16,15 +16,15 @@ module.exports = {
         }
     },
 
-    createCource: async args => {
+    createCourse: async args => {
         try {
-            const { title, description } = args.cource
-            const cource = new Cource({
+            const { title, description } = args.course
+            const course = new Course({
                 title,
                 description,
             })
-            const newcource = await cource.save()
-            return { ...newcource._doc, _id: newcource.id }
+            const newcourse = await course.save()
+            return { ...newcourse._doc, _id: newcourse.id }
         } catch (error) {
             throw error
         }

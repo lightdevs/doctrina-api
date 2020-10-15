@@ -12,7 +12,7 @@ fetch('/graphql', {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  body: JSON.stringify({query: "{cources{title}}"})
+  body: JSON.stringify({query: "{courses{title}}"})
 })
   .then(r => r.json())
   .then(data => console.log('data returned:', data));
@@ -23,10 +23,11 @@ fetch('/graphql', {
 To create model:
 ```
 mutation{
-  createCource(cource: {
-    title: "Math",
-    description: "Cool!"
-  }){
+  createCourse(
+    course: {
+    	title: "Math",
+    	description: "Cool!"
+  	}){
     title,
     description,
     createdAt
@@ -37,7 +38,7 @@ mutation{
 To get models:
 ```
 {
-  cources{
+  courses{
     title,
     description
   }

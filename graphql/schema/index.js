@@ -1,24 +1,24 @@
 const { buildSchema } = require("graphql")
 
 module.exports = buildSchema(`
-  type Cource {
+  type course {
     _id: ID!
     title: String!
     description: String!
     createdAt: String!
   }
 
-  input CourceInput {
+  input courseInput {
     title: String!
     description: String!
   }
 
   type Query {
-    cources:[Cource!]
+    courses:[course!]
   }
 
   type Mutation {
-    createCource(cource:CourceInput): Cource
+    createCourse(course:courseInput): course
   }
 
   schema {
