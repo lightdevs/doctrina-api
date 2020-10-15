@@ -30,9 +30,9 @@ fetch('/graphql', {
   .then(data => console.log('data returned:', data));
 ```
 
-###GraphQL
+### GraphQL
 
-######Create model
+###### Create model
 ```
 mutation{
   createCourse(
@@ -47,7 +47,7 @@ mutation{
 }
 ```
 
-######Get models
+###### Get models
 ```
 {
   courses{
