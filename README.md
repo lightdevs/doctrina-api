@@ -1,9 +1,21 @@
 # DOCTRINA
 
+
 Doctrina is an online educational platform.
 With the help of the Doctrina, you can easily transfer the educational process to your device.
 
-Interraction with **GraphQL**
+### Run API
+
+```
+npm i
+```
+
+```
+npm run start
+```
+
+
+### Interraction with GraphQL
 
 ```
 fetch('/graphql', {
@@ -18,9 +30,9 @@ fetch('/graphql', {
   .then(data => console.log('data returned:', data));
 ```
 
-**GraphQL**
+###GraphQL
 
-To create model:
+######Create model
 ```
 mutation{
   createCourse(
@@ -35,7 +47,7 @@ mutation{
 }
 ```
 
-To get models:
+######Get models
 ```
 {
   courses{
