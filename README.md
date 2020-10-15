@@ -7,13 +7,13 @@ With the help of the Doctrina, you can easily transfer the educational process t
 ### Run API
 
 ```
-npm i
+# install dependencies
+$ npm i
+# run server
+$ npm run start
 ```
 
-```
-npm run start
-```
-
+Now you should be able to access API at [http://localhost:5000](http://localhost:5000)
 
 ### Interraction with GraphQL
 
