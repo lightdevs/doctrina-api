@@ -8,10 +8,10 @@ const courseSchema = new mongoose.Schema(
         },
         description: {
             type: String,
-            required: true,
+            required: false,
         },
     },
     { timestamps: true }
 )
 
-module.exports = mongoose.model("course", courseSchema)
+module.exports = mongoose.model("Course", courseSchema)

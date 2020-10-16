@@ -1,23 +1,22 @@
-const { ApolloServer, gql } = require('apollo-server-express');
-const express = require('express');
+import { ApolloServer, gql } from 'apollo-server-express';
+import express from 'express';
+import mongoose from 'mongoose';
+import { typeDefs } from './typeDefs';
+import { resolvers } from './resolvers';
 
-const app = express();
 
-const typeDefs = gql`
-type Query {
-    hello: String
+
+const startServer = async () => {
+    const app = express();
+
+    const server = new ApolloServer({ typeDefs, resolvers });
+    server.applyMiddleware({app});
+    
+    await mongoose.connect('mongodb+srv://doctrina:doctrina@doctrina.zodyy.mongodb.net/doctrina?retryWrites=true&w=majority', {useNewUrlParser: true, useUnifiedTopology: true});
+
+    app.listen({port: 5000}, () => {
+        console.log(`Example app listening ${server.graphqlPath}`)
+    })
 }
-`;
 
-const resolvers = {
-    Query: {
-        hello: () => "Hello"
-    }
-}
-
-const server = new ApolloServer({ typeDefs, resolvers });
-server.applyMiddleware({app});
-
-app.listen({port: 5000}, () => {
-    console.log(`Example app listening ${server.graphqlPath}`)
-  })
+startServer();
