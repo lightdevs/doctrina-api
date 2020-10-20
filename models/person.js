@@ -12,7 +12,7 @@ const personSchema = new mongoose.Schema(
         },
         surname: {
             type: String,
-            required: true,
+            required: false,
         },
         password: {
             type: String,

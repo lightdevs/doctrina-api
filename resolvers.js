@@ -11,11 +11,10 @@ export const resolvers = {
       courses: () => Course.find(),
       persons: () => Person.find(),
       me: (parent, args, context, info) => {
-        // console.log(context.user)
         if (context.loggedIn) {
             return context.person
         } else {
-            throw new AuthenticationError("Please Login Again!")
+            throw new Error("Please Login Again!");
       }
      }
     },
@@ -26,40 +25,41 @@ export const resolvers = {
             return course;
         },
 
-        register: async (parent, args, context, info) => {
+        register: async (_, {email, name, password, accountType}) => {
   
           // Creating user Object from the arguments with password encryption
-          const newPerson = { personemail: args.personemail, password: await utils.encryptPassword(args.password) }
+          const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, accountType: accountType };
            // Get user document from 'user' collection.
-          const person = await mongoose.connection.getCollection('person').findOne({ email: args.personemail })
-          // Check If User Exists Already Throw Error  
-          if (person) {
-            throw new AuthenticationError("User Already Exists!")
+          const person = await Person.find({ email: email });
+          if (person.length != 0) {
+           throw new Error("User Already Exists!");
           }
           try {
           // Insert User Object to Database
-            const regPerson = (await mongoose.connection.model.getCollection('person').insertOne(newPerson)).ops[0];
+            const regPerson = await Person.create(newPerson);
           // Creating a Token from User Payload obtained.
             const token = utils.getToken(regPerson);
+            regPerson.token = token;
           // Adding token to user object
-            return { ...regPerson, token };
+            return regPerson;
            } catch (e) {
             throw e
           }
         },
 
-        login: async (parent, args, context, info) => {
+        login: async (_, {email, password},__,___,info) => {
           // Finding a user from user collection.
-         const person = await mongoose.connection.model.getCollection('person').findOne({ email: args.personemail });
+         const person = await Person.find({ email: email });
          // Checking For Encrypted Password Match with util func.
-         const isMatch = await utils.comparePassword(args.password, person.password)
+         const isMatch = await utils.comparePassword(password, person[0].password)
        if (isMatch) {
          // Creating a Token from User Payload obtained.
-         const token = utils.getToken(person)
-         return { ...person, token };
+         const token = utils.getToken(person[0])
+         person[0].token = token;
+         return person[0];
        } else {
          // Throwing Error on Match Status Failed.
-         throw new AuthenticationError("Wrong Password!")
+         throw new Error("Wrong Password!")
      }}
     },
 
