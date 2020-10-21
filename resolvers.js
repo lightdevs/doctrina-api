@@ -11,6 +11,7 @@ export const resolvers = {
       courses: () => Course.find(),
       persons: () => Person.find(),
       me: (parent, args, context, info) => {
+        console.log(context);
         if (context.loggedIn) {
             return context.person
         } else {
