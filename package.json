@@ -38,6 +38,7 @@
     "mongoose": "^5.10.9"
   },
   "devDependencies": {
+    "apollo-server-express": "^2.18.2",
     "nodemon": "^2.0.5"
   }
 }

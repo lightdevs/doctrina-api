@@ -1,12 +1,10 @@
-import { Kind } from 'graphql/language';
-import { GraphQLScalarType } from 'graphql';
-import mongoose from 'mongoose';
-import utils from './utils';
+const {Kind} = require('graphql/language');
+const {GraphQLScalarType} = require('graphql');
+const utils = require('./utils');
+const Course = require('./models/course');
+const Person = require('./models/person');
 
-import Course from './models/course'
-import Person from './models/person'
-
-export const resolvers = {
+module.exports = {
     Query: {
       courses: () => Course.find(),
       persons: () => Person.find(),
@@ -29,7 +27,7 @@ export const resolvers = {
   
           // Creating user Object from the arguments with password encryption
           const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, accountType: accountType };
-           // Get user document from 'user' collection.
+           // Get user document require('user' collection.
           const person = await Person.find({ email: email });
           if (person.length != 0) {
            throw new Error("User Already Exists!");

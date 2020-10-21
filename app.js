@@ -1,11 +1,10 @@
-import { ApolloServer, gql } from 'apollo-server-express';
-import express from 'express';
-import mongoose from 'mongoose';
-import { typeDefs } from './typeDefs';
-import { resolvers } from './resolvers';
-import config from'./config';
-import utils from './utils';
-
+const {ApolloServer} = require('apollo-server-express');
+const mongoose = require('mongoose');
+const express = require('express');
+const typeDefs = require('./typeDefs');
+const resolvers = require('./resolvers');
+const config = require('./config');
+const utils = require('./utils');
 
 
 const startServer = async () => {
@@ -21,8 +20,8 @@ const startServer = async () => {
     
     await mongoose.connect(config.database, {useNewUrlParser: true, useUnifiedTopology: true});
 
-    app.listen({port: 5000}, () => {
-        console.log(`App listening ${server.graphqlPath}`)
+    app.listen(config.PORT, () => {
+        console.log(`App listening at http://localhost:${config.PORT}${server.graphqlPath}`)
     })
 }
 
