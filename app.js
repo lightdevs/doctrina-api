@@ -1,25 +1,30 @@
-require('dotenv').config()
-const express = require("express")
-const { graphqlHTTP } = require('express-graphql');
-const mongoose = require("mongoose")
-const graphqlSchema = require("./graphql/schema")
-const graphqlResolvers = require("./graphql/resolvers")
+import { ApolloServer, gql } from 'apollo-server-express';
+import express from 'express';
+import mongoose from 'mongoose';
+import { typeDefs } from './typeDefs';
+import { resolvers } from './resolvers';
+import config from'./config';
+import utils from './utils';
 
-const app = express()
 
-app.use(
-    "/graphql",
-    graphqlHTTP({
-        schema: graphqlSchema,
-        rootValue: graphqlResolvers,
-        graphiql: true,
+
+const startServer = async () => {
+    const app = express();
+
+    const server = new ApolloServer({ typeDefs, resolvers, context: ({ req }) => {
+        const token = req.headers.authorization || '';
+        const { payload: person, loggedIn } = utils.getPayload(token);
+        //console.log(...utils.getPayload(token));    
+        return { person, loggedIn };
+      }});
+
+    server.applyMiddleware({app});
+    
+    await mongoose.connect(config.database, {useNewUrlParser: true, useUnifiedTopology: true});
+
+    app.listen({port: 5000}, () => {
+        console.log(`App listening ${server.graphqlPath}`)
     })
-)
+}
 
-const options = { useNewUrlParser: true, useUnifiedTopology: true }
-mongoose
-    .connect(process.env.DB_URL, options)
-    .then(() => app.listen(5000, console.log("Server is running")))
-    .catch(error => {
-        throw error
-    })
+startServer();
