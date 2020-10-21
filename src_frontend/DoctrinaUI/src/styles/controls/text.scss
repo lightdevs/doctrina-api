@@ -1,0 +1,36 @@
+@import '~@angular/material/theming';
+
+@mixin text-styling($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+  $custom: map-get($theme, custom);
+  $background: map-get($theme, background);
+  $foreground: map-get($theme, foreground);
+  $text-color: mat-color($foreground, text);
+
+  $primary-color: mat-color($primary);
+  $accent-color: mat-color($accent);
+  $warn-color: mat-color($warn);
+  $warning-color: mat-color($custom, warning);
+
+  .primary-color {
+    color: $primary-color;
+  }
+
+  .accent-color {
+    color: $accent-color;
+  }
+
+  .warn-color {
+    color: $warn-color;
+  }
+
+  .warning-color {
+    color: $warning-color;
+  }
+
+  svg text {
+    fill: $text-color;
+  }
+}

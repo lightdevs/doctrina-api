@@ -1,0 +1,40 @@
+@import '~@angular/material/theming';
+
+@mixin mat-card-styling($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+  $custom: map-get($theme, custom);
+
+  $primary-color: mat-color($primary);
+  $accent-color: mat-color($accent);
+  $warn-color: mat-color($warn);
+  $warning-color: mat-color($custom, warning);
+
+  $config: mat-get-color-config($theme);
+  $is-dark-theme: map-get($config, is-dark);
+
+  mat-card.mat-card {
+    border-radius: 10px;
+
+    .mat-card-title {
+      margin-bottom: 10px;
+      margin-top: 10px;
+      margin-left: 15px;
+    }
+
+    .mat-elevation-z8 {
+      background-color: rgba($accent-color, 0.5);
+    }
+
+    .light {
+      background-color: rgba($accent-color, 0.1);
+    }
+  }
+
+  .mat-card-header {
+    &.primary-color {
+      background-color: rgba($primary-color, 1);
+    }
+  }
+}

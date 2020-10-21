@@ -1,0 +1,47 @@
+@import '~@angular/material/theming';
+
+@mixin mat-icon-styling($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+
+  $primary-color: mat-color($primary);
+  $accent-color: mat-color($accent);
+  $warn-color: mat-color($warn);
+
+  $disabled-color: #7C7C82;
+
+  .mat-icon {
+    user-select: none;
+    border-radius: 4px;
+    text-align: center;
+
+    &.mat-primary {
+      color: $primary-color;
+      background: rgba($primary-color, 0.1);
+    }
+
+    &.mat-accent {
+      color: $accent-color;
+      background: rgba($accent-color, 0.1);
+    }
+
+    &.mat-warn {
+      color: $warn-color;
+      background: rgba($warn-color, 0.1);
+    }
+  }
+
+  .mat-button {
+    .mat-icon {
+      margin-right: 8px;
+    }
+  }
+
+  *:disabled {
+    .mat-icon {
+      color: $disabled-color;
+      background: rgba($disabled-color, 0.1);
+    }
+  }
+}

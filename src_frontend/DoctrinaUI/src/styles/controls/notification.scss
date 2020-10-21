@@ -1,0 +1,47 @@
+@import '~@angular/material/theming';
+
+@mixin notification-styling($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+  $custom: map-get($theme, custom);
+
+  $primary-color: mat-color($primary);
+  $accent-color: mat-color($accent);
+  $warn-color: mat-color($warn);
+  $warning-color: mat-color($custom, warning);
+
+  $config: mat-get-color-config($theme);
+  $is-dark-theme: map-get($config, is-dark);
+
+  .mat-snack-bar-container {
+    color: if($is-dark-theme, $light-primary-text, $dark-primary-text);
+    background: if($is-dark-theme, #7e7e7e, map-get($mat-grey, 50));
+    border-bottom: 4px solid $accent-color;
+
+    &.not-warning {
+      border-bottom-color: $warning-color;
+    }
+
+    &.not-error {
+      border-bottom-color: $warn-color;
+    }
+
+    .mat-icon {
+      &.mat-success {
+        color: $accent-color;
+        background: rgba($accent-color, 0.1);
+      }
+
+      &.mat-warning {
+        color: $warning-color;
+        background: rgba($warning-color, 0.1);
+      }
+
+      &.mat-error {
+        color: $warn-color;
+        background: rgba($warn-color, 0.1);
+      }
+    }
+  }
+}

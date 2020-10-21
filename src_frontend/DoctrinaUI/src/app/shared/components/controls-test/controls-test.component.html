@@ -1,0 +1,284 @@
+<mat-card class='card-section'>
+  <mat-card-title>Controls 💚</mat-card-title>
+  <mat-card-subtitle>Please use the next controls</mat-card-subtitle>
+  <mat-card-content>
+    <mat-accordion>
+      <section>
+        <div class="example-label">Buttons</div>
+        <div class="example-button-row">
+          <button mat-raised-button color="accent">Accent button</button>
+          <button mat-raised-button color="accent" disabled>Button</button>
+          <button mat-button color="primary">
+            <mat-icon>publish</mat-icon>Secondary button
+          </button>
+          <button mat-button color="primary">Text button</button>
+          <button mat-button color="primary" disabled>Disabled</button>
+          <button mat-button color="warn" class="hover-colored">
+            <mat-icon>invert_colors</mat-icon>Color transition button
+          </button>
+        </div>
+      </section>
+      <section>
+        <div class="example-label">Checkbox</div>
+        <div class="example-button-row">
+          <mat-checkbox color="accent">Accent</mat-checkbox>
+          <mat-checkbox color="warn" disabled>Disabled</mat-checkbox>
+        </div>
+      </section>
+      <section>
+        <div class="example-label">Radio button</div>
+        <div class="example-button-row">
+          <mat-radio-group aria-label="Select an option">
+            <mat-radio-button value="2" color="accent">Accent</mat-radio-button>
+            <mat-radio-button value="4" color="warn" disabled>Disabled</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </section>
+      <section>
+        <div class="example-label">Toggle</div>
+        <div class="example-button-row">
+          <mat-slide-toggle color="accent">Accent</mat-slide-toggle>
+          <mat-slide-toggle color="warn" (change)="onSetTheme($event)">Dark theme</mat-slide-toggle>
+          <mat-slide-toggle color="warn" disabled>Disabled</mat-slide-toggle>
+        </div>
+      </section>
+      <section>
+        <div class="example-label">Select</div>
+        <div class="example-button-row">
+          <mat-form-field appearance="outline" color="accent">
+            <mat-select color="accent" placeholder="Select one">
+              <mat-option *ngFor="let option of testOptions" [value]="option.id">{{option.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" color="accent">
+            <mat-select color="accent" placeholder="Disabled" disabled>
+              <mat-option *ngFor="let option of testOptions" [value]="option.id">{{option.name}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </section>
+      <section>
+        <div class="example-label">Input</div>
+        <div class="example-button-row">
+          <mat-form-field appearance="outline" color="accent">
+            <mat-label>Input description</mat-label>
+            <input required matInput placeholder="Email" [formControl]="email">
+            <mat-icon matSuffix>alternate_email</mat-icon>
+            <mat-hint>Required</mat-hint>
+            <mat-error *ngIf="email.hasError('required')">Password is required</mat-error>
+            <mat-error *ngIf="email.hasError('email')">Please enter a valid email</mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <input required matInput placeholder="Password" [formControl]="password">
+            <mat-hint>8 digits minimum</mat-hint>
+            <mat-error *ngIf="password.hasError('required')">Password is required</mat-error>
+            <mat-error *ngIf="password.hasError('minlength')">Minimum password length is 8 characters</mat-error>
+          </mat-form-field>
+        </div>
+      </section>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            All available controls 🔘✅❎
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <section>
+          <div class="example-label">Basic</div>
+          <div class="example-button-row">
+            <button mat-button>Basic</button>
+            <button mat-button color="primary">Primary</button>
+            <button mat-button color="accent">Accent</button>
+            <button mat-button color="warn">Warn</button>
+            <button mat-button disabled>Disabled</button>
+            <a mat-button href="https://www.google.com/" target="_blank">Link</a>
+          </div>
+        </section>
+        <mat-divider></mat-divider>
+        <section>
+          <div class="example-label">Raised</div>
+          <div class="example-button-row">
+            <button mat-raised-button>Basic</button>
+            <button mat-raised-button color="primary">Primary</button>
+            <button mat-raised-button color="accent">Accent</button>
+            <button mat-raised-button color="warn">Warn</button>
+            <button mat-raised-button disabled>Disabled</button>
+            <a mat-raised-button href="https://www.google.com/" target="_blank">Link</a>
+          </div>
+        </section>
+        <mat-divider></mat-divider>
+        <section>
+          <div class="example-label">Stroked</div>
+          <div class="example-button-row">
+            <button mat-stroked-button>Basic</button>
+            <button mat-stroked-button color="primary">Primary</button>
+            <button mat-stroked-button color="accent">Accent</button>
+            <button mat-stroked-button color="warn">Warn</button>
+            <button mat-stroked-button disabled>Disabled</button>
+            <a mat-stroked-button href="https://www.google.com/" target="_blank">Link</a>
+          </div>
+        </section>
+        <mat-divider></mat-divider>
+        <section>
+          <div class="example-label">Secondary button</div>
+          <div class="example-button-row">
+            <button mat-flat-button>
+              <mat-icon>publish</mat-icon>Basic
+            </button>
+            <button mat-flat-button color="primary">
+              <mat-icon>publish</mat-icon>Primary
+            </button>
+            <button mat-flat-button color="accent">
+              <mat-icon>publish</mat-icon>Accent
+            </button>
+            <button mat-flat-button color="warn">
+              <mat-icon>publish</mat-icon>Warn
+            </button>
+            <button mat-flat-button disabled>
+              <mat-icon>publish</mat-icon>Disabled
+            </button>
+            <a mat-flat-button href="https://www.google.com/" target="_blank">
+              <mat-icon>publish</mat-icon>Link
+            </a>
+          </div>
+        </section>
+        <mat-divider></mat-divider>
+        <section>
+          <div class="example-label">Flat</div>
+          <div class="example-button-row">
+            <button mat-flat-button>Basic</button>
+            <button mat-flat-button color="primary">Primary</button>
+            <button mat-flat-button color="accent">Accent</button>
+            <button mat-flat-button color="warn">Warn</button>
+            <button mat-flat-button disabled>Disabled</button>
+            <a mat-flat-button href="https://www.google.com/" target="_blank">Link</a>
+          </div>
+        </section>
+        <mat-divider></mat-divider>
+        <section>
+          <div class="example-label">Icon</div>
+          <div class="example-button-row">
+            <div class="example-flex-container">
+              <button mat-icon-button aria-label="Example icon button with a vertical three dot icon">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" aria-label="Example icon button with a home icon">
+                <mat-icon>home</mat-icon>
+              </button>
+              <button mat-icon-button color="accent" aria-label="Example icon button with a menu icon">
+                <mat-icon>menu</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" aria-label="Example icon button with a heart icon">
+                <mat-icon>favorite</mat-icon>
+              </button>
+              <button mat-icon-button disabled aria-label="Example icon button with a open in new tab icon">
+                <mat-icon>open_in_new</mat-icon>
+              </button>
+            </div>
+          </div>
+        </section>
+        <mat-divider></mat-divider>
+        <section>
+          <div class="example-label">FAB</div>
+          <div class="example-button-row">
+            <div class="example-flex-container">
+              <div class="example-button-container">
+                <button mat-fab color="primary" aria-label="Example icon button with a delete icon">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+              <div class="example-button-container">
+                <button mat-fab color="accent" aria-label="Example icon button with a bookmark icon">
+                  <mat-icon>bookmark</mat-icon>
+                </button>
+              </div>
+              <div class="example-button-container">
+                <button mat-fab color="warn" aria-label="Example icon button with a home icon">
+                  <mat-icon>home</mat-icon>
+                </button>
+              </div>
+              <div class="example-button-container">
+                <button mat-fab disabled aria-label="Example icon button with a heart icon">
+                  <mat-icon>favorite</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <mat-divider></mat-divider>
+        <section>
+          <div class="example-label">Mini FAB</div>
+          <div class="example-button-row">
+            <div class="example-flex-container">
+              <div class="example-button-container">
+                <button mat-mini-fab color="primary" aria-label="Example icon button with a menu icon">
+                  <mat-icon>menu</mat-icon>
+                </button>
+              </div>
+              <div class="example-button-container">
+                <button mat-mini-fab color="accent" aria-label="Example icon button with a plus one icon">
+                  <mat-icon>plus_one</mat-icon>
+                </button>
+              </div>
+              <div class="example-button-container">
+                <button mat-mini-fab color="warn" aria-label="Example icon button with a filter list icon">
+                  <mat-icon>filter_list</mat-icon>
+                </button>
+              </div>
+              <div class="example-button-container">
+                <button mat-mini-fab disabled aria-label="Example icon button with a home icon">
+                  <mat-icon>home</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <mat-divider></mat-divider>
+        <section>
+          <div class="example-label">Checkbox</div>
+          <div class="example-button-row">
+            <mat-checkbox color="primary">Primary</mat-checkbox>
+            <mat-checkbox color="accent">Accent</mat-checkbox>
+            <mat-checkbox color="warn">Warn</mat-checkbox>
+            <mat-checkbox color="warn" disabled>Disabled</mat-checkbox>
+          </div>
+        </section>
+        <mat-divider></mat-divider>
+        <section>
+          <div class="example-label">Radio button</div>
+          <div class="example-button-row">
+            <mat-radio-group aria-label="Select an option">
+              <mat-radio-button value="1" color="primary">Primary</mat-radio-button>
+              <mat-radio-button value="2" color="accent">Accent</mat-radio-button>
+              <mat-radio-button value="3" color="warn">Warn</mat-radio-button>
+              <mat-radio-button value="4" color="warn" disabled>Disabled</mat-radio-button>
+            </mat-radio-group>
+          </div>
+        </section>
+        <mat-divider></mat-divider>
+        <section>
+          <div class="example-label">Toggle</div>
+          <div class="example-button-row">
+            <mat-slide-toggle color="primary">Primary</mat-slide-toggle>
+            <mat-slide-toggle color="accent">Accent</mat-slide-toggle>
+            <mat-slide-toggle color="warn">Warn</mat-slide-toggle>
+            <mat-slide-toggle color="warn" disabled>Disabled</mat-slide-toggle>
+          </div>
+        </section>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class='card-section'>
+  <mat-card-title>Typography 🔤</mat-card-title>
+  <mat-card-subtitle>Please use the next fonts</mat-card-subtitle>
+  <mat-card-content class="typography">
+    H1: <h1>Food Grade Non-GMO Waxy Yellow</h1>
+    H2: <h2>Food Grade Non-GMO Waxy Yellow</h2>
+    H3: <h3>Food Grade Non-GMO Waxy Yellow</h3>
+    H4: <h4>Food Grade Non-GMO Waxy Yellow</h4>
+    Body 1: <div class="mat-body-1">Food Grade Non-GMO Waxy Yellow</div>
+    Body 2: <div class="mat-body-2">Food Grade Non-GMO Waxy Yellow</div>
+    Caption: <div class="mat-body-2">Food Grade Non-GMO Waxy Yellow</div>
+  </mat-card-content>
+</mat-card>

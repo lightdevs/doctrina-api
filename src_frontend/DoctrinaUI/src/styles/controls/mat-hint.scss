@@ -1,0 +1,7 @@
+@import '~@angular/material/theming';
+
+@mixin mat-hint-styling($theme) {
+  .mat-hint {
+    text-align: center;
+  }
+}

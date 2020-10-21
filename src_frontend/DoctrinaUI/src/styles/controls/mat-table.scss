@@ -1,0 +1,63 @@
+@import "~@angular/material/theming";
+
+@mixin mat-table-styling($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+
+  $primary-color: mat-color($primary);
+  $accent-color: mat-color($accent);
+  $warn-color: mat-color($warn);
+
+  .mat-table {
+    transition: none !important;
+    box-shadow: none !important;
+
+    .mat-row {
+      &:hover {
+        background-color: rgba($accent-color, 0.1);
+        cursor: pointer;
+      }
+
+      &.selected {
+        background-color: rgba($accent-color, 0.2);
+
+        &.editing.ng-invalid {
+          background-color: rgba($warn-color, 0.2);
+        }
+      }
+    }
+
+    .mat-form-field-wrapper {
+      .mat-form-field-infix {
+        padding: 0.5em 0;
+      }
+    }
+
+    .mat-form-field-appearance-outline .mat-form-field-wrapper {
+      margin: 0;
+    }
+
+    .mat-icon-button {
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+
+      box-sizing: content-box;
+
+      .mat-icon {
+        font-size: 18px;
+      }
+    }
+
+    .mat-form-field-appearance-outline {
+      .mat-form-field-outline-start {
+        border-radius: 2px 0 0 2px;
+      }
+
+      .mat-form-field-outline-end {
+        border-radius: 0 2px 2px 0;
+      }
+    }
+  }
+}

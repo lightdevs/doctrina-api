@@ -1,0 +1,48 @@
+.card-section {
+  margin: 3% 10%;
+  padding: 2% 5%;
+}
+
+section {
+  display: table;
+}
+
+.example-button-row .mat-form-field {
+  width: auto;
+}
+
+mat-accordion {
+
+  &>section,
+  & .mat-radio-group>* {
+    margin-bottom: 0;
+  }
+}
+
+.example-label {
+  display: table-cell;
+  font-size: 14px;
+  margin-left: 8px;
+  min-width: 120px;
+}
+
+.example-button-row {
+  display: table-cell;
+}
+
+.example-button-row>*,
+.mat-radio-group>* {
+  margin: 16px 8px 16px 0;
+}
+
+.example-flex-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.example-button-container {
+  display: flex;
+  justify-content: center;
+  width: 120px;
+}

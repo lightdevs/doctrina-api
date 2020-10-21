@@ -1,0 +1,28 @@
+@import '~@angular/material/theming';
+@import 'controls/button.scss';
+@import 'controls/mat-icon.scss';
+@import 'controls/mat-tab.scss';
+@import 'controls/mat-table.scss';
+@import 'controls/mat-hint.scss';
+@import 'controls/input.scss';
+@import 'controls/text.scss';
+@import 'controls/mat-toolbar.scss';
+@import 'controls/mat-paginator.scss';
+@import 'controls/notification.scss';
+@import 'controls/mat-card.scss';
+@import 'controls/mat-list.scss';
+
+@mixin initialize-styling($theme) {
+    @include button-styling($theme);
+    @include mat-icon-styling($theme);
+    @include mat-tab-styling($theme);
+    @include mat-table-styling($theme);
+    @include mat-toolbar-styling($theme);
+    @include mat-hint-styling($theme);
+    @include input-styling($theme);
+    @include text-styling($theme);
+    @include mat-paginator-styling($theme);
+    @include notification-styling($theme);
+    @include mat-card-styling($theme);
+    @include mat-list-styling($theme);
+}

@@ -1,0 +1,22 @@
+@import '~@angular/material/theming';
+
+@mixin mat-toolbar-styling($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+  $background-palette: map-get($theme, foreground);
+  $text-color: mat-color($background-palette, text);
+
+  .mat-toolbar {
+    &.mat-accent {
+      color: mat-color($accent, 50);
+      background-color: mat-color($accent, 50);
+      // background-color: #0D5D56 ;
+    }
+
+    &.mat-primary {
+      background-color: rgba(mat-color($primary, default), 0.2);
+      color: $text-color;
+    }
+  }
+}

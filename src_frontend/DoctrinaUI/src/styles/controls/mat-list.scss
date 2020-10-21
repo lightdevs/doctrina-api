@@ -1,0 +1,23 @@
+@import '~@angular/material/theming';
+
+@mixin mat-list-styling($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+  $background-palette: map-get($theme, foreground);
+  $text-color: mat-color($background-palette, text);
+
+  .mat-list {
+      .mat-list-item {
+        &.primary-color {
+            color: mat-color($accent, 50);
+            background-color: mat-color($accent, 50);
+          }
+      
+          &.primary-color{
+            background-color: rgba(mat-color($primary, default), 0.2);
+            color: $text-color;
+          }
+      }
+  }
+}

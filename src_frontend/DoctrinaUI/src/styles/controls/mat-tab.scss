@@ -1,0 +1,63 @@
+@import '~@angular/material/theming';
+
+@mixin mat-tab-styling($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+  $background: map-get($theme, background);
+  $foreground: map-get($theme, foreground);
+
+  $primary-color: mat-color($primary);
+  $accent-color: mat-color($accent);
+  $warn-color: mat-color($warn);
+
+  $text-color: mat-color($foreground, text);
+
+  .mat-tab-header:not(.vertical) {
+    background: mat-color($background);
+    color: $text-color;
+    text-transform: uppercase;
+  }
+
+  .mat-tab-group {
+    height: 100%;
+
+    .mat-tab-body-wrapper {
+      height: 100%;
+
+      .mat-drawer-container {
+        height: 100%;
+      }
+    }
+  }
+
+  .mat-tab-nav-bar.vertical {
+
+    .mat-tab-links {
+      flex-direction: column;
+
+      &>a {
+        text-transform: none;
+        justify-content: left;
+        height: 34px;
+        color: $text-color;
+        border-radius: 0;
+
+        &.active {
+          border-left: 4px solid $accent-color;
+          background-color: rgba($accent-color, 0.1);
+          color: $accent-color;
+        }
+
+        &:hover {
+          text-decoration: none;
+          background-color: rgba($accent-color, 0.05);
+        }
+      }
+    }
+
+    .mat-ink-bar {
+      display: none;
+    }
+  }
+}

@@ -1,0 +1,29 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="form-group pt-3">
+        <mat-form-field appearance="outline">
+            <mat-label> Email </mat-label>
+            <input matInput formControlName="email"/>
+            <mat-error *ngIf="loginForm.get('email').hasError('email')">
+                Invalid email address. Valid e-mail can contain only latin letters, numbers, '@' and '.'.
+            </mat-error>
+            <mat-error *ngIf="loginForm.get('email').hasError('required')">
+                Email is required
+            </mat-error>
+        </mat-form-field>
+    </div>
+    <div class="form-group pt-3">
+        <mat-form-field appearance="outline">
+            <mat-label> Password </mat-label>
+            <input matInput type="password" formControlName="password" autocomplete="on"/>
+            <mat-error *ngIf="loginForm.get('password').hasError('required')">
+                Password is required
+            </mat-error>
+        </mat-form-field>
+    </div>
+    <div class="form-group pt-2 pb-2 text-center">
+        <button mat-raised-button color="accent" type="submit" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+            Sign In
+        </button>
+    </div>
+</form>
