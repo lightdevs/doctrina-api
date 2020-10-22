@@ -11,9 +11,8 @@ export const resolvers = {
       courses: () => Course.find(),
       persons: () => Person.find(),
       me: (parent, args, context, info) => {
-        console.log(context);
         if (context.loggedIn) {
-            return context.person
+            return context.payload.payload;
         } else {
             throw new Error("Please Login Again!");
       }

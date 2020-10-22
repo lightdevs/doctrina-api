@@ -13,9 +13,8 @@ const startServer = async () => {
 
     const server = new ApolloServer({ typeDefs, resolvers, context: ({ req }) => {
         const token = req.headers.authorization || '';
-        const { payload: person, loggedIn } = utils.getPayload(token);
-        //console.log(...utils.getPayload(token));    
-        return { person, loggedIn };
+        const { payload, loggedIn } = utils.getPayload(token);
+        return { payload, loggedIn };
       }});
 
     server.applyMiddleware({app});
