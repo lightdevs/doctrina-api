@@ -1,12 +1,11 @@
-import { Kind } from 'graphql/language';
-import { GraphQLScalarType } from 'graphql';
-import mongoose from 'mongoose';
-import utils from './utils';
+const {Kind} = require('graphql/language');
+const {GraphQLScalarType} = require('graphql');
+const utils = require('./utils');
+const Course = require('./models/course');
+const Person = require('./models/person');
 
-import Course from './models/course'
-import Person from './models/person'
 
-export const resolvers = {
+module.exports = {
     Query: {
       courses: () => Course.find(),
       persons: () => Person.find(),
@@ -26,7 +25,7 @@ export const resolvers = {
         },
 
         register: async (_, {email, name, password, accountType}) => {
-  
+
           // Creating user Object from the arguments with password encryption
           const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, accountType: accountType };
            // Get user document from 'user' collection.

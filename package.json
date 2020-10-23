@@ -4,8 +4,8 @@
   "description": "task management system for distance learning",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon --exec babel-node app.js",
-    "dev": "nodemon app.js"
+    "start": "node --exec babel-node app.js",
+    "dev": "nodemon --exec babel-node app.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,7 @@
     "@babel/node": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "apollo-server": "^2.18.2",
+    "apollo-server-express": "^2.18.2",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
