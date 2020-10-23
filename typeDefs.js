@@ -29,6 +29,10 @@ type Person {
     token: String
 }
 
+type MutationResult {
+    affectedRows: Int!
+}
+
 type Query {
     courses: [Course!]
     persons: [Person!]
@@ -42,8 +46,13 @@ type Mutation {
     dateStart: Date,
     dateEnd: Date,
     maxMark: Int,
-    teacher: ID!,
+    teacher: String!,
     ) : Course!
+
+    deleteCourse(
+    title:String!,
+    teacher: String
+    ) : MutationResult!
 
     register(email: String!, name: String!, password: String!, accountType: String!): Person!
     login(email: String!, name: String!, password: String!, accountType: String!): Person

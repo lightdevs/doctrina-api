@@ -23,6 +23,10 @@ module.exports = {
             await course.save();
             return course;
         },
+        deleteCourse: async (_, {title, teacher}) => {
+          const res = await Course.remove({ title: title });
+          return {affectedRows: res.deletedCount}; 
+        },
 
         register: async (_, {email, name, password, accountType}) => {
 
