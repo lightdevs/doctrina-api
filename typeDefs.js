@@ -55,6 +55,6 @@ type Mutation {
     ) : MutationResult!
 
     register(email: String!, name: String!, password: String!, accountType: String!): Person!
-    login(email: String!, name: String!, password: String!, accountType: String!): Person
+    login(email: String!, password: String!): Person
 }
 `;
