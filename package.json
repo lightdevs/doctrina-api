@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "start": "node --exec babel-node app.js",
-    "dev": "nodemon --exec babel-node app.js"
+    "server": "nodemon --exec babel-node app.js",
+    "client": "npm run start --prefix doctrina-ui",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "repository": {
     "type": "git",
@@ -39,6 +41,7 @@
     "mongoose": "^5.10.9"
   },
   "devDependencies": {
+    "concurrently": "^5.3.0",
     "nodemon": "^2.0.5"
   }
 }
