@@ -12,7 +12,7 @@ const courseSchema = new mongoose.Schema(
         },
         dateStart: {
             type: Date,
-            required: true,
+            required: false,
         },
         dateEnd: {
             type: Date,
@@ -20,7 +20,7 @@ const courseSchema = new mongoose.Schema(
         },
         maxMark: {
             type: Number,
-            required: true,
+            required: false,
         },
         teacher: {
             type: mongoose.Schema.Types.ObjectId,
