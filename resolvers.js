@@ -18,14 +18,36 @@ module.exports = {
      }
     },
     Mutation: {
-        createCourse: async (_,{title, description, dateStart, dateEnd, maxMark, teacher}) => {
-            const course = new Course({title, description, dateStart, dateEnd, maxMark, teacher});
+        createCourse: async (_,{title, description, dateStart, dateEnd, maxMark}, context) => {
+          if (context.loggedIn) {
+          const author = context.payload.payload._id;
+            const course = new Course({title, description, dateStart, dateEnd, maxMark, teacher : author});
             await course.save();
             return course;
+          } else {
+            throw new Error("Unauthorized 401");
+          }
         },
-        deleteCourse: async (_, {title, teacher}) => {
-          const res = await Course.remove({ title: title });
+        deleteCourse: async (_, {id}, context) => {
+          const course = await Course.findById(id);
+          if(course == null)  throw new Error("Course not found 404");
+          if (context.loggedIn && course.teacher == context.payload.payload._id ) {
+          const res = await Course.remove({ _id: id });
           return {affectedRows: res.deletedCount}; 
+        } else {
+            throw new Error("Unauthorized 401");
+          }   
+        },
+
+        updateCourse: async (_, args, context, __) => {
+          const course = await Course.findById(args.id);
+          if(course == null)  throw new Error("Course not found 404");
+          if (context.loggedIn && course.teacher == context.payload.payload._id ) {
+          const newCourse = await Course.findOneAndUpdate({_id : args.id}, args, {new : true});
+          return newCourse; 
+        } else {
+            throw new Error("Unauthorized 401");
+          }   
         },
 
         register: async (_, {email, name, password, accountType}) => {

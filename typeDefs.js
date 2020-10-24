@@ -5,7 +5,7 @@ module.exports = gql`
 scalar Date
 
 type Course {
-    id: ID!
+    _id: ID!
     title:String!
     description:String
     dateStart: Date
@@ -15,7 +15,7 @@ type Course {
 }
 
 type Person {
-    id: ID!
+    _id: ID!
     email: String!
     name: String!
     surname: String
@@ -45,14 +45,21 @@ type Mutation {
     description:String,
     dateStart: Date,
     dateEnd: Date,
-    maxMark: Int,
-    teacher: String!,
+    maxMark: Int
     ) : Course!
 
     deleteCourse(
-    title:String!,
-    teacher: String
+    id: ID!
     ) : MutationResult!
+
+    updateCourse(
+    id: ID!
+    title:String
+    description:String
+    dateStart: Date
+    dateEnd: Date
+    maxMark: Int
+    teacher: ID) : Course!
 
     register(email: String!, name: String!, password: String!, accountType: String!): Person!
     login(email: String!, password: String!): Person
