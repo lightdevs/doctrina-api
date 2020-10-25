@@ -15,6 +15,11 @@ const routes: Routes = [
       import('./features/authentication/authentication.module').then(m => m.AuthenticationModule)
   },
   { path: 'control', component: ControlsTestComponent },
+  {
+    path: 'courses',
+    loadChildren: () =>
+      import('./features/courses/courses.module').then(m => m.CoursesModule)
+  },
 ];
 
 @NgModule({
