@@ -49,7 +49,7 @@ export class SignInComponent implements OnInit, OnDestroy {
 
   clearForm(): void {
     this.loginForm.reset();
-    console.log('hi')
+    console.log('hi');
   }
 
   get fields() { return this.loginForm.controls; }
