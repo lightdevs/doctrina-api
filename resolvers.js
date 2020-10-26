@@ -4,6 +4,13 @@ const utils = require('./utils');
 const Course = require('./models/course');
 const Person = require('./models/person');
 
+function passCheck(info) {
+  for(let field of info.operation.selectionSet.selections[0].selectionSet.selections) {
+    if(field.name.value == "password") {
+      throw new Error("Password must not be transmitted");
+    }
+  }
+}
 
 module.exports = {
     Query: {
@@ -11,7 +18,8 @@ module.exports = {
       persons: () => Person.find(),
       me: (parent, args, context, info) => {
         if (context.loggedIn) {
-            return context.payload.payload;
+          passCheck(info);
+          return context.payload.payload;
         } else {
             throw new Error("Please Login Again!");
       }
@@ -50,7 +58,7 @@ module.exports = {
           }   
         },
 
-        register: async (_, {email, name, password, accountType}) => {
+        register: async (_, {email, name, password, accountType},__,info) => {
 
           // Creating user Object from the arguments with password encryption
           const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, accountType: accountType };
