@@ -1,24 +1,15 @@
 import { environment } from '../../../environments/environment.prod';
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import * as jwt_decode from 'jwt-decode';
-import { IUser } from 'src/app/core/interfaces/user.interface';
+import { IRegistrationForm, IUser, IUserInfo } from 'src/app/core/interfaces/user.interface';
+import { Apollo, ApolloBase, gql } from 'apollo-angular';
 
-const getTokenValue = (): IUser => {
-  const tokenValue = JSON.parse(localStorage.getItem('currentUser'));
-  if (tokenValue !== null) {
-    const model = jwt_decode(tokenValue?.token);
-    const userValue = {
-      id: model.id,
-      rw_role: model.rw_role,
-      name: model.name,
-      token: tokenValue.token
-    };
-    return userValue;
-  }
-  return tokenValue;
+const getTokenValue = (): any => {
+  const user = JSON.parse(localStorage.getItem('currentUser'));
+  return user;
 };
 
 @Injectable({
@@ -26,40 +17,68 @@ const getTokenValue = (): IUser => {
 })
 export class AuthenticationService {
 
-    private currentUserSubject: BehaviorSubject<IUser>;
-    public currentUser: Observable<IUser>;
-    constructor(private http: HttpClient) {
-      this.currentUserSubject = new BehaviorSubject<IUser>(getTokenValue());
-      this.currentUser = this.currentUserSubject.asObservable();
-    }
+  private currentUserSubject: BehaviorSubject<IUser>;
+  public currentUser: Observable<IUser>;
+  constructor(private apollo: Apollo) {
+    this.currentUserSubject = new BehaviorSubject<IUser>(getTokenValue());
+    this.currentUser = this.currentUserSubject.asObservable();
+  }
 
-    public get currentUserValue() {
-      return this.currentUserSubject.value;
-    }
+  public get currentUserValue() {
+    return this.currentUserSubject.value;
+  }
 
-    login(form): Observable<any> {
-      return this.http.post<any>(environment.apiUrl + `/Account/SignIn`, form.value)
-      .pipe(map(user => {
-        if (user && user.token) {
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            const userValue = getTokenValue();
-            this.currentUserSubject.next(userValue);
+  login(form): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+        mutation login($email: String!, $password: String!) {
+          login(email: $email, password: $password) {
+            email
+            name
+            surname
+            country
+            city
+            institution
+            accountType
+            token
+          }
         }
-        return user;
-      }));
-    }
+      `,
+      variables: {
+        ...form
+      },
+    }).pipe(map((res: any) => {
+      console.log(res?.data);
+      if (res?.data?.login && res?.data?.login?.token) {
+          localStorage.setItem('currentUser', JSON.stringify(res?.data?.login));
+          this.currentUserSubject.next(res?.data?.login);
+      }
+      return res?.data?.login;
+    }));
+  }
 
-    logout() {
-      localStorage.removeItem('currentUser');
-      this.currentUserSubject.next(null);
-    }
+  logout() {
+    localStorage.removeItem('currentUser');
+    this.currentUserSubject.next(null);
+  }
 
-    getToken() {
-      return localStorage.getItem('currentUser');
-    }
+  getToken() {
+    return localStorage.getItem('currentUser');
+  }
 
-    registration(form) {
-      return this.http.post<any>(environment.apiUrl + `/Account/SignUp`, form);
-    }
+  registration(form: IRegistrationForm): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+        mutation register($email: String!, $name: String!, $password: String!, $accountType: String!) {
+          register(email: $email, name: $name, password: $password, accountType: $accountType) {
+            _id
+          }
+        }
+      `,
+      variables: {
+        ...form
+      },
+    });
+  }
 }
 

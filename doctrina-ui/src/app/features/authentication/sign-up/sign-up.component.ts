@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { FormGroup, FormBuilder, Validators, FormGroupDirective } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
@@ -17,6 +17,9 @@ import { AuthenticationService } from '../authentication.service';
   styleUrls: ['./sign-up.component.scss']
 })
 export class SignUpComponent implements OnInit, OnDestroy {
+
+  @Output() openSignIn = new EventEmitter<any>();
+  @ViewChild(FormGroupDirective) formDirective: FormGroupDirective;
 
   createUserAccountForm: FormGroup;
   loading = false;
@@ -52,14 +55,14 @@ export class SignUpComponent implements OnInit, OnDestroy {
   createUserAccount(): void {
     this.authService.registration(
       {
-        role: 'Owner',
         ...this.createUserAccountForm.value
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe(
         () => {
-          this.router.navigate(['/auth']);
+          this.clearForm();
           this.toastr.success(this.message.ACCOUNT_CREATED, toastrTitle.Success);
+          this.openSignIn.next(null);
         },
         () => {
           this.toastr.error(this.message.SOMETHING_IS_WRONG, toastrTitle.Error);
@@ -69,20 +72,16 @@ export class SignUpComponent implements OnInit, OnDestroy {
 
   createForm(): void  {
     this.createUserAccountForm = this.formBuilder.group({
-      firstName: [null, Validators.required],
-      lastName: [null, Validators.required],
+      name: [null, Validators.required],
       email: [null, [Validators.required, Validators.email]],
       password: [null, Validators.required],
-      confirmPassword: ['', Validators.required],
-      isTeacher: false,
-    }, {
-      validator: MustMatch('password', 'confirmPassword')
+      accountType: 'Student',
     });
   }
 
   clearForm(): void {
-    this.createUserAccountForm.reset();
-    this.createUserAccountForm.get('isTeacher').setValue(false);
+    this.formDirective.resetForm();
+    this.createUserAccountForm.get('accountType').setValue('Student');
   }
 
   ngOnDestroy(): void {

@@ -41,15 +41,14 @@ export class SignInComponent implements OnInit, OnDestroy {
   generateForm() {
     this.loginForm = this.formBuilder.group(
       {
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', Validators.required]
+        email: [null, [Validators.required, Validators.email]],
+        password: [null, Validators.required]
       }
     );
   }
 
   clearForm(): void {
     this.loginForm.reset();
-    console.log('hi')
   }
 
   get fields() { return this.loginForm.controls; }
@@ -57,18 +56,21 @@ export class SignInComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.loginForm.valid) {
     this.loading = true;
-    this.authenticationService.login(this.loginForm)
+    console.log(this.loginForm.value)
+    this.authenticationService.login({
+      ...this.loginForm.value
+    })
     .pipe(
       finalize(() => {
         this.loading = false;
-      }),
-      first())
+      }))
     .subscribe(
         () => {
           this.toastr.success(this.message.LOGGED_IN, toastrTitle.Success);
-          this.router.navigate(['/']);
+          this.router.navigateByUrl(this.returnUrl);
         },
-        () => {
+        err => {
+          console.log(err);
           this.toastr.error(this.message.SOMETHING_IS_WRONG, toastrTitle.Error);
         });
     } else {

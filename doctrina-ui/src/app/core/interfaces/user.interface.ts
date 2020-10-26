@@ -13,7 +13,18 @@ export interface IAssignUser {
 
 export interface IUserInfo {
     email: string;
-    roles: any;
-    userName: string;
-    id: number;
+    name: string;
+    surname: string;
+    country: string;
+    city: string;
+    institution: string;
+    accountType: string;
+    token: string;
+}
+
+export interface IRegistrationForm {
+  email: string;
+  name: string;
+  password: string;
+  accountType: string;
 }

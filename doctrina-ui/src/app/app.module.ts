@@ -8,6 +8,10 @@ import { RouterModule } from '@angular/router';
 import { Interceptor } from './core/interceptor/interceptor';
 import { SharedModule } from './shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { GraphQLModule } from './graphql.module';
+import {APOLLO_OPTIONS} from 'apollo-angular';
+import {HttpLink} from 'apollo-angular/http';
+import {InMemoryCache} from '@apollo/client/core';
 
 
 @NgModule({
@@ -21,9 +25,22 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserAnimationsModule,
     HttpClientModule,
     SharedModule.forRoot(),
+    GraphQLModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: Interceptor, multi: true },
+      {
+        provide: APOLLO_OPTIONS,
+        useFactory: (httpLink: HttpLink) => {
+          return {
+            cache: new InMemoryCache(),
+            link: httpLink.create({
+              uri: 'http://localhost:5000/graphql',
+            }),
+          };
+        },
+        deps: [HttpLink],
+      },
   ],
   bootstrap: [AppComponent]
 })

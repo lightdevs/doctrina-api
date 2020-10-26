@@ -22,7 +22,7 @@
     text-transform: uppercase;
 
     &.mat-raised-button {
-      border-radius: 50px;
+      border-radius: 15px;
       padding: 5px 30px;
 
       &:not([disabled]):not([class*=mat-elevation-z]) {
