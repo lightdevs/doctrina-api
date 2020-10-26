@@ -48,3 +48,41 @@ mat-form-field.mat-form-field {
 .mat-tab-body-content {
   overflow: hidden !important;
 }
+
+
+.search-input-form-field {
+  flex-grow: 4;
+
+  .mat-form-field-appearance-outline .mat-form-field-outline {
+    top: 0;
+  }
+
+  .mat-form-field-wrapper {
+    padding: 0;
+    border-radius: 5px;
+
+    .mat-form-field-infix {
+      padding: 5px 0;
+      border: none;
+    }
+
+    .mat-form-field-prefix,
+    .mat-form-field-suffix {
+      align-self: center;
+      top: 3px;
+
+      .mat-icon {
+        user-select: none;
+
+        &.close-button {
+          cursor: pointer;
+        }
+      }
+    }
+
+    input {
+      margin-top: 0.25em;
+      line-height: 30px;
+    }
+  }
+}

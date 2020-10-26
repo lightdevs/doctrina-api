@@ -18,5 +18,10 @@
       background-color: rgba(mat-color($primary, default), 0.2);
       color: $text-color;
     }
+
+    &.dark {
+      background-color: #2B3137;
+      color: white;
+    }
   }
 }

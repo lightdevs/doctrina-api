@@ -14,6 +14,8 @@ import {HttpLink} from 'apollo-angular/http';
 import {InMemoryCache} from '@apollo/client/core';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
+import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
+import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 
 
 @NgModule({
@@ -30,6 +32,8 @@ import { FooterComponent } from './footer/footer.component';
     HttpClientModule,
     SharedModule.forRoot(),
     GraphQLModule,
+    LoadingBarHttpClientModule,
+    LoadingBarRouterModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: Interceptor, multi: true },

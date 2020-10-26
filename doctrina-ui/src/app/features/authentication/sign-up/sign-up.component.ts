@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Message } from 'src/app/core/extension/messages';
 import { configureToastr, MustMatch, toastrTitle } from 'src/app/core/helpers';
-import { IUser } from 'src/app/core/interfaces/user.interface';
+import { IUserInfo } from 'src/app/core/interfaces/user.interface';
 import { AuthenticationService } from '../authentication.service';
 
 
@@ -24,7 +24,7 @@ export class SignUpComponent implements OnInit, OnDestroy {
   createUserAccountForm: FormGroup;
   loading = false;
   message = Message;
-  currentUser: IUser;
+  currentUser: IUserInfo;
 
   private destroy$ = new Subject<void>();
   constructor(private formBuilder: FormBuilder,

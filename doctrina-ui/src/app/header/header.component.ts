@@ -1,4 +1,7 @@
+import { IUserInfo } from './../core/interfaces/user.interface';
+import { AuthenticationService } from './../features/authentication/authentication.service';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -7,9 +10,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HeaderComponent implements OnInit {
 
-  constructor() { }
+  currentUser: IUserInfo;
+  constructor(private authService: AuthenticationService, private router: Router) {
+    authService.currentUser.subscribe( x => this.currentUser = x);
+  }
 
   ngOnInit(): void {
+  }
+
+  onSearch(value: string): void {
+
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/']);
   }
 
 }

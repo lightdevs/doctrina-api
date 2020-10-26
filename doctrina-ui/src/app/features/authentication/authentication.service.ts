@@ -4,7 +4,7 @@ import { Observable, BehaviorSubject, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import * as jwt_decode from 'jwt-decode';
-import { IRegistrationForm, IUser, IUserInfo } from 'src/app/core/interfaces/user.interface';
+import { IRegistrationForm, IUserInfo } from 'src/app/core/interfaces/user.interface';
 import { Apollo, ApolloBase, gql } from 'apollo-angular';
 
 const getTokenValue = (): any => {
@@ -17,10 +17,10 @@ const getTokenValue = (): any => {
 })
 export class AuthenticationService {
 
-  private currentUserSubject: BehaviorSubject<IUser>;
-  public currentUser: Observable<IUser>;
+  private currentUserSubject: BehaviorSubject<IUserInfo>;
+  public currentUser: Observable<IUserInfo>;
   constructor(private apollo: Apollo) {
-    this.currentUserSubject = new BehaviorSubject<IUser>(getTokenValue());
+    this.currentUserSubject = new BehaviorSubject<IUserInfo>(getTokenValue());
     this.currentUser = this.currentUserSubject.asObservable();
   }
 

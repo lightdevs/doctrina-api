@@ -1,3 +1,12 @@
-<app-header></app-header>
-<router-outlet></router-outlet>
-<app-footer></app-footer>
+<ngx-loading-bar color="#21c8e6" [includeSpinner]="false" height="4px"></ngx-loading-bar>
+<div class="app-wrapper">
+  <app-header *ngIf="currentUser"></app-header>
+  <div class="app-body">
+    <ng-container>
+      <div class="height-100">
+        <router-outlet></router-outlet>
+      </div>
+    </ng-container>
+  </div>
+</div>
+

@@ -1,20 +1,12 @@
 
 
 <div class="d-flex justify-content-center" style="overflow: hidden;">
-  <div class="button-row">
-    <button mat-raised-button>
-      Sign Up
-    </button>
-    <button mat-raised-button>
-      Sign In
-    </button>
-  </div>
   <mat-card style="overflow: hidden;" class="mt-5">
     <mat-tab-group #tabs style="overflow: hidden;" mat-stretch-tabs (selectedTabChange)="onTabChanged()">
-      <mat-tab>
+      <mat-tab label="Sign Up">
         <app-sign-up style="overflow: hidden;"(openSignIn)="openSignIn($event)" ></app-sign-up>
       </mat-tab>
-      <mat-tab>
+      <mat-tab label="Sign In">
         <app-sign-in></app-sign-in>
       </mat-tab>
     </mat-tab-group>
