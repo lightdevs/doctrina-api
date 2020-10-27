@@ -1,2 +1,27 @@
-<p>create-course works!</p>
+<div mat-dialog-content>
+  <p>COURSE CREATION</p>
 
+  <mat-form-field appearance="fill">
+    <mat-label>title</mat-label>
+    <input matInput>
+  </mat-form-field>
+
+  <mat-form-field class="example-full-width">
+    <mat-label>date of the begining</mat-label>
+    <input matInput type="date">
+  </mat-form-field>
+
+  <mat-form-field class="example-full-width">
+    <mat-label>date of the end</mat-label>
+    <input matInput type="date">
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>description</mat-label>
+    <textarea matInput placeholder="course description"></textarea>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-flat-button color="warn" (click)="onNoClick()">No Thanks</button>
+  <button mat-flat-button color="accent" [mat-dialog-close]="data.animal" cdkFocusInitial>create</button>
+</div>
