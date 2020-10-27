@@ -1,0 +1,44 @@
+
+<mat-toolbar class="dark">
+  <a class="navbar-brand" [routerLink]="['/courses']">Doctr<b class="logo-i">i</b>na</a>
+  <div class="toolbar-spacer"></div>
+  <mat-form-field class="search-input-form-field w-auto" appearance="outline">
+    <mat-icon matPrefix>search</mat-icon>
+    <input type="text" class="search-input" #search placeholder="Search"
+           (keydown.enter)="onSearch($event.target.value)" [value]="null" matInput>
+    <mat-icon matSuffix class="close-button" [ngClass]="{'invisible': !search.value}"
+              (click)="onSearch(search.value = '')">
+      close
+    </mat-icon>
+  </mat-form-field>
+  <div class="toolbar-spacer"></div>
+  <div class="toolbar-spacer"></div>
+
+  <mat-menu #appMenu="matMenu">
+    <ng-template matMenuContent let-name="username">
+      <button mat-menu-item class="warn-color" style="text-align: center;" (click)="logout()">Log out</button>
+    </ng-template>
+  </mat-menu>
+
+  <button mat-button [matMenuTriggerFor]="appMenu">
+    <mat-icon color="primary">person</mat-icon>
+    <span class="username-label primary-color">{{ currentUser?.name }}</span>
+  </button>
+</mat-toolbar>
+<nav mat-tab-nav-bar>
+  <a mat-tab-link [routerLink]="['/courses']" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+    COURSES
+  </a>
+  <a mat-tab-link routerLinkActive #rla1="routerLinkActive" [active]="rla1.isActive">
+    SCHEDULE
+  </a>
+  <a mat-tab-link routerLinkActive #rla2="routerLinkActive" [active]="rla2.isActive">
+    TASKS
+  </a>
+  <a mat-tab-link routerLinkActive #rla3="routerLinkActive" [active]="rla3.isActive">
+    PROFILE
+  </a>
+  <a mat-tab-link [routerLink]="['/control']" routerLinkActive #rla4="routerLinkActive" [active]="rla4.isActive">
+    CONTROLS
+    GUIDELINES</a>
+</nav>

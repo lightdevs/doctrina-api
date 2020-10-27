@@ -1,0 +1,46 @@
+.logo-i {
+  color: #3ae5e5;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.mat-toolbar-action:not(:last-child) {
+  margin-right: 24px;
+}
+
+.mat-toolbar {
+  height: 74px;
+
+  &>* {
+    margin: 0 10px;
+  }
+}
+
+.logoff-button {
+  color: crimson;
+}
+
+.username-label {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.invisible {
+  visibility: hidden;
+  cursor: inherit !important;
+}
+
+.cdk-overlay-pane {
+  align-self: center;
+}
+
+.card-section {
+margin: 3% 10%;
+padding: 2% 5%;
+}
+
+a {
+text-decoration: none;
+}

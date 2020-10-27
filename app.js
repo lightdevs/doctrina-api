@@ -6,12 +6,10 @@ const resolvers = require('./resolvers');
 const config = require('./config');
 const utils = require('./utils');
 
-
-
 const startServer = async () => {
     const app = express();
 
-    const server = new ApolloServer({ typeDefs, resolvers, context: ({ req }) => {
+    const server = new ApolloServer({ typeDefs, resolvers, context: ({ req, res }) => {
         const token = req.headers.authorization || '';
         const { payload, loggedIn } = utils.getPayload(token);
         return { payload, loggedIn };
@@ -22,7 +20,7 @@ const startServer = async () => {
     await mongoose.connect(config.database, {useNewUrlParser: true, useUnifiedTopology: true});
 
     app.listen({port: config.PORT}, () => {
-        console.log(`App listening at http://localhost:${config.PORT}${server.graphqlPath}`)
+        console.log(`API runs at http://localhost:${config.PORT}${server.graphqlPath}`)
     })
 }
 
