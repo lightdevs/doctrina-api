@@ -12,6 +12,7 @@ type Course {
     dateEnd: Date
     maxMark: Int
     teacher: ID
+    students: [Person!]!
 }
 
 type Person {
@@ -37,6 +38,7 @@ type Query {
     courses: [Course!]
     persons: [Person!]
     me: Person
+    courseById(id: String!): Course
 }
 
 type Mutation {
@@ -61,7 +63,12 @@ type Mutation {
     maxMark: Int
     teacher: ID) : Course!
 
-    register(email: String!, name: String!, password: String!, accountType: String!): Person!
+    addStudent(
+        idCourse: ID!
+        idPerson: ID!
+    ) : Person
+
+    register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!
     login(email: String!, password: String!): Person
 }
 `;

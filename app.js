@@ -9,7 +9,7 @@ const utils = require('./utils');
 const startServer = async () => {
     const app = express();
 
-    const server = new ApolloServer({ typeDefs, resolvers, context: ({ req }) => {
+    const server = new ApolloServer({ typeDefs, resolvers, context: ({ req, res }) => {
         const token = req.headers.authorization || '';
         const { payload, loggedIn } = utils.getPayload(token);
         return { payload, loggedIn };
