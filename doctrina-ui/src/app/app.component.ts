@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';import { IUserInfo } from './core/interfaces/user.interface';
+import { Component } from '@angular/core';
+import { IUserInfo } from './core/interfaces/user.interface';
 import { AuthenticationService } from './features/authentication/authentication.service';
-;
 
 @Component({
   selector: 'app-root',

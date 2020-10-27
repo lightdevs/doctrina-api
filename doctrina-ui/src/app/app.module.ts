@@ -52,4 +52,8 @@ import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+
+export class AppModule {
+
+
+}
