@@ -1,0 +1,54 @@
+<form [formGroup]="createUserAccountForm" (ngSubmit)="onSubmit()">
+  <div class="form-group pt-3">
+      <mat-form-field appearance="outline">
+          <mat-label> Name </mat-label>
+          <input matInput formControlName="name"/>
+          <mat-error *ngIf="createUserAccountForm.get('name').hasError('required')">
+              Name is required
+          </mat-error>
+      </mat-form-field>
+  </div>
+  <div class="form-group pt-3">
+    <mat-form-field appearance="outline">
+      <mat-label> Surname </mat-label>
+      <input matInput formControlName="surname"/>
+      <mat-error *ngIf="createUserAccountForm.get('surname').hasError('required')">
+        Surname is required
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <div class="form-group pt-3">
+      <mat-form-field appearance="outline">
+          <mat-label> Email </mat-label>
+          <input matInput formControlName="email"/>
+          <mat-error *ngIf="createUserAccountForm.get('email').hasError('email')">
+              Invalid email address. Valid e-mail can contain only latin letters, numbers, '@' and '.'.
+          </mat-error>
+          <mat-error *ngIf="createUserAccountForm.get('email').hasError('required')">
+              Email is required
+          </mat-error>
+      </mat-form-field>
+  </div>
+  <div class="form-group pt-3">
+      <mat-form-field appearance="outline">
+          <mat-label> Password </mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="on"/>
+          <mat-error *ngIf="createUserAccountForm.get('password').hasError('required')">
+              Password is required
+          </mat-error>
+      </mat-form-field>
+  </div>
+  <div class="form-group pt-3">
+    <div class="d-flex justify-content-center">
+      <mat-button-toggle-group #group="matButtonToggleGroup"  multiple="false" formControlName='accountType'>
+        <mat-button-toggle [value]="'Student'">Student</mat-button-toggle>
+        <mat-button-toggle  [value]="'Teacher'">Teacher</mat-button-toggle>
+    </mat-button-toggle-group>
+    </div>
+  </div>
+    <div class="form-group pt-2 pb-2 text-center">
+      <button mat-raised-button color="primary" type="submit">
+          Sign Up
+      </button>
+    </div>
+</form>

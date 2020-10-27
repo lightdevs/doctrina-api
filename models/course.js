@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const {Person} = require("./person")
 
 const courseSchema = new mongoose.Schema(
     {
@@ -25,6 +26,10 @@ const courseSchema = new mongoose.Schema(
         teacher: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
+         },
+        students: {
+            type: [Person],
+            required: true
         }
     },
     { timestamps: true }
