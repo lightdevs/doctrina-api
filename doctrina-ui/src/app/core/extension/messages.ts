@@ -4,5 +4,6 @@ export enum Message {
     SPRINT_CREATED = `Sprint Created`,
     LOGGED_IN = `You are logged in!`,
     ISSUES_CREATED = `Issues Created`,
-    COMMENT_ADDED = `Comment Added`
+    COMMENT_ADDED = `Comment Added`,
+    COURSE_CREATED = `Course created`
 }

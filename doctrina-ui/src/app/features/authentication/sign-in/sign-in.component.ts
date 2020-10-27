@@ -56,7 +56,7 @@ export class SignInComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.loginForm.valid) {
     this.loading = true;
-    console.log(this.loginForm.value)
+    console.log(this.loginForm.value);
     this.authenticationService.login({
       ...this.loginForm.value
     })
