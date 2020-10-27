@@ -23,20 +23,45 @@ module.exports = {
         } else {
             throw new Error("Please Login Again!");
       }
+     },
+
+     courseById: async (_, {id}, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        const currentUser = context.payload.payload._id;
+        const course = await Course.findById(id);
+
+        let isStudent = false;
+        for(let student in course.students) {
+          if(student._id == currentUser) {
+            isStudent = true;
+            break;
+          }
+        }
+        if(currentUser == course.teacher || isStudent) {
+        return course;
+        } else {
+          throw new Error("Unauthorized 401");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
      }
     },
     Mutation: {
-        createCourse: async (_,{title, description, dateStart, dateEnd, maxMark}, context) => {
+        createCourse: async (_,{title, description, dateStart, dateEnd, maxMark, students = []}, context, info) => {
           if (context.loggedIn) {
-          const author = context.payload.payload._id;
-            const course = new Course({title, description, dateStart, dateEnd, maxMark, teacher : author});
+            passCheck(info);
+            const author = context.payload.payload._id;
+            const course = new Course({title, description, dateStart, dateEnd, maxMark, teacher : author, students: students});
             await course.save();
             return course;
           } else {
             throw new Error("Unauthorized 401");
           }
         },
-        deleteCourse: async (_, {id}, context) => {
+        deleteCourse: async (_, {id}, context,info) => {
+          passCheck(info);
           const course = await Course.findById(id);
           if(course == null)  throw new Error("Course not found 404");
           if (context.loggedIn && course.teacher == context.payload.payload._id ) {
@@ -47,7 +72,8 @@ module.exports = {
           }   
         },
 
-        updateCourse: async (_, args, context, __) => {
+        updateCourse: async (_, args, context, info) => {
+          passCheck(info);
           const course = await Course.findById(args.id);
           if(course == null)  throw new Error("Course not found 404");
           if (context.loggedIn && course.teacher == context.payload.payload._id ) {
@@ -58,10 +84,10 @@ module.exports = {
           }   
         },
 
-        register: async (_, {email, name, password, accountType},__,info) => {
+        register: async (_, {email, name, surname, password, accountType},__,info) => {
 
-          // Creating user Object from the arguments with password encryption
-          const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, accountType: accountType };
+          passCheck(info);
+          const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, surname: surname, accountType: accountType };
            // Get user document from 'user' collection.
           const person = await Person.find({ email: email });
           if (person.length != 0) {
@@ -80,8 +106,8 @@ module.exports = {
           }
         },
 
-        login: async (_, {email, password},__,___,info) => {
-          // Finding a user from user collection.
+        login: async (_, {email, password},__,info) => {
+        passCheck(info);
          const person = await Person.find({ email: email });
          // Checking For Encrypted Password Match with util func.
          const isMatch = await utils.comparePassword(password, person[0].password)
@@ -93,7 +119,25 @@ module.exports = {
        } else {
          // Throwing Error on Match Status Failed.
          throw new Error("Wrong Password!")
-     }}
+     }},
+
+     addStudent: async (_, args, context, info) => {
+      passCheck(info);
+      const course = await Course.findById(args.idCourse);
+      const student = await Person.findById(args.idPerson);
+      if(course == null)  throw new Error("Course not found 404");
+      if(student == null)  throw new Error("Student not found 404");
+      if (context.loggedIn && course.teacher == context.payload.payload._id ) {
+        let studentArray = course.students;
+        studentArray.push(student);
+        let updatedCourse = await Course.findOneAndUpdate({_id: args.idCourse}, {students: studentArray}, {
+          returnOriginal: false
+        });
+      return updatedCourse ? student : "520"; 
+    } else {
+        throw new Error("Unauthorized 401");
+      }  
+     }
     },
 
     Date: new GraphQLScalarType({
