@@ -69,8 +69,8 @@ export class AuthenticationService {
   registration(form: IRegistrationForm): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
-        mutation register($email: String!, $name: String!, $password: String!, $accountType: String!) {
-          register(email: $email, name: $name, password: $password, accountType: $accountType) {
+        mutation register($email: String!, $name: String!, $surname: String!, $password: String!, $accountType: String!) {
+          register(email: $email, name: $name, surname: $surname, password: $password, accountType: $accountType) {
             _id
           }
         }

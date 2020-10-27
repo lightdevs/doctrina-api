@@ -73,6 +73,7 @@ export class SignUpComponent implements OnInit, OnDestroy {
   createForm(): void  {
     this.createUserAccountForm = this.formBuilder.group({
       name: [null, Validators.required],
+      surname: [null, Validators.required],
       email: [null, [Validators.required, Validators.email]],
       password: [null, Validators.required],
       accountType: 'Student',

@@ -129,5 +129,8 @@
       }
     }
   },
-  "defaultProject": "DoctrinaUI"
+  "defaultProject": "DoctrinaUI",
+  "cli": {
+    "analytics": "ae40267b-8ad9-426a-b04d-25eb4d799f58"
+  }
 }
