@@ -5,17 +5,30 @@ const Course = require('./models/course');
 const Person = require('./models/person');
 
 function passCheck(info) {
-  for(let field of info.operation.selectionSet.selections[0].selectionSet.selections) {
-    if(field.name.value == "password") {
-      throw new Error("Password must not be transmitted");
+  function check(parentField) {
+    if(parentField == undefined) return; // recursion base
+    parentField = parentField.selections;
+    for(let field of parentField) {
+    if(field.name.value == "password" || field.name.value == "token") {
+      throw new Error("Password or token must not be transmitted");
+    }
+    check(field.selectionSet);
     }
   }
+
+  check(info.operation.selectionSet.selections[0].selectionSet);
 }
 
 module.exports = {
     Query: {
-      courses: () => Course.find(),
-      persons: () => Person.find(),
+      courses: (parent, args, context, info) => {
+        passCheck(info);
+        return Course.find();
+      },
+      persons: (parent, args, context, info) =>  {
+        passCheck(info);
+        return Person.find();
+      },
       me: (parent, args, context, info) => {
         if (context.loggedIn) {
           passCheck(info);
