@@ -49,11 +49,11 @@ module.exports = {
      }
     },
     Mutation: {
-        createCourse: async (_,{title, description, dateStart, dateEnd, maxMark, students = []}, context, info) => {
+        createCourse: async (_,{title, description, dateStart, dateEnd, maxMark}, context, info) => {
           if (context.loggedIn) {
             passCheck(info);
             const author = context.payload.payload._id;
-            const course = new Course({title, description, dateStart, dateEnd, maxMark, teacher : author, students: students});
+            const course = new Course({title, description, dateStart, dateEnd, maxMark, teacher : author});
             await course.save();
             return course;
           } else {

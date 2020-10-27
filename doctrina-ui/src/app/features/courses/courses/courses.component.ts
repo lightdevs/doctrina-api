@@ -49,8 +49,8 @@ export class CoursesComponent implements OnInit {
 
   openDialog(): void {
     const dialogRef = this.dialog.open(CreateCourseComponent, {
-      width: '400px',
-      height: '400px',
+      width: '500px',
+      height: '650px',
       data: {name: this.name, animal: this.animal}
     });
 

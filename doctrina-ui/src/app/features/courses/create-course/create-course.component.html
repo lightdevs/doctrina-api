@@ -1,27 +1,60 @@
-<div mat-dialog-content>
-  <p>COURSE CREATION</p>
+<form [formGroup]="createCourseForm" (ngSubmit)="onSubmit()">
+  <div mat-dialog-content>
+    <p>COURSE CREATION</p>
 
-  <mat-form-field appearance="fill">
-    <mat-label>title</mat-label>
-    <input matInput>
-  </mat-form-field>
+    <div class="form-group pt-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title"/>
+        <mat-error *ngIf="createCourseForm.get('title').hasError('required')">
+          Title is required
+        </mat-error>
+      </mat-form-field>
+    </div>
 
-  <mat-form-field class="example-full-width">
-    <mat-label>date of the begining</mat-label>
-    <input matInput type="date">
-  </mat-form-field>
+    <div class="form-group pt-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Date of the begining</mat-label>
+        <input matInput type="date" formControlName="dateStart"/>
+        <mat-error *ngIf="createCourseForm.get('dateStart').hasError('required')">
+          Date of the begining is required
+        </mat-error>
+      </mat-form-field>
+    </div>
 
-  <mat-form-field class="example-full-width">
-    <mat-label>date of the end</mat-label>
-    <input matInput type="date">
-  </mat-form-field>
+    <div class="form-group pt-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Date of the end</mat-label>
+        <input matInput type="date" formControlName="dateEnd"/>
+        <mat-error *ngIf="createCourseForm.get('dateEnd').hasError('required')">
+          Date of the end is required
+        </mat-error>
+      </mat-form-field>
+    </div>
 
-  <mat-form-field appearance="fill">
-    <mat-label>description</mat-label>
-    <textarea matInput placeholder="course description"></textarea>
-  </mat-form-field>
-</div>
-<div mat-dialog-actions>
-  <button mat-flat-button color="warn" (click)="onNoClick()">No Thanks</button>
-  <button mat-flat-button color="accent" [mat-dialog-close]="data.animal" cdkFocusInitial>create</button>
-</div>
+    <div class="form-group pt-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Max mark</mat-label>
+        <input matInput type="number" formControlName="maxMark"/>
+        <mat-error *ngIf="createCourseForm.get('maxMark').hasError('required')">
+          Max mark of the end is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-group pt-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Description</mat-label>
+        <textarea matInput placeholder="course description" formControlName="description"></textarea>
+        <mat-error *ngIf="createCourseForm.get('description').hasError('required')">
+          Title is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+  </div>
+  <div mat-dialog-actions>
+    <button mat-flat-button color="warn" (click)="onNoClick()">No Thanks</button>
+    <button mat-flat-button color="primary" [mat-dialog-close] type="submit" >Create</button>
+  </div>
+</form>
