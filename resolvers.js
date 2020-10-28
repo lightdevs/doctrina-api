@@ -27,11 +27,7 @@ module.exports = {
       },
       persons: (parent, args, context, info) =>  {
         passCheck(info);
-        if(args.accountType == "teacher") {
-          return Person.find({accountType: "teacher"});
-        } else if(args.accountType == "student") {
-          return Person.find({accountType: "student"});
-        }
+        if(args.accountType) return Person.find(args);
         return Person.find();
       },
       me: (parent, args, context, info) => {
