@@ -49,11 +49,11 @@ const personSchema = new mongoose.Schema(
             required: false
         },
         coursesTakesPart: {
-            type: [Course],
+            type: [mongoose.Schema.Types.ObjectId],
             required: true
         },
         coursesConducts: {
-            type: [Course],
+            type: [mongoose.Schema.Types.ObjectId],
             required: true
         }
     },

@@ -28,7 +28,7 @@ const courseSchema = new mongoose.Schema(
             required: true,
          },
         students: {
-            type: [Person],
+            type: [mongoose.Schema.Types.ObjectId],
             required: true
         }
     },
