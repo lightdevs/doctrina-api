@@ -38,7 +38,7 @@ type MutationResult {
 
 type Query {
     courses: [Course!]
-    persons: [Person!]
+    persons(accountType: String): [Person!]
     me: Person
     courseById(id: String!): Course
     personById(id: String!): Person

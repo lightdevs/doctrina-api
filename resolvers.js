@@ -10,7 +10,7 @@ function passCheck(info) {
     parentField = parentField.selections;
     for(let field of parentField) {
     if(field.name.value == "password" || field.name.value == "token") {
-      throw new Error("Password or token must not be transmitted");
+      throw new Error("Password or token must not be requested");
     }
     check(field.selectionSet);
     }
@@ -27,6 +27,11 @@ module.exports = {
       },
       persons: (parent, args, context, info) =>  {
         passCheck(info);
+        if(args.accountType == "teacher") {
+          return Person.find({accountType: "teacher"});
+        } else if(args.accountType == "student") {
+          return Person.find({accountType: "student"});
+        }
         return Person.find();
       },
       me: (parent, args, context, info) => {

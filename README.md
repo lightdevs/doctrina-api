@@ -37,7 +37,7 @@ $ npm run dev
 
 ### Database Convention
 
-#### Naming constraint
+#### Naming constraint:
 ```
 Account types: "student" or "teacher"
 ```
