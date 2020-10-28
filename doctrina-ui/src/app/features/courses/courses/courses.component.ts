@@ -1,15 +1,18 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { CreateCourseComponent } from '../create-course/create-course.component';
 import gql from 'graphql-tag';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-courses',
   templateUrl: './courses.component.html',
   styleUrls: ['./courses.component.scss']
 })
-export class CoursesComponent implements OnInit {
+export class CoursesComponent implements OnInit, OnDestroy {
 
   @ViewChild(CreateCourseComponent) createCourse: CreateCourseComponent;
 
@@ -17,10 +20,11 @@ export class CoursesComponent implements OnInit {
   loading = false;
   animal: string;
   name: string;
-
+  private destroy$ = new Subject<void>();
   constructor(
     private apollo: Apollo,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -29,6 +33,7 @@ export class CoursesComponent implements OnInit {
         query: gql`
           {
             courses {
+              _id,
               title,
               description,
               dateStart,
@@ -48,20 +53,28 @@ export class CoursesComponent implements OnInit {
   }
 
   openDialog(): void {
-    const dialogRef = this.dialog.open(CreateCourseComponent, {
-      width: '500px',
-      height: '650px',
-      data: {name: this.name, animal: this.animal}
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      this.animal = result;
-    });
+    const config = new MatDialogConfig();
+    config.panelClass = `modal-setting`;
+    config.disableClose = true;
+    const openDialog = this.dialog.open(CreateCourseComponent, config);
+    openDialog
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data) {
+          console.log(data)
+          this.router.navigate(['/courses/edit-course/', data]);
+        }
+      });
   }
-}
 
-export interface DialogData {
-  animal: string;
-  name: string;
+  editCourse(id): void {
+    console.log(id)
+    this.router.navigate(['/courses/edit-course/', id]);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }
