@@ -5,17 +5,31 @@ const Course = require('./models/course');
 const Person = require('./models/person');
 
 function passCheck(info) {
-  for(let field of info.operation.selectionSet.selections[0].selectionSet.selections) {
-    if(field.name.value == "password") {
-      throw new Error("Password must not be transmitted");
+  function check(parentField) {
+    if(parentField == undefined) return; // recursion base
+    parentField = parentField.selections;
+    for(let field of parentField) {
+    if(field.name.value == "password" || field.name.value == "token") {
+      throw new Error("Password or token must not be requested");
+    }
+    check(field.selectionSet);
     }
   }
+
+  check(info.operation.selectionSet.selections[0].selectionSet);
 }
 
 module.exports = {
     Query: {
-      courses: () => Course.find(),
-      persons: () => Person.find(),
+      courses: (parent, args, context, info) => {
+        passCheck(info);
+        return Course.find();
+      },
+      persons: (parent, args, context, info) =>  {
+        passCheck(info);
+        if(args.accountType) return Person.find(args);
+        return Person.find();
+      },
       me: (parent, args, context, info) => {
         if (context.loggedIn) {
           passCheck(info);
@@ -46,16 +60,35 @@ module.exports = {
       } else {
         throw new Error("Unauthorized 401");
       }
+     },
+
+    personById: async (_, {id}, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        const currentUser = context.payload.payload._id;
+        const person = await Person.findById(id);
+        return person;
+      } else {
+        throw new Error("Unauthorized 401");
+      }
      }
     },
     Mutation: {
         createCourse: async (_,{title, description, dateStart, dateEnd, maxMark}, context, info) => {
           if (context.loggedIn) {
             passCheck(info);
-            const author = context.payload.payload._id;
-            const course = new Course({title, description, dateStart, dateEnd, maxMark, teacher : author});
+            const authorId = context.payload.payload._id;
+            const course = new Course({title, description, dateStart, dateEnd, maxMark, teacher : authorId}); 
+            const author = await Person.findById(authorId);
+
+            let authorCourses = author.coursesConducts;
+            authorCourses.push(course);
+            let updatedAuthor = await Person.findOneAndUpdate({_id: authorId}, {coursesConducts: authorCourses}, {
+              returnOriginal: false
+            });
+
             await course.save();
-            return course;
+            return updatedAuthor ? course : "Can't create course 520";
           } else {
             throw new Error("Unauthorized 401");
           }
@@ -86,7 +119,6 @@ module.exports = {
 
         register: async (_, {email, name, surname, password, accountType},__,info) => {
 
-          passCheck(info);
           const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, surname: surname, accountType: accountType };
            // Get user document from 'user' collection.
           const person = await Person.find({ email: email });
@@ -107,7 +139,6 @@ module.exports = {
         },
 
         login: async (_, {email, password},__,info) => {
-        passCheck(info);
          const person = await Person.find({ email: email });
          // Checking For Encrypted Password Match with util func.
          const isMatch = await utils.comparePassword(password, person[0].password)
@@ -133,7 +164,7 @@ module.exports = {
         let updatedCourse = await Course.findOneAndUpdate({_id: args.idCourse}, {students: studentArray}, {
           returnOriginal: false
         });
-      return updatedCourse ? student : "520"; 
+      return updatedCourse ? student : "Can't add student 520"; 
     } else {
         throw new Error("Unauthorized 401");
       }  
