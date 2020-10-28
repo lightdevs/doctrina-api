@@ -27,6 +27,8 @@ type Person {
     description: String
     photo:  String
     accountType: String!
+    coursesTakesPart: [Course!]!
+    coursesConducts: [Course!]! 
     token: String
 }
 
@@ -39,6 +41,7 @@ type Query {
     persons: [Person!]
     me: Person
     courseById(id: String!): Course
+    personById(id: String!): Person
 }
 
 type Mutation {
