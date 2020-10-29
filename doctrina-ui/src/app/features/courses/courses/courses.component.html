@@ -1,7 +1,9 @@
 <form>
   <div class="form-group search-course-block flex-row">
     <div class="search-tool">
-      <input type="text" class="form-control" id="searchQuery" placeholder="course">
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="filterTerm" name="filterTerm">
+      </div>
     </div>
 
     <div class="flex-row">
@@ -29,7 +31,7 @@
   </div>
 </form>
 <div class="course-list flex-column">
-  <ng-container *ngFor="let course of courses">
+  <ng-container *ngFor="let course of courses | filter: filterTerm">
     <section class="flex-row pt-3 mx-3">
       <mat-card class="w-100">
         <div class="row">
