@@ -36,11 +36,16 @@ module.exports = {
       const person = await Person.findById(context.payload.payload._id);
       if (person) {
         if (person.accountType == "teacher") {
-          let myCourses = await Course.find({ teacher: person._id });
+          let myCourses = await Course.find({ teacher: person._id }, null, { skip: args.page * args.count, limit: args.count });
           return myCourses;
         }
         else if (person.accountType == "student") {
           let myCourses = [];
+          let skip = args.count * args.page;
+          let limit = args.count;
+
+          person.coursesTakesPart = person.coursesTakesPart.slice(skip);
+          if (person.coursesTakesPart.length > limit) person.coursesTakesPart = person.coursesTakesPart.slice(0, person.coursesTakesPart.length - limit);
           for (let courseId of person.coursesTakesPart) {
             myCourses.push(await Course.find({ _id: courseId }));
           }
@@ -54,20 +59,11 @@ module.exports = {
       const person = await Person.findById(context.payload.payload._id);
       if (person) {
         if (person.accountType == "teacher") {
-          let studentsOfMyCourses = [];
-          if (person.coursesConducts == null) return [];
-          for (let courseId of person.coursesConducts) {
-            let currentCourse = await Course.findById(courseId);
-            for (let studentId of currentCourse.students) {
-              let currentStudent = await Person.findById(studentId);
-              studentsOfMyCourses.push(currentStudent);
-            }
-          }
+          let studentsOfAnyCourse = await Person.find({ accountType: "student" }, null, { skip: args.page * args.count, limit: args.count });
           if (args.accountType != null)
-            studentsOfMyCourses = studentsOfMyCourses.filter(student => student.accountType == args.accountType);
-          if (args.email != null)
-            studentsOfMyCourses = studentsOfMyCourses.filter(student => student.email == args.email);
-          return studentsOfMyCourses;
+            studentsOfAnyCourse = studentsOfAnyCourse.filter(student => student.accountType == args.accountType);
+
+          return studentsOfAnyCourse;
         }
         else if (person.accountType == "student") {
           let teachersOfMyCourses = [];
@@ -93,21 +89,33 @@ module.exports = {
       }
     },
 
-    courseById: async (_, { id }, context, info) => {
+    courseById: async (_, args, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
         const currentUser = context.payload.payload._id;
-        const course = await Course.findById(id);
+        const course = await Course.findById(args.id);
 
         let isStudent = false;
-        for (let studentId in course.students) {
+        for (let studentId of course.students) {
           if (studentId == currentUser) {
             isStudent = true;
             break;
           }
         }
+
+        let students = [];
+
+        let skip = args.count * args.page;
+        let limit = args.count;
+
+        course.students = course.students.slice(skip);
+        if (course.students.length > limit) course.students = course.students.slice(0, course.students.length - limit);
+        for (let studentId of course.students) {
+          students.push(await Person.findById(studentId));
+        }
+
         if (currentUser == course.teacher || isStudent) {
-          return course;
+          return { course: course, students: students };
         } else {
           throw new Error("Unauthorized 401");
         }
@@ -116,12 +124,33 @@ module.exports = {
       }
     },
 
-    personById: async (_, { id }, context, info) => {
+    personById: async (_, args, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
         const currentUser = context.payload.payload._id;
-        const person = await Person.findById(id);
-        return person;
+        const person = await Person.findById(args.id);
+
+        let courses = [];
+
+        let skip = args.count * args.page;
+        let limit = args.count;
+
+        if (person.accountType == "student") {
+          person.coursesTakesPart = person.coursesTakesPart.slice(skip);
+          if (person.coursesTakesPart.length > limit) person.coursesTakesPart = person.coursesTakesPart.slice(0, person.coursesTakesPart.length - limit);
+          for (let courseId of person.coursesTakesPart) {
+            courses.push(await Course.findById(courseId));
+          }
+        }
+        else {
+          person.coursesConducts = person.coursesConducts.slice(skip);
+          if (person.coursesConducts.length > limit) person.coursesConducts = person.coursesConducts.slice(0, person.coursesConducts.length - limit);
+          for (let courseId of person.coursesConducts) {
+            courses.push(await Course.findById(courseId));
+          }
+        }
+
+        return { person: person, courses: courses };
       } else {
         throw new Error("Unauthorized 401");
       }
