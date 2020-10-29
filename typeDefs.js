@@ -42,7 +42,7 @@ type ExtendedCourse {
 
 
 type Query {
-    courses: [Course!]
+    courses(page: Int!, count: Int!): [Course!]
     persons(accountType: String, email: String, page: Int!, count: Int!): [Person!]
     me: Person
     courseById(id: String!, page: Int!, count: Int!): ExtendedCourse

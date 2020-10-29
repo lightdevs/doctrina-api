@@ -36,11 +36,16 @@ module.exports = {
       const person = await Person.findById(context.payload.payload._id);
       if (person) {
         if (person.accountType == "teacher") {
-          let myCourses = await Course.find({ teacher: person._id });
+          let myCourses = await Course.find({ teacher: person._id }, null,{skip: args.page*args.count, limit: args.count});
           return myCourses;
         }
         else if (person.accountType == "student") {
-          let myCourses = [];
+        let myCourses = [];       
+        let skip = args.count*args.page;
+        let limit = args.count;
+
+        person.coursesTakesPart = person.coursesTakesPart.slice(skip);
+        if(person.coursesTakesPart.length > limit) person.coursesTakesPart = person.coursesTakesPart.slice(0, person.coursesTakesPart.length - limit);
           for (let courseId of person.coursesTakesPart) {
             myCourses.push(await Course.find({ _id: courseId }));
           }
