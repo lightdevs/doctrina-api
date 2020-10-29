@@ -12,7 +12,7 @@ type Course {
     dateEnd: Date
     maxMark: Int
     teacher: ID
-    students: [Person!]!
+    students: [ID!]!
 }
 
 type Person {
@@ -27,6 +27,8 @@ type Person {
     description: String
     photo:  String
     accountType: String!
+    coursesTakesPart: [ID!]!
+    coursesConducts: [ID!]! 
     token: String
 }
 
@@ -36,9 +38,10 @@ type MutationResult {
 
 type Query {
     courses: [Course!]
-    persons: [Person!]
+    persons(accountType: String, email: String): [Person!]
     me: Person
     courseById(id: String!): Course
+    personById(id: String!): Person
 }
 
 type Mutation {

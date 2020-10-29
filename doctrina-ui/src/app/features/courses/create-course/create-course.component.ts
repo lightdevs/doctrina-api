@@ -1,42 +1,44 @@
-import { Component, EventEmitter, Inject, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Inject, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DialogData } from '../courses/courses.component';
 import { Apollo } from 'apollo-angular';
-import { FormBuilder, FormGroup, FormGroupDirective, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormGroupDirective, Validators, FormControl } from '@angular/forms';
 import { Message } from '../../../core/extension/messages';
 import { configureToastr, toastrTitle } from '../../../core/helpers';
 import { CoursesService } from '../courses.service';
 import { ToastrService } from 'ngx-toastr';
+import { map, startWith, takeUntil } from 'rxjs/operators';
+import { Observable, Subject} from 'rxjs';
 
 @Component({
   selector: 'app-create-course',
   templateUrl: './create-course.component.html',
   styleUrls: ['./create-course.component.scss']
 })
-export class CreateCourseComponent implements OnInit {
+export class CreateCourseComponent implements OnInit, OnDestroy {
 
-  @Output() openSignIn = new EventEmitter<any>();
   @ViewChild(FormGroupDirective) formDirective: FormGroupDirective;
 
   createCourseForm: FormGroup;
   loading = false;
   message = Message;
-
+  options: number[] = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+  filteredOptions: Observable<number[]>;
+  private destroy$ = new Subject<void>();
   constructor(
-    private apollo: Apollo,
     private coursesService: CoursesService,
     private toastr: ToastrService,
     private formBuilder: FormBuilder,
-    public dialogRef: MatDialogRef<CreateCourseComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData) {}
-
-  onNoClick(): void {
-    this.dialogRef.close();
-  }
+    public dialogRef: MatDialogRef<CreateCourseComponent>) {}
 
   ngOnInit(): void {
     this.createForm();
     configureToastr(this.toastr);
+    this.filteredOptions = (this.createCourseForm.get('maxMark') as FormControl).valueChanges
+    .pipe(
+      takeUntil(this.destroy$),
+      startWith(''),
+      map(value => this._filter(value))
+    );
   }
 
   onSubmit(): void {
@@ -46,7 +48,6 @@ export class CreateCourseComponent implements OnInit {
       this.createCourseForm.markAllAsTouched();
     }
 
-    console.log(this.createCourseForm.value);
   }
 
   createForm(): void  {
@@ -69,14 +70,26 @@ export class CreateCourseComponent implements OnInit {
         ...this.createCourseForm.value
       })
       .subscribe(
-        () => {
-          this.clearForm();
+        (res) => {
           this.toastr.success(this.message.COURSE_CREATED, toastrTitle.Success);
-          this.openSignIn.next(null);
+          this.dialogRef.close(res.data.createCourse._id);
         },
         () => {
           this.toastr.error(this.message.SOMETHING_IS_WRONG, toastrTitle.Error);
         }
       );
+  }
+
+
+  private _filter(value: string): number[] {
+    if (value) {
+      return this.options.filter(option => (option.toString()).indexOf(value) === 0);
+    }
+    return this.options;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

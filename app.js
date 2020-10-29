@@ -11,7 +11,7 @@ const startServer = async () => {
 
     const server = new ApolloServer({ typeDefs, resolvers, context: ({ req, res }) => {
         const token = req.headers.authorization || '';
-        const { payload, loggedIn } = utils.getPayload(token);
+        const { payload, loggedIn } = utils.getPayload(token);   
         return { payload, loggedIn };
       }});
 
