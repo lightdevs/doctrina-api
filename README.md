@@ -37,9 +37,10 @@ $ npm run dev
 
 ### Database Convention
 
-#### Naming constraint:
+#### Constraints:
 ```
 Account types: "student" or "teacher"
+Pages counting starts at zero
 ```
 
 

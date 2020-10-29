@@ -54,20 +54,11 @@ module.exports = {
       const person = await Person.findById(context.payload.payload._id);
       if (person) {
         if (person.accountType == "teacher") {
-          let studentsOfMyCourses = [];
-          if (person.coursesConducts == null) return [];
-          for (let courseId of person.coursesConducts) {
-            let currentCourse = await Course.findById(courseId);
-            for (let studentId of currentCourse.students) {
-              let currentStudent = await Person.findById(studentId);
-              studentsOfMyCourses.push(currentStudent);
-            }
-          }
+          let studentsOfAnyCourse = await Person.find({accountType: "student"},null,{skip: args.page*args.count, limit: args.count});
           if (args.accountType != null)
-            studentsOfMyCourses = studentsOfMyCourses.filter(student => student.accountType == args.accountType);
-          if (args.email != null)
-            studentsOfMyCourses = studentsOfMyCourses.filter(student => student.email == args.email);
-          return studentsOfMyCourses;
+          studentsOfAnyCourse = studentsOfAnyCourse.filter(student => student.accountType == args.accountType);
+
+          return studentsOfAnyCourse;
         }
         else if (person.accountType == "student") {
           let teachersOfMyCourses = [];
@@ -93,21 +84,33 @@ module.exports = {
       }
     },
 
-    courseById: async (_, { id }, context, info) => {
+    courseById: async (_, args, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
         const currentUser = context.payload.payload._id;
-        const course = await Course.findById(id);
+        const course = await Course.findById(args.id);
 
         let isStudent = false;
-        for (let studentId in course.students) {
+        for (let studentId of course.students) {
           if (studentId == currentUser) {
             isStudent = true;
             break;
           }
-        }
+        }  
+
+        let students = [];
+        
+        let skip = args.count*args.page;
+        let limit = args.count;
+
+        course.students = course.students.slice(skip);
+        if(course.students.length > limit) course.students = course.students.slice(0, course.students.length - limit);
+        for (let studentId of course.students) {
+          students.push(await Person.findById(studentId));
+        } 
+
         if (currentUser == course.teacher || isStudent) {
-          return course;
+          return {course: course, students: students};
         } else {
           throw new Error("Unauthorized 401");
         }
