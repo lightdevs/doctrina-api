@@ -1,5 +1,7 @@
 const mongoose = require("mongoose")
 
+const {Course} = require("./course")
+
 const personSchema = new mongoose.Schema(
     {
         email: {
@@ -45,6 +47,14 @@ const personSchema = new mongoose.Schema(
         token: {
             type: String,
             required: false
+        },
+        coursesTakesPart: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: true
+        },
+        coursesConducts: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: true
         }
     },
     { timestamps: true }

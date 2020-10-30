@@ -35,7 +35,13 @@ Now you should be able to access client part at  [http://localhost:4200]( http:/
 $ npm run dev
 ```
 
+### Database Convention
 
+#### Constraints:
+```
+Account types: "student" or "teacher"
+Pages counting starts at zero
+```
 
 
 

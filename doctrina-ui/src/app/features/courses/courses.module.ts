@@ -4,13 +4,16 @@ import { CreateCourseComponent } from './create-course/create-course.component';
 import { CoursesComponent } from './courses/courses.component';
 import {SharedModule} from '../../shared/shared.module';
 import { CoursesRoutingModule } from './courses-routing.module';
-
+import { EditCourseComponent } from './edit-course/edit-course.component';
+import { FilterPipe } from '../courses/courses/filter.pipe';
 
 
 @NgModule({
   declarations: [
     CreateCourseComponent,
-    CoursesComponent
+    CoursesComponent,
+    EditCourseComponent,
+    FilterPipe
   ],
   imports: [
     CommonModule,

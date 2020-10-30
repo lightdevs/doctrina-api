@@ -12,7 +12,7 @@ type Course {
     dateEnd: Date
     maxMark: Int
     teacher: ID
-    students: [Person!]!
+    students: [ID!]!
 }
 
 type Person {
@@ -27,18 +27,30 @@ type Person {
     description: String
     photo:  String
     accountType: String!
+    coursesTakesPart: [ID!]!
+    coursesConducts: [ID!]! 
     token: String
 }
 
 type MutationResult {
     affectedRows: Int!
 }
+type ExtendedCourse {
+    course: Course!,
+    students: [Person!]!
+}
+type ExtendedPerson {
+    person: Person!,
+    courses: [Course!]!
+}
+
 
 type Query {
-    courses: [Course!]
-    persons: [Person!]
+    courses(page: Int!, count: Int!): [Course!]
+    persons(accountType: String, email: String, page: Int!, count: Int!): [Person!]
     me: Person
-    courseById(id: String!): Course
+    courseById(id: String!, page: Int!, count: Int!): ExtendedCourse
+    personById(id: String!, page: Int!, count: Int!): ExtendedPerson
 }
 
 type Mutation {
