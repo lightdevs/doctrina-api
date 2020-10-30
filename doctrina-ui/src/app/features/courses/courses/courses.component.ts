@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {Component, OnDestroy, OnInit, Pipe, PipeTransform, ViewChild} from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { CreateCourseComponent } from '../create-course/create-course.component';
 import gql from 'graphql-tag';
@@ -13,6 +13,11 @@ import { Router } from '@angular/router';
   styleUrls: ['./courses.component.scss']
 })
 export class CoursesComponent implements OnInit, OnDestroy {
+  constructor(
+    private apollo: Apollo,
+    public dialog: MatDialog,
+    private router: Router,
+  ) {}
 
   @ViewChild(CreateCourseComponent) createCourse: CreateCourseComponent;
 
@@ -20,12 +25,9 @@ export class CoursesComponent implements OnInit, OnDestroy {
   loading = false;
   animal: string;
   name: string;
+  filterTerm: string;
+
   private destroy$ = new Subject<void>();
-  constructor(
-    private apollo: Apollo,
-    public dialog: MatDialog,
-    private router: Router,
-  ) {}
 
   ngOnInit() {
     this.apollo
@@ -62,14 +64,14 @@ export class CoursesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         if (data) {
-          console.log(data)
+          console.log(data);
           this.router.navigate(['/courses/edit-course/', data]);
         }
       });
   }
 
   editCourse(id): void {
-    console.log(id)
+    console.log(id);
     this.router.navigate(['/courses/edit-course/', id]);
   }
 
