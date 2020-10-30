@@ -251,7 +251,7 @@ module.exports = {
         return person[0];
       } else {
         // Throwing Error on Match Status Failed.
-        throw new Error("Wrong Password!")
+        throw new Error("Wrong Login or Password!")
       }
     },
 
