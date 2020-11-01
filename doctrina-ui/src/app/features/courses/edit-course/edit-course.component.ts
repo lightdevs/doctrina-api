@@ -1,15 +1,55 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute } from '@angular/router';
+import { Subject, BehaviorSubject } from 'rxjs';
+import { ICourses } from 'src/app/core/interfaces/course.interface';
+import { IUserInfo } from 'src/app/core/interfaces/user.interface';
+import { CoursesService } from '../courses.service';
 
 @Component({
   selector: 'app-edit-course',
   templateUrl: './edit-course.component.html',
   styleUrls: ['./edit-course.component.scss']
 })
-export class EditCourseComponent implements OnInit {
+export class EditCourseComponent implements OnInit, OnDestroy {
 
-  constructor() { }
+  courseId: string;
+  course = new  BehaviorSubject<ICourses>(null);
+  teacherInfo: IUserInfo;
 
-  ngOnInit(): void {
+  private destroy$ = new Subject<void>();
+  constructor(private route: ActivatedRoute,
+              private courseService: CoursesService,
+              public dialog: MatDialog) {
+    this.courseId = this.route.snapshot.params.id;
   }
 
+
+  ngOnInit(): void {
+    this.getCoursesInfo();
+  }
+
+  getCoursesInfo(): void {
+    if (this.courseId) {
+      this.courseService.getCourseById(this.courseId)
+        .subscribe(res => {
+          if (res.data.courseById.course) {
+            this.course.next(res.data.courseById.course);
+            this.getTheacherName(res.data.courseById.course.teacher);
+          }
+      });
+    }
+  }
+
+  getTheacherName(teacherId: string): void {
+    this.courseService.getTeacherName(teacherId)
+      .subscribe(res => {
+        this.teacherInfo =  res.data.personById.person;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

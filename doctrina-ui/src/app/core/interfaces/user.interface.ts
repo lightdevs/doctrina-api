@@ -12,6 +12,8 @@ export interface IUserInfo {
     institution: string;
     accountType: string;
     token: string;
+    coursesTakesPart?: any[];
+    coursesConducts?: any[];
 }
 
 export interface IRegistrationForm {

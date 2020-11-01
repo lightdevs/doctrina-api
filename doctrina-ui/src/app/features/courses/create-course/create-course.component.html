@@ -20,8 +20,8 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group pt-3">
-            <mat-label>Date of the begining</mat-label>
             <mat-form-field appearance="outline">
+              <mat-label>Date of the begining</mat-label>
                 <input matInput [matDatepicker]="picker2" formControlName="dateStart" placeholder="mm/dd/yyyy">
                 <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
                 <mat-datepicker #picker2></mat-datepicker>
@@ -33,8 +33,8 @@
         </div>
         <div class="col-md-6">
           <div class="form-group pt-3">
-            <mat-label>Date of the end</mat-label>
             <mat-form-field appearance="outline">
+              <mat-label>Date of the end</mat-label>
                 <input matInput [matDatepicker]="picker1" formControlName="dateEnd" placeholder="mm/dd/yyyy">
                 <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                 <mat-datepicker #picker1></mat-datepicker>
@@ -69,7 +69,7 @@
           <mat-label>Description</mat-label>
           <textarea matInput placeholder="course description" formControlName="description"></textarea>
           <mat-error *ngIf="createCourseForm.get('description').hasError('required')">
-            Title is required
+            Description is required
           </mat-error>
         </mat-form-field>
       </div>

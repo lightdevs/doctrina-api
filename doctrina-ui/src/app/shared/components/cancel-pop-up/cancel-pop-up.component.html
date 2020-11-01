@@ -1,0 +1,25 @@
+<mat-toolbar color="warn">
+  <h1>Are you sure?</h1>
+  <span class="spacer"></span>
+  <button mat-icon-button type="button" [mat-dialog-close]="null">
+      <mat-icon color="primary">close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-dialog-content class="pt-3 mx-1">
+  <div class="inline text-left" >
+      <mat-icon color="warn">priority_high</mat-icon>
+      <span class="info pl-2">
+          All unsaved data will be lost.
+      </span>
+  </div>
+</mat-dialog-content>
+<div class="spacer"></div>
+<div class="spacer"></div>
+<mat-dialog-actions class="spacer-beetwen align-bottom  mx-2 p-4">
+  <button mat-button color="warn" type="button" [mat-dialog-close]="false">
+      GO BACK
+  </button>
+  <button mat-button color="primary" type="button" [mat-dialog-close]="true">
+    STOP EDITING
+  </button>
+</mat-dialog-actions>
