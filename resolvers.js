@@ -30,55 +30,79 @@ Array.prototype.remove = function () {
   return this;
 };
 
+function paginator(page, count, array) {
+  let skip = count * page;
+  let limit = count;
+
+  array = array.slice(skip);
+  if (array.length > limit) {
+    array = array.slice(0, array.length - limit)
+  }
+  else {
+    Array.prototype.push.apply(array, ["END"]);
+  }
+  return array;
+}
+
 module.exports = {
   Query: {
     courses: async (parent, args, context, info) => {
-      const person = await Person.findById(context.payload.payload._id);
-      if (person) {
-        if (person.accountType == "teacher") {
-          let myCourses = await Course.find({ teacher: person._id }, null, { skip: args.page * args.count, limit: args.count });
-          return myCourses;
-        }
-        else if (person.accountType == "student") {
-          let myCourses = [];
-          let skip = args.count * args.page;
-          let limit = args.count;
-
-          person.coursesTakesPart = person.coursesTakesPart.slice(skip);
-          if (person.coursesTakesPart.length > limit) person.coursesTakesPart = person.coursesTakesPart.slice(0, person.coursesTakesPart.length - limit);
-          for (let courseId of person.coursesTakesPart) {
-            myCourses.push(await Course.find({ _id: courseId }));
+      passCheck(info);
+      if (context.loggedIn) {
+        const person = await Person.findById(context.payload.payload._id);
+        if (person) {
+          if (person.accountType == "teacher") {
+            let myCourses = await Course.find({ teacher: person._id }, null, { skip: args.page * args.count, limit: args.count });
+            let allMyCoursesLength = await (await Course.find({ teacher: person._id })).length;
+            return { person: person, courses: myCourses, isEnd: allMyCoursesLength > (args.page + 1) * args.count ? false : true };
           }
-          return myCourses;
-        }
-      } else throw new Error("No such user 404");
-      return await Course.find();
+          else if (person.accountType == "student") {
+            let myCourses = [];
+            let end = false;
+            for (let courseId of paginator(args.page, args.count, person.coursesTakesPart)) {
+              if (courseId == "END") {
+                end = true;
+                break;
+              }
+              myCourses.push(await Course.find({ _id: courseId }));
+            }
+            return { person: person, courses: myCourses, isEnd: end };
+          }
+        } else throw new Error("No such user 404");
+      } else {
+        throw new Error("Unauthorized 401");
+      }
     },
     persons: async (parent, args, context, info) => {
       passCheck(info);
-      const person = await Person.findById(context.payload.payload._id);
-      if (person) {
-        if (person.accountType == "teacher") {
-          let studentsOfAnyCourse = await Person.find({ accountType: "student" }, null, { skip: args.page * args.count, limit: args.count });
-          if (args.accountType != null)
-            studentsOfAnyCourse = studentsOfAnyCourse.filter(student => student.accountType == args.accountType);
-
-          return studentsOfAnyCourse;
-        }
-        else if (person.accountType == "student") {
-          let teachersOfMyCourses = [];
-          for (let courseId of person.coursesTakesPart) {
-            let currentCourse = await Course.findById(courseId);
-            let currentTeacher = await Person.findById(currentCourse.teacher);
-            if (currentTeacher) teachersOfMyCourses.push(currentTeacher);
+      if (context.loggedIn) {
+        const person = await Person.findById(context.payload.payload._id);
+        if (person) {
+          if (person.accountType == "teacher") {
+            let studentsOfAnyCourse = await Person.find({ accountType: "student" }, null, { skip: args.page * args.count, limit: args.count });
+            let allStudentsLength = await (await Person.find({ accountType: "student" })).length;
+            if (args.email != null) {
+              studentsOfAnyCourse = studentsOfAnyCourse.filter(student => student.email == args.email);
+            }
+            return { course: null, persons: studentsOfAnyCourse, isEnd: allStudentsLength > (args.page + 1) * args.count ? false : true };
           }
-          if (args.accountType != null)
-            teachersOfMyCourses = teachersOfMyCourses.filter(teacher => teacher.accountType == args.accountType);
-          if (args.email != null)
-            teachersOfMyCourses = teachersOfMyCourses.filter(teacher => teacher.email == args.email);
-          return teachersOfMyCourses;
-        }
-      } else throw new Error("No such user 404");
+          else if (person.accountType == "student") {
+            let teachersOfMyCourses = [];
+            for (let courseId of person.coursesTakesPart) {
+              let currentCourse = await Course.findById(courseId);
+              let currentTeacher = await Person.findById(currentCourse.teacher);
+              if (currentTeacher) teachersOfMyCourses.push(currentTeacher);
+            }
+            let allTeachersLength = teachersOfMyCourses.length;
+            if (args.email != null) {
+              teachersOfMyCourses = teachersOfMyCourses.filter(teacher => teacher.email == args.email);
+            }
+            return { course: null, persons: studentsOfAnyCourse, isEnd: allTeachersLength > (args.page + 1) * args.count ? false : true };
+          }
+        } else throw new Error("No such user 404");
+      } else {
+        throw new Error("Unauthorized 401");
+      }
     },
     me: (parent, args, context, info) => {
       if (context.loggedIn) {
@@ -104,18 +128,16 @@ module.exports = {
         }
 
         let students = [];
-
-        let skip = args.count * args.page;
-        let limit = args.count;
-
-        course.students = course.students.slice(skip);
-        if (course.students.length > limit) course.students = course.students.slice(0, course.students.length - limit);
-        for (let studentId of course.students) {
+        let end = false;
+        for (let studentId of paginator(args.page, args.count, course.students)) {
+          if (studentId == "END") {
+            end = true;
+            break;
+          }
           students.push(await Person.findById(studentId));
         }
-
         if (currentUser == course.teacher || isStudent) {
-          return { course: course, students: students };
+          return { course: course, persons: students, isEnd: end };
         } else {
           throw new Error("Unauthorized 401");
         }
@@ -131,26 +153,27 @@ module.exports = {
         const person = await Person.findById(args.id);
 
         let courses = [];
-
-        let skip = args.count * args.page;
-        let limit = args.count;
+        let end = false;
 
         if (person.accountType == "student") {
-          person.coursesTakesPart = person.coursesTakesPart.slice(skip);
-          if (person.coursesTakesPart.length > limit) person.coursesTakesPart = person.coursesTakesPart.slice(0, person.coursesTakesPart.length - limit);
-          for (let courseId of person.coursesTakesPart) {
+          for (let courseId of paginator(args.page, args.count, person.coursesTakesPart)) {
+            if (courseId == "END") {
+              end = true;
+              break;
+            }
             courses.push(await Course.findById(courseId));
           }
         }
         else {
-          person.coursesConducts = person.coursesConducts.slice(skip);
-          if (person.coursesConducts.length > limit) person.coursesConducts = person.coursesConducts.slice(0, person.coursesConducts.length - limit);
-          for (let courseId of person.coursesConducts) {
+          for (let courseId of paginator(args.page, args.count, person.coursesConducts)) {
+            if (courseId == "END") {
+              end = true;
+              break;
+            }
             courses.push(await Course.findById(courseId));
           }
         }
-
-        return { person: person, courses: courses };
+        return { person: person, courses: courses, isEnd: end };
       } else {
         throw new Error("Unauthorized 401");
       }
@@ -190,11 +213,14 @@ module.exports = {
           returnOriginal: false
         });
 
+
+        let updatedStudent;
+
         for (let studentId of students) {
           const student = await Person.findById(studentId);
-          let studentCourses = students.coursesTakesPart;
+          let studentCourses = student.coursesTakesPart;
           studentCourses.remove(id);
-          let updatedStudent = await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: studentCourses }, {
+          updatedStudent &&= await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: studentCourses }, {
             returnOriginal: false
           });
         }
