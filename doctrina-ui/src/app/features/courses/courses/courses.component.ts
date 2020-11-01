@@ -34,7 +34,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
       .query<any>({
         query: gql`
           {
-            courses {
+            courses(page:0, count:0) {
               _id,
               title,
               description,
