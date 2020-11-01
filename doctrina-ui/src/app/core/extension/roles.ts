@@ -1,9 +1,9 @@
 export enum Role {
-  Teacher = 'Teacher',
-  Student = 'Student',
+  teacher = 'teacher',
+  student = 'student',
 }
 
 export enum RoleForRegistration {
-  Teacher = 'Teacher',
-  Student = 'Student'
+  teacher = 'teacher',
+  student = 'student'
 }

@@ -34,21 +34,29 @@ export class CoursesComponent implements OnInit, OnDestroy {
       .query<any>({
         query: gql`
           {
-            courses {
-              _id,
-              title,
-              description,
-              dateStart,
-              dateEnd,
-              maxMark,
-              teacher
+             courses(page:0, count: 10000) {
+               person {
+                email,
+                name,
+                surname
+               }
+               courses {
+                _id,
+                title,
+                description,
+                dateStart,
+                dateEnd,
+                maxMark,
+                teacher
+               }
+               isEnd
             }
           }
         `
       })
       .subscribe(
         ({ data, loading }) => {
-          this.courses = data && data.courses;
+          this.courses = data && data.courses.courses;
           this.loading = loading;
         }
       );
