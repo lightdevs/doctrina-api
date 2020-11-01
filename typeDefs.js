@@ -36,20 +36,20 @@ type MutationResult {
     affectedRows: Int!
 }
 type ExtendedCourse {
-    course: Course!,
-    students: [Person!]!
+    course: Course,
+    persons: [Person!]!
     isEnd: Boolean!
 }
 type ExtendedPerson {
-    person: Person!,
+    person: Person,
     courses: [Course!]!,
-    isEnd: String
+    isEnd: Boolean!
 }
 
 
 type Query {
     courses(page: Int!, count: Int!): ExtendedPerson
-    persons(accountType: String, email: String, page: Int!, count: Int!): [Person!]
+    persons(accountType: String, email: String, page: Int!, count: Int!): ExtendedCourse
     me: Person
     courseById(id: String!, page: Int!, count: Int!): ExtendedCourse
     personById(id: String!, page: Int!, count: Int!): ExtendedPerson
