@@ -32,13 +32,13 @@ Array.prototype.remove = function () {
 
 function paginator(page, count, array) {
   let skip = count * page;
-  let limit = count;
+  let limit = skip + count;
 
-  array = array.slice(skip);
   if (array.length > limit) {
-    array = array.slice(0, array.length - limit)
+    array = array.slice(skip, limit);
   }
   else {
+    array = array.slice(skip);
     Array.prototype.push.apply(array, ["END"]);
   }
   return array;
@@ -50,11 +50,14 @@ module.exports = {
       passCheck(info);
       if (context.loggedIn) {
         const person = await Person.findById(context.payload.payload._id);
+
         if (person) {
           if (person.accountType == "teacher") {
-            let myCourses = await Course.find({ teacher: person._id }, null, { skip: args.page * args.count, limit: args.count });
+            let skip = args.count * args.page;
+            let limit = args.count;
+            let myCourses = await Course.find({ teacher: person._id }, null, { skip: skip, limit: limit });
             let allMyCoursesLength = await (await Course.find({ teacher: person._id })).length;
-            return { person: person, courses: myCourses, isEnd: allMyCoursesLength > (args.page + 1) * args.count ? false : true };
+            return { person: person, courses: myCourses, isEnd: allMyCoursesLength > skip + limit ? false : true };
           }
           else if (person.accountType == "student") {
             let myCourses = [];
@@ -67,7 +70,7 @@ module.exports = {
               myCourses.push(await Course.find({ _id: courseId }));
             }
             return { person: person, courses: myCourses, isEnd: end };
-          }
+          } else throw new Error("Invalid account type");
         } else throw new Error("No such user 404");
       } else {
         throw new Error("Unauthorized 401");
@@ -78,13 +81,15 @@ module.exports = {
       if (context.loggedIn) {
         const person = await Person.findById(context.payload.payload._id);
         if (person) {
+          let skip = args.count * args.page;
+          let limit =  args.count;
           if (person.accountType == "teacher") {
-            let studentsOfAnyCourse = await Person.find({ accountType: "student" }, null, { skip: args.page * args.count, limit: args.count });
+            let studentsOfAnyCourse = await Person.find({ accountType: "student" }, null, { skip: skip, limit: limit });
             let allStudentsLength = await (await Person.find({ accountType: "student" })).length;
             if (args.email != null) {
               studentsOfAnyCourse = studentsOfAnyCourse.filter(student => student.email == args.email);
             }
-            return { course: null, persons: studentsOfAnyCourse, isEnd: allStudentsLength > (args.page + 1) * args.count ? false : true };
+            return { course: null, persons: studentsOfAnyCourse, isEnd: allStudentsLength > skip + limit ? false : true };
           }
           else if (person.accountType == "student") {
             let teachersOfMyCourses = [];
@@ -97,7 +102,7 @@ module.exports = {
             if (args.email != null) {
               teachersOfMyCourses = teachersOfMyCourses.filter(teacher => teacher.email == args.email);
             }
-            return { course: null, persons: studentsOfAnyCourse, isEnd: allTeachersLength > (args.page + 1) * args.count ? false : true };
+            return { course: null, persons: studentsOfAnyCourse, isEnd: allTeachersLength > skip + limit ? false : true };
           }
         } else throw new Error("No such user 404");
       } else {
