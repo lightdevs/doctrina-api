@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server-express');
+const { gql } = require('apollo-server-express');
 
 module.exports = gql`
 
@@ -38,15 +38,17 @@ type MutationResult {
 type ExtendedCourse {
     course: Course!,
     students: [Person!]!
+    isEnd: Boolean!
 }
 type ExtendedPerson {
     person: Person!,
-    courses: [Course!]!
+    courses: [Course!]!,
+    isEnd: String
 }
 
 
 type Query {
-    courses(page: Int!, count: Int!): [Course!]
+    courses(page: Int!, count: Int!): ExtendedPerson
     persons(accountType: String, email: String, page: Int!, count: Int!): [Person!]
     me: Person
     courseById(id: String!, page: Int!, count: Int!): ExtendedCourse
