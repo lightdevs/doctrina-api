@@ -11,7 +11,7 @@ type Course {
     dateStart: Date
     dateEnd: Date
     maxMark: Int
-    teacher: ID
+    teacher: Person
     students: [ID!]!
 }
 
