@@ -3,6 +3,7 @@ const { GraphQLScalarType } = require('graphql');
 const utils = require('./utils');
 const Course = require('./models/course');
 const Person = require('./models/person');
+const { compare } = require('bcryptjs');
 
 function passCheck(info) {
   function check(parentField) {
@@ -42,6 +43,27 @@ function paginator(page, count, array) {
     Array.prototype.push.apply(array, ["END"]);
   }
   return array;
+};
+
+function stringComparator(a, b) {
+};
+function numberComparator(a, b) { return (a - b) };
+
+function sortByFunc(sortString, array) {    //TODO: Strategy pattern
+  let sortParams = JSON.parse(sortString);
+  let stringFields = ["name", "title"];
+  let numericalFields = ["maxMark"];
+  for (let field in sortParams) {
+    switch (true) {
+      case stringFields.includes(field):
+        array.sort(stringComparator());
+        break;
+      case numericalFields.includes(field):
+        array.sort(numberComparator);
+        break;
+    }
+
+  }
 }
 
 module.exports = {
@@ -55,7 +77,7 @@ module.exports = {
           if (person.accountType == "teacher") {
             let skip = args.count * args.page;
             let limit = args.count;
-            let myCourses = await Course.find({ teacher: person._id }, null, { skip: skip, limit: limit });
+            let myCourses = await Course.find({ teacher: person._id }, null, { skip: skip, limit: limit, sort: args.sort });
             let allMyCoursesLength = await (await Course.find({ teacher: person._id })).length;
             return { person: person, courses: myCourses, isEnd: allMyCoursesLength > skip + limit ? false : true };
           }
@@ -82,7 +104,7 @@ module.exports = {
         const person = await Person.findById(context.payload.payload._id);
         if (person) {
           let skip = args.count * args.page;
-          let limit =  args.count;
+          let limit = args.count;
           if (person.accountType == "teacher") {
             let studentsOfAnyCourse = await Person.find({ accountType: "student" }, null, { skip: skip, limit: limit });
             let allStudentsLength = await (await Person.find({ accountType: "student" })).length;

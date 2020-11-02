@@ -48,11 +48,11 @@ type ExtendedPerson {
 
 
 type Query {
-    courses(page: Int!, count: Int!): ExtendedPerson
-    persons(accountType: String, email: String, page: Int!, count: Int!): ExtendedCourse
+    courses(sort: String, page: Int!, count: Int!): ExtendedPerson
+    persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
     me: Person
-    courseById(id: String!, page: Int!, count: Int!): ExtendedCourse
-    personById(id: String!, page: Int!, count: Int!): ExtendedPerson
+    courseById(id: String!, sort: String, page: Int!, count: Int!): ExtendedCourse
+    personById(id: String!, sort: String, page: Int!, count: Int!): ExtendedPerson
 }
 
 type Mutation {
