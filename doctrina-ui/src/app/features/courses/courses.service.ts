@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {ICreateCourseForm} from 'src/app/core/interfaces/course.interface';
+import {ICoursesInfo, ICreateCourseForm, IEditCourseForm} from 'src/app/core/interfaces/course.interface';
 import {Apollo, gql} from 'apollo-angular';
 
 @Injectable({
@@ -22,5 +22,171 @@ export class CoursesService {
         ...form
       },
     });
+  }
+
+  updateCourse(form: IEditCourseForm): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation updateCourse($id: ID!, $title: String!, $description: String!, $dateStart: Date!, $dateEnd: Date!, $maxMark: Int!, $teacher: ID!) {
+        updateCourse(id: $id, title: $title, description: $description, dateStart: $dateStart, dateEnd: $dateEnd, maxMark: $maxMark, teacher: $teacher) {
+          _id
+          title
+          description
+          dateStart
+          dateEnd
+          maxMark
+          teacher
+        }
+      }
+    `,
+      variables: {
+        ...form
+      },
+    });
+  }
+
+
+  getCourseById(courseId: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query courseById($id: String!, $page: Int!, $count: Int!) {
+        courseById(id: $id, page: $page, count: $count) {
+          course {
+            _id
+            title
+            description
+            dateStart
+            dateEnd
+            maxMark
+            teacher
+          }
+        }
+      }`,
+      variables: {
+        id: courseId,
+        page: 0,
+        count: 0
+      },
+    });
+  }
+
+  getTeacherName(teacherId: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query personById($id: String!, $page: Int!, $count: Int!) {
+        personById(id: $id, page: $page, count: $count) {
+          person {
+            _id
+            email
+            name
+            surname
+            country
+            city
+            institution
+          }
+        }
+      }`,
+      variables: {
+        id: teacherId,
+        page: 0,
+        count: 0
+      },
+    });
+  }
+
+  getStudentsOfCourse(courseId: string): Observable<any> {
+    return  this.apollo.query<any>({
+        query: gql `query courseById($id: String!, $page: Int!, $count: Int!) {
+          courseById(id: $id, page: $page, count: $count) {
+            persons {
+              _id
+              email
+              name
+              surname
+              country
+              city
+            }
+          }
+        }`,
+        variables: {
+          id: courseId,
+          page: 0,
+          count: 1000
+        },
+    });
+  }
+
+  getStudents(filterEmail: string = null): Observable<any> {
+    return  this.apollo.query<any>({
+        query: gql `query persons($email: String, $page: Int!, $count: Int!) {
+          persons(email: $email, page: $page, count: $count) {
+            persons {
+              _id
+              email
+              name
+              surname
+              country
+              city
+            }
+          }
+        }`,
+        variables: {
+          email: filterEmail,
+          page: 0,
+          count: 1000
+        },
+    });
+  }
+
+  assignStudent(studentId: string, courseId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation addStudent($idCourse: ID!, $idPerson: ID!) {
+        addStudent(idCourse: $idCourse, idPerson: $idPerson) {
+          _id
+        }
+      }
+    `,
+        variables: {
+          idCourse: courseId,
+          idPerson: studentId,
+        },
+    });
+  }
+
+  deleteCourse(courseId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation deleteCourse($id: ID!) {
+        deleteCourse(id: $id) {
+          affectedRows
+        }
+      }
+    `,
+        variables: {
+          id: courseId
+        },
+    });
+  }
+
+  getMyCourse(userId: string) {
+    return  this.apollo.query<any>({
+      query: gql `query personById($id: String!, $page: Int!, $count: Int!) {
+        personById(id: $id, page: $page, count: $count) {
+          courses {
+            _id
+            title
+            description
+            dateStart
+            dateEnd
+            maxMark
+            teacher
+          }
+        }
+      }`,
+      variables: {
+        id: userId,
+        page: 0,
+        count: 1000
+      },
+  });
   }
 }

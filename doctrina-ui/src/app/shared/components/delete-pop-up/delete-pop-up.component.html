@@ -1,0 +1,25 @@
+<mat-toolbar color="warn">
+  <h1>Delete {{data.title}}?</h1>
+  <span class="spacer"></span>
+  <button mat-icon-button type="button" [mat-dialog-close]="null">
+      <mat-icon color="primary">close</mat-icon>
+  </button>
+</mat-toolbar>
+<mat-dialog-content class="pt-3 mx-1">
+  <div class="inline text-left" >
+      <mat-icon color="warn">priority_high</mat-icon>
+      <span class="info pl-2">
+        {{data.body}}
+      </span>
+  </div>
+</mat-dialog-content>
+<div class="spacer"></div>
+<div class="spacer"></div>
+<mat-dialog-actions class="spacer-beetwen align-bottom  mx-2 p-4">
+  <button mat-button type="button" [mat-dialog-close]="false">
+      <span class="primary-color">CANCEL</span>
+  </button>
+  <button mat-button color="warn" type="button" [mat-dialog-close]="true">
+      DELETE
+  </button>
+</mat-dialog-actions>

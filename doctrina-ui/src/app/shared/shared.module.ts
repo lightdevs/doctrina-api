@@ -5,11 +5,15 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from './material.module';
 import { ToastrModule } from 'ngx-toastr';
 import { ControlsTestComponent } from './components/controls-test/controls-test.component';
+import { CancelPopUpComponent } from './components/cancel-pop-up/cancel-pop-up.component';
+import { DeletePopUpComponent } from './components/delete-pop-up/delete-pop-up.component';
 
 
 @NgModule({
   declarations: [
     ControlsTestComponent,
+    CancelPopUpComponent,
+    DeletePopUpComponent,
   ],
   imports: [
     CommonModule,

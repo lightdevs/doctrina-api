@@ -25,13 +25,16 @@
 
     </div>
 
+    <div *ngIf="currentUser.accountType == 'student'; else elseBlock"></div>
+    <ng-template #elseBlock>
     <div>
       <button mat-flat-button color="primary" (click)="openDialog()">Add new course</button>
     </div>
+    </ng-template>
   </div>
 </form>
 <div class="course-list flex-column">
-  <ng-container *ngFor="let course of courses | filter: filterTerm">
+  <ng-container *ngFor="let course of courses">
     <section class="flex-row pt-3 mx-3">
       <mat-card class="w-100">
         <div class="row">
@@ -44,16 +47,20 @@
             <div class="date-info">{{ course.dateStart }} - {{ course.dateEnd }}</div>
           </div>
           <div class="lesson padding-between">
-            Lesson #7
+            Lesson #1
             <div class="date-info">21.03.10 | 14:30 - 15:30</div>
           </div>
-          <div class="grade padding-between">69/100</div>
+          <div class="grade padding-between">0/{{ course.maxMark }}</div>
           <span class="spacer"></span>
-          <div class="pr-3">
-            <button mat-icon-button color="primary" (click)="editCourse(course._id)">
-              <mat-icon color="primary">settings</mat-icon>
-            </button>
-          </div>
+
+          <div *ngIf="currentUser.accountType == 'student'; else elseBlock"></div>
+          <ng-template #elseBlock>
+            <div class="pr-3">
+              <button mat-icon-button color="primary" (click)="editCourse(course._id)">
+                <mat-icon color="primary">settings</mat-icon>
+              </button>
+            </div>
+          </ng-template>
         </div>
       </mat-card>
     </section>

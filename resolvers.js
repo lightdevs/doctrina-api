@@ -89,7 +89,7 @@ module.exports = {
                 end = true;
                 break;
               }
-              myCourses.push(await Course.find({ _id: courseId }));
+              myCourses.push(await Course.findById(courseId));
             }
             return { person: person, courses: myCourses, isEnd: end };
           } else throw new Error("Invalid account type");
@@ -109,7 +109,7 @@ module.exports = {
             let studentsOfAnyCourse = await Person.find({ accountType: "student" }, null, { skip: skip, limit: limit });
             let allStudentsLength = await (await Person.find({ accountType: "student" })).length;
             if (args.email != null) {
-              studentsOfAnyCourse = studentsOfAnyCourse.filter(student => student.email == args.email);
+              studentsOfAnyCourse = studentsOfAnyCourse.filter(student => !!student.email.toString().match(new RegExp(args.email,'i')));
             }
             return { course: null, persons: studentsOfAnyCourse, isEnd: allStudentsLength > skip + limit ? false : true };
           }
@@ -122,7 +122,7 @@ module.exports = {
             }
             let allTeachersLength = teachersOfMyCourses.length;
             if (args.email != null) {
-              teachersOfMyCourses = teachersOfMyCourses.filter(teacher => teacher.email == args.email);
+              teachersOfMyCourses = teachersOfMyCourses.filter(teacher => !!teacher.email.toString().match(new RegExp(args.email,'i')));
             }
             return { course: null, persons: studentsOfAnyCourse, isEnd: allTeachersLength > skip + limit ? false : true };
           }
