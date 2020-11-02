@@ -33,6 +33,7 @@ export class AuthenticationService {
       mutation: gql`
         mutation login($email: String!, $password: String!) {
           login(email: $email, password: $password) {
+            _id
             email
             name
             surname

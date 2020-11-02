@@ -33,11 +33,9 @@ export class StudentListComponent implements OnInit, OnDestroy {
 
 
   getStudentsOfCurrentCourse(): void {
-    console.log(this.courseId)
     this.courseService.getStudentsOfCourse(this.courseId)
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
-        console.log(res.data.courseById.persons as IUserInfo[]);
         if (res.data.courseById.persons && res.data.courseById.persons.length > 0) {
           this.courseStudents = res.data.courseById.persons;
         }
@@ -50,8 +48,10 @@ export class StudentListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
         if (res.data.persons.persons && res.data.persons.persons.length > 0) {
-          this.students = res.data.persons.persons
+          console.log(res.data.persons.persons as IUserInfo[]);
+          const filterStud = res.data.persons.persons
           .filter(o => this.courseStudents.filter(z => z._id === o._id).length === 0);
+          this.students = filterStud && filterStud.length > 0 ? filterStud : [];
         }
       });
   }
@@ -78,8 +78,6 @@ export class StudentListComponent implements OnInit, OnDestroy {
     .subscribe(res => {
       this.students = res.data.persons.persons
         .filter(o => this.courseStudents.filter(z => z._id === o._id).length === 0);
-
-      console.log(typeof this.students === typeof this.courseStudents)
     });
   }
 

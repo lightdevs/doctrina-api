@@ -5,5 +5,7 @@ export enum Message {
     LOGGED_IN = `You are logged in!`,
     ISSUES_CREATED = `Issues Created`,
     COMMENT_ADDED = `Comment Added`,
-    COURSE_CREATED = `Course created`
+    COURSE_CREATED = `Course created`,
+    COURSE_DELETED = `Course deleted`
+
 }
