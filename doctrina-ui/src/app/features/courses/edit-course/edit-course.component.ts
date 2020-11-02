@@ -1,5 +1,6 @@
+import { StudentListComponent } from './../student-list/student-list.component';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { ICourses } from 'src/app/core/interfaces/course.interface';
@@ -46,6 +47,15 @@ export class EditCourseComponent implements OnInit, OnDestroy {
       .subscribe(res => {
         this.teacherInfo =  res.data.personById.person;
     });
+  }
+
+  viewStudentList(): void {
+    const config = new MatDialogConfig();
+    config.panelClass = `modal-setting`;
+    config.width = '1000px';
+    config.height = '500px';
+    config.data = this.courseId;
+    this.dialog.open(StudentListComponent, config);
   }
 
   ngOnDestroy(): void {
