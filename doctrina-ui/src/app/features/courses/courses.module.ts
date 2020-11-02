@@ -6,6 +6,8 @@ import {SharedModule} from '../../shared/shared.module';
 import { CoursesRoutingModule } from './courses-routing.module';
 import { EditCourseComponent } from './edit-course/edit-course.component';
 import { FilterPipe } from '../courses/courses/filter.pipe';
+import { CourseInfoComponent } from './course-info/course-info.component';
+import { StudentListComponent } from './student-list/student-list.component';
 
 
 @NgModule({
@@ -13,7 +15,9 @@ import { FilterPipe } from '../courses/courses/filter.pipe';
     CreateCourseComponent,
     CoursesComponent,
     EditCourseComponent,
-    FilterPipe
+    FilterPipe,
+    CourseInfoComponent,
+    StudentListComponent
   ],
   imports: [
     CommonModule,

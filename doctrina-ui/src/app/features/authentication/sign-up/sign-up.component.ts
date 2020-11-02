@@ -48,8 +48,6 @@ export class SignUpComponent implements OnInit, OnDestroy {
     } else {
       this.createUserAccountForm.markAllAsTouched();
     }
-
-    console.log(this.createUserAccountForm.value)
   }
 
   createUserAccount(): void {
@@ -76,13 +74,13 @@ export class SignUpComponent implements OnInit, OnDestroy {
       surname: [null, Validators.required],
       email: [null, [Validators.required, Validators.email]],
       password: [null, Validators.required],
-      accountType: 'Student',
+      accountType: 'student',
     });
   }
 
   clearForm(): void {
     this.formDirective.resetForm();
-    this.createUserAccountForm.get('accountType').setValue('Student');
+    this.createUserAccountForm.get('accountType').setValue('student');
   }
 
   ngOnDestroy(): void {
