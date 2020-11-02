@@ -89,7 +89,8 @@ module.exports = {
                 end = true;
                 break;
               }
-              myCourses.push(await Course.findById(courseId));
+              let currentCourse = await Course.findById(courseId);
+              if(currentCourse) myCourses.push(currentCourse);
             }
             return { person: person, courses: myCourses, isEnd: end };
           } else throw new Error("Invalid account type");
@@ -117,14 +118,14 @@ module.exports = {
             let teachersOfMyCourses = [];
             for (let courseId of person.coursesTakesPart) {
               let currentCourse = await Course.findById(courseId);
-              let currentTeacher = await Person.findById(currentCourse.teacher);
+              let currentTeacher = currentCourse ? await Person.findById(currentCourse.teacher._id) : null;
               if (currentTeacher) teachersOfMyCourses.push(currentTeacher);
             }
             let allTeachersLength = teachersOfMyCourses.length;
             if (args.email != null) {
               teachersOfMyCourses = teachersOfMyCourses.filter(teacher => !!teacher.email.toString().match(new RegExp(args.email,'i')));
             }
-            return { course: null, persons: studentsOfAnyCourse, isEnd: allTeachersLength > skip + limit ? false : true };
+            return { course: null, persons: teachersOfMyCourses, isEnd: allTeachersLength > skip + limit ? false : true };
           }
         } else throw new Error("No such user 404");
       } else {
@@ -221,7 +222,7 @@ module.exports = {
         });
 
         await course.save();
-        return updatedAuthor ? course : "Can't create course 520";
+        return updatedAuthor ? course : "Can't modify subscribers 520";
       } else {
         throw new Error("Unauthorized 401");
       }
@@ -247,14 +248,14 @@ module.exports = {
           const student = await Person.findById(studentId);
           let studentCourses = student.coursesTakesPart;
           studentCourses.remove(id);
-          updatedStudent &&= await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: studentCourses }, {
+          updatedStudent = await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: studentCourses }, {
             returnOriginal: false
           });
         }
 
         if (updatedAuthor && updatedStudent) {
           return { affectedRows: res.deletedCount };
-        } else throw new Error("Can't delete course 520");
+        } else throw new Error("Can't modify subscribers 520");
       } else {
         throw new Error("Unauthorized 401");
       }
