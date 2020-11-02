@@ -6,5 +6,96 @@
   </button>
 </mat-toolbar>
 <div class="mx-3">
-
+  <div class="d-flex px-3" cdkDropListGroup>
+    <div class="p-4 col-6">
+      <div class="d-flex justify-content-between uppercase mb-2">
+        <b>Students of the course</b>
+      </div>
+      <div class="bordered rounded">
+        <div class="list p-3" cdkDropList #courseStudentsList="cdkDropList"
+        [cdkDropListConnectedTo]="[studentList] "[cdkDropListData]="courseStudents"
+             (cdkDropListDropped)="drop($event)">
+             <div class="container">
+              <div class="row">
+                <div class="col-1 text-left">
+                </div>
+                <div class="bold col-4 text-center">
+                  Student
+                </div>
+                <div class="bold col-2 text-center">
+                  University
+                </div>
+                <div class="bold col-5 text-center">
+                  E-mail
+                </div>
+              </div>
+          <div *ngFor="let column of courseStudents" class="drag-row">
+            <div class="row">
+              <div class="col-1 text-left">
+                <mat-icon class="drag-icon" color="primary">drag_indicator</mat-icon>
+              </div>
+              <div class="col-4 text-center">
+                <mat-label class="mat-body-2">{{column.name}} {{column.surname}}</mat-label>
+              </div>
+              <div class="col-2 text-center">
+                ?????
+              </div>
+              <div class="col-5 text-center">
+                <mat-label class="mat-body-2">{{column.email}}</mat-label>
+              </div>
+            </div>
+            <div class="custom-placeholder" *cdkDragPlaceholder></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <div class="p-4 col-6">
+      <div class="d-flex justify-content-between uppercase">
+        <input type="text" class="form-control" placeholder="Filter by E-mail..."
+        (keydown.enter)="filterStudents($event.target.value)"
+        [(ngModel)]="filterTerm" name="filterTerm">
+      </div>
+      <div class="bordered rounded">
+        <div class="list p-3"
+            #studentList="cdkDropList"
+            [cdkDropListData]="students"
+            [cdkDropListConnectedTo]="[courseStudentsList]"
+            cdkDropList
+             (cdkDropListDropped)="drop($event)">
+             <div class="container">
+              <div class="row">
+                <div class="col-1 text-left">
+                </div>
+                <div class="bold col-4 text-center">
+                  Student
+                </div>
+                <div class="bold col-2 text-center">
+                  University
+                </div>
+                <div class="bold col-5 text-center">
+                  E-mail
+                </div>
+              </div>
+              <div *ngFor="let column of students" cdkDrag class="drag-row">
+                <div class="row">
+                  <div class="col-1 text-left">
+                    <mat-icon class="drag-icon" color="primary" cdkDragHandle>drag_indicator</mat-icon>
+                  </div>
+                  <div class="col-4 text-center">
+                    <mat-label class="mat-body-2">{{column.name}} {{column.surname}}</mat-label>
+                  </div>
+                  <div class="col-2 text-center">
+                    ?????
+                  </div>
+                  <div class="col-5 text-center">
+                    <mat-label class="mat-body-2">{{column.email}}</mat-label>
+                  </div>
+                </div>
+                <div class="custom-placeholder" *cdkDragPlaceholder></div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
 </div>

@@ -1,2 +1,9 @@
 
-<app-course-info [course]="course" [teacherInfo]="teacherInfo"></app-course-info>
+<app-course-info [canEdit]="canEdit" [course]="course" [teacherInfo]="teacherInfo"></app-course-info>
+<div class="text-center" *ngIf="canEdit">
+  <button mat-flat-button color="primary" (click)="viewStudentList()">View The List Of Students</button>
+</div>
+<div class="text-center pt-1" *ngIf="canEdit">
+  <button mat-flat-button color="warn" (click)="deleteCourse()">Delete Course</button>
+</div>
+

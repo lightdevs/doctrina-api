@@ -4,16 +4,20 @@ export interface IAssignUser {
 }
 
 export interface IUserInfo {
-    email: string;
-    name: string;
-    surname: string;
-    country: string;
-    city: string;
-    institution: string;
-    accountType: string;
-    token: string;
-    coursesTakesPart?: any[];
-    coursesConducts?: any[];
+  _id: string;
+  email: string;
+  name: string;
+  surname: string;
+  password: string;
+  country: string;
+  city: string;
+  institution: string;
+  description: string;
+  photo: string;
+  accountType: string;
+  coursesTakesPart: any[];
+  coursesConducts: any[];
+  token: string;
 }
 
 export interface IRegistrationForm {
