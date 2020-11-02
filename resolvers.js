@@ -222,7 +222,7 @@ module.exports = {
         });
 
         await course.save();
-        return updatedAuthor ? course : "Can't create course 520";
+        return updatedAuthor ? course : "Can't modify subscribers 520";
       } else {
         throw new Error("Unauthorized 401");
       }
@@ -248,14 +248,14 @@ module.exports = {
           const student = await Person.findById(studentId);
           let studentCourses = student.coursesTakesPart;
           studentCourses.remove(id);
-          updatedStudent &&= await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: studentCourses }, {
+          updatedStudent = await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: studentCourses }, {
             returnOriginal: false
           });
         }
 
         if (updatedAuthor && updatedStudent) {
           return { affectedRows: res.deletedCount };
-        } else throw new Error("Can't delete course 520");
+        } else throw new Error("Can't modify subscribers 520");
       } else {
         throw new Error("Unauthorized 401");
       }
