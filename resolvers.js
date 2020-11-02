@@ -89,7 +89,8 @@ module.exports = {
                 end = true;
                 break;
               }
-              myCourses.push(await Course.findById(courseId));
+              let currentCourse = await Course.findById(courseId);
+              if(currentCourse) myCourses.push(currentCourse);
             }
             return { person: person, courses: myCourses, isEnd: end };
           } else throw new Error("Invalid account type");
@@ -117,14 +118,14 @@ module.exports = {
             let teachersOfMyCourses = [];
             for (let courseId of person.coursesTakesPart) {
               let currentCourse = await Course.findById(courseId);
-              let currentTeacher = await Person.findById(currentCourse.teacher);
+              let currentTeacher = currentCourse ? await Person.findById(currentCourse.teacher._id) : null;
               if (currentTeacher) teachersOfMyCourses.push(currentTeacher);
             }
             let allTeachersLength = teachersOfMyCourses.length;
             if (args.email != null) {
               teachersOfMyCourses = teachersOfMyCourses.filter(teacher => !!teacher.email.toString().match(new RegExp(args.email,'i')));
             }
-            return { course: null, persons: studentsOfAnyCourse, isEnd: allTeachersLength > skip + limit ? false : true };
+            return { course: null, persons: teachersOfMyCourses, isEnd: allTeachersLength > skip + limit ? false : true };
           }
         } else throw new Error("No such user 404");
       } else {
