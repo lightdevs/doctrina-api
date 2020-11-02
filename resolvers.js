@@ -89,7 +89,7 @@ module.exports = {
                 end = true;
                 break;
               }
-              myCourses.push(await Course.find({ _id: courseId }));
+              myCourses.push(await Course.findById(courseId));
             }
             return { person: person, courses: myCourses, isEnd: end };
           } else throw new Error("Invalid account type");
