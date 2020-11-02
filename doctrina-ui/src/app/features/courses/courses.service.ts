@@ -98,7 +98,7 @@ export class CoursesService {
     return  this.apollo.query<any>({
         query: gql `query courseById($id: String!, $page: Int!, $count: Int!) {
           courseById(id: $id, page: $page, count: $count) {
-            students {
+            persons {
               _id
               email
               name
@@ -116,11 +116,11 @@ export class CoursesService {
     });
   }
 
-  getStudents(): Observable<any> {
+  getStudents(filterEmail: string = null): Observable<any> {
     return  this.apollo.query<any>({
-        query: gql `query persons($id: String!, $page: Int!, $count: Int!) {
-          persons(id: $id, page: $page, count: $count) {
-            students {
+        query: gql `query persons($email: String, $page: Int!, $count: Int!) {
+          persons(email: $email, page: $page, count: $count) {
+            persons {
               _id
               email
               name
@@ -131,8 +131,25 @@ export class CoursesService {
           }
         }`,
         variables: {
+          email: filterEmail,
           page: 0,
           count: 1000
+        },
+    });
+  }
+
+  assignStudent(studentId: string, courseId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation addStudent($idCourse: ID!, $idPerson: ID!) {
+        addStudent(idCourse: $idCourse, idPerson: $idPerson) {
+          _id
+        }
+      }
+    `,
+        variables: {
+          idCourse: courseId,
+          idPerson: studentId,
         },
     });
   }
