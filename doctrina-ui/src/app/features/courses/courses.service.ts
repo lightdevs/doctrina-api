@@ -36,7 +36,6 @@ export class CoursesService {
           dateEnd
           maxMark
           teacher
-          students
         }
       }
     `,
@@ -59,7 +58,6 @@ export class CoursesService {
             dateEnd
             maxMark
             teacher
-            students
           }
         }
       }`,
@@ -152,5 +150,43 @@ export class CoursesService {
           idPerson: studentId,
         },
     });
+  }
+
+  deleteCourse(courseId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation deleteCourse($id: ID!) {
+        deleteCourse(id: $id) {
+          affectedRows
+        }
+      }
+    `,
+        variables: {
+          id: courseId
+        },
+    });
+  }
+
+  getMyCourse(userId: string) {
+    return  this.apollo.query<any>({
+      query: gql `query personById($id: String!, $page: Int!, $count: Int!) {
+        personById(id: $id, page: $page, count: $count) {
+          courses {
+            _id
+            title
+            description
+            dateStart
+            dateEnd
+            maxMark
+            teacher
+          }
+        }
+      }`,
+      variables: {
+        id: userId,
+        page: 0,
+        count: 1000
+      },
+  });
   }
 }

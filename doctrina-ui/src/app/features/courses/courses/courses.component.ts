@@ -6,6 +6,9 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { IUserInfo } from 'src/app/core/interfaces/user.interface';
+import { AuthenticationService } from '../../authentication/authentication.service';
+import { CoursesService } from '../courses.service';
 
 @Component({
   selector: 'app-courses',
@@ -13,11 +16,17 @@ import { Router } from '@angular/router';
   styleUrls: ['./courses.component.scss']
 })
 export class CoursesComponent implements OnInit, OnDestroy {
+
+  currentUser: IUserInfo;
   constructor(
+    private authService: AuthenticationService,
+    private courseService: CoursesService,
     private apollo: Apollo,
     public dialog: MatDialog,
     private router: Router,
-  ) {}
+  ) {
+    authService.currentUser.subscribe( x => this.currentUser = x);
+  }
 
   @ViewChild(CreateCourseComponent) createCourse: CreateCourseComponent;
 
@@ -60,6 +69,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           this.loading = loading;
         }
       );
+
   }
 
   openDialog(): void {
@@ -73,14 +83,14 @@ export class CoursesComponent implements OnInit, OnDestroy {
       .subscribe((data) => {
         if (data) {
           console.log(data);
-          this.router.navigate(['/courses/edit-course/', data]);
+          this.router.navigate(['/courses/course/', data]);
         }
       });
   }
 
   editCourse(id): void {
     console.log(id);
-    this.router.navigate(['/courses/edit-course/', id]);
+    this.router.navigate(['/courses/course/', id]);
   }
 
   ngOnDestroy(): void {

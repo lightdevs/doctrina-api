@@ -19,6 +19,7 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
 
   @Input() course: BehaviorSubject<ICourses>;
   @Input() teacherInfo: IUserInfo;
+  @Input() canEdit: boolean;
   options: number[] = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
   filteredOptions: Observable<number[]>;
   editCourseForm: FormGroup;
