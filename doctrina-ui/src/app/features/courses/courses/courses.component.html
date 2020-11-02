@@ -25,9 +25,12 @@
 
     </div>
 
+    <div *ngIf="currentUser.accountType == 'student'; else elseBlock"></div>
+    <ng-template #elseBlock>
     <div>
       <button mat-flat-button color="primary" (click)="openDialog()">Add new course</button>
     </div>
+    </ng-template>
   </div>
 </form>
 <div class="course-list flex-column">
