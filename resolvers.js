@@ -118,7 +118,7 @@ module.exports = {
             let teachersOfMyCourses = [];
             for (let courseId of person.coursesTakesPart) {
               let currentCourse = await Course.findById(courseId);
-              let currentTeacher = currentCourse ? await Person.findById(currentCourse.teacher._id) : null;
+              let currentTeacher = currentCourse ? await Person.findById(currentCourse.teacher) : null;
               if (currentTeacher) teachersOfMyCourses.push(currentTeacher);
             }
             let allTeachersLength = teachersOfMyCourses.length;
@@ -213,7 +213,7 @@ module.exports = {
         passCheck(info);
         const authorId = context.payload.payload._id;
         const author = await Person.findById(authorId);
-        const course = new Course({ title, description, dateStart, dateEnd, maxMark, teacher: author });
+        const course = new Course({ title, description, dateStart, dateEnd, maxMark, teacher: author._id });
 
         let authorCourses = author.coursesConducts;
         authorCourses.push(course._id);
@@ -231,8 +231,8 @@ module.exports = {
       passCheck(info);
       const course = await Course.findById(id);
       if (course == null) throw new Error("Course not found 404");
-      const teacher = await Person.findById(course.teacher._id);
-      if (context.loggedIn && course.teacher._id == context.payload.payload._id) {
+      const teacher = await Person.findById(course.teacher);
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
         let authorCourses = teacher.coursesConducts;
         let students = course.students;
         const res = await Course.remove({ _id: id });
@@ -265,7 +265,7 @@ module.exports = {
       passCheck(info);
       const course = await Course.findById(args.id);
       if (course == null) throw new Error("Course not found 404");
-      if (context.loggedIn && course.teacher._id == context.payload.payload._id) {
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
         const newCourse = await Course.findOneAndUpdate({ _id: args.id }, args, { new: true });
         return newCourse;
       } else {
@@ -315,7 +315,7 @@ module.exports = {
       const student = await Person.findById(args.idPerson);
       if (course == null) throw new Error("Course not found 404");
       if (student == null) throw new Error("Student not found 404");
-      if (context.loggedIn && course.teacher._id == context.payload.payload._id) {
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
         let studentArray = course.students;
         studentArray.push(student._id);
         let updatedCourse = await Course.findOneAndUpdate({ _id: args.idCourse }, { students: studentArray }, {

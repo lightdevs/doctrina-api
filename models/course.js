@@ -24,7 +24,7 @@ const courseSchema = new mongoose.Schema(
             required: false,
         },
         teacher: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId, // type: mongoose.Schema.Types.Object,
             required: true,
          },
         students: {
