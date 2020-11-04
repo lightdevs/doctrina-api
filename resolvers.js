@@ -179,7 +179,7 @@ module.exports = {
         passCheck(info);
         const currentUser = context.payload.payload._id;
         const person = await Person.findById(args.id);
-
+        if(!person) throw new Error("No such person");
         let courses = [];
         let end = false;
 
