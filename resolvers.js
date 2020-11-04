@@ -89,7 +89,8 @@ module.exports = {
                 end = true;
                 break;
               }
-              myCourses.push(await Course.findById(courseId));
+              let currentCourse = await Course.findById(courseId);
+              if(currentCourse) myCourses.push(currentCourse);
             }
             return { person: person, courses: myCourses, isEnd: end };
           } else throw new Error("Invalid account type");
@@ -117,14 +118,14 @@ module.exports = {
             let teachersOfMyCourses = [];
             for (let courseId of person.coursesTakesPart) {
               let currentCourse = await Course.findById(courseId);
-              let currentTeacher = await Person.findById(currentCourse.teacher);
+              let currentTeacher = currentCourse ? await Person.findById(currentCourse.teacher._id) : null;
               if (currentTeacher) teachersOfMyCourses.push(currentTeacher);
             }
             let allTeachersLength = teachersOfMyCourses.length;
             if (args.email != null) {
               teachersOfMyCourses = teachersOfMyCourses.filter(teacher => !!teacher.email.toString().match(new RegExp(args.email,'i')));
             }
-            return { course: null, persons: studentsOfAnyCourse, isEnd: allTeachersLength > skip + limit ? false : true };
+            return { course: null, persons: teachersOfMyCourses, isEnd: allTeachersLength > skip + limit ? false : true };
           }
         } else throw new Error("No such user 404");
       } else {
@@ -178,7 +179,7 @@ module.exports = {
         passCheck(info);
         const currentUser = context.payload.payload._id;
         const person = await Person.findById(args.id);
-
+        if(!person) throw new Error("No such person");
         let courses = [];
         let end = false;
 
@@ -211,8 +212,8 @@ module.exports = {
       if (context.loggedIn) {
         passCheck(info);
         const authorId = context.payload.payload._id;
-        const course = new Course({ title, description, dateStart, dateEnd, maxMark, teacher: authorId });
         const author = await Person.findById(authorId);
+        const course = new Course({ title, description, dateStart, dateEnd, maxMark, teacher: author });
 
         let authorCourses = author.coursesConducts;
         authorCourses.push(course._id);
@@ -221,7 +222,7 @@ module.exports = {
         });
 
         await course.save();
-        return updatedAuthor ? course : "Can't create course 520";
+        return updatedAuthor ? course : "Can't modify subscribers 520";
       } else {
         throw new Error("Unauthorized 401");
       }
@@ -229,9 +230,9 @@ module.exports = {
     deleteCourse: async (_, { id }, context, info) => {
       passCheck(info);
       const course = await Course.findById(id);
-      const teacher = await Person.findById(course.teacher);
       if (course == null) throw new Error("Course not found 404");
-      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+      const teacher = await Person.findById(course.teacher._id);
+      if (context.loggedIn && course.teacher._id == context.payload.payload._id) {
         let authorCourses = teacher.coursesConducts;
         let students = course.students;
         const res = await Course.remove({ _id: id });
@@ -247,14 +248,14 @@ module.exports = {
           const student = await Person.findById(studentId);
           let studentCourses = student.coursesTakesPart;
           studentCourses.remove(id);
-          updatedStudent &&= await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: studentCourses }, {
+          updatedStudent = await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: studentCourses }, {  
             returnOriginal: false
           });
         }
 
         if (updatedAuthor && updatedStudent) {
           return { affectedRows: res.deletedCount };
-        } else throw new Error("Can't delete course 520");
+        } else throw new Error("Can't modify subscribers 520");
       } else {
         throw new Error("Unauthorized 401");
       }
@@ -264,7 +265,7 @@ module.exports = {
       passCheck(info);
       const course = await Course.findById(args.id);
       if (course == null) throw new Error("Course not found 404");
-      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+      if (context.loggedIn && course.teacher._id == context.payload.payload._id) {
         const newCourse = await Course.findOneAndUpdate({ _id: args.id }, args, { new: true });
         return newCourse;
       } else {
@@ -314,7 +315,7 @@ module.exports = {
       const student = await Person.findById(args.idPerson);
       if (course == null) throw new Error("Course not found 404");
       if (student == null) throw new Error("Student not found 404");
-      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+      if (context.loggedIn && course.teacher._id == context.payload.payload._id) {
         let studentArray = course.students;
         studentArray.push(student._id);
         let updatedCourse = await Course.findOneAndUpdate({ _id: args.idCourse }, { students: studentArray }, {
