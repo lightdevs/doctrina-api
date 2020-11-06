@@ -50,6 +50,7 @@ type ExtendedPerson {
 type Query {
     courses(sort: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
+    personsNotOnCourse(courseId: String, email: String, page: Int!, count: Int!): ExtendedCourse
     me: Person
     courseById(id: String!, sort: String, page: Int!, count: Int!): ExtendedCourse
     personById(id: String!, sort: String, page: Int!, count: Int!): ExtendedPerson
@@ -77,7 +78,28 @@ type Mutation {
     maxMark: Int
     teacher: ID) : Course!
 
+    deletePerson(
+        id: ID!
+    ) : MutationResult!
+
+    updatePerson(
+        id: ID!
+        email: String,
+        name: String,
+        surname: String,
+        country: String,
+        city: String,
+        institution: String,
+        description: String,
+        photo:  String
+    ) : Person!
+
     addStudent(
+        idCourse: ID!
+        idPerson: ID!
+    ) : Person
+
+    removeStudent(
         idCourse: ID!
         idPerson: ID!
     ) : Person
