@@ -3,6 +3,7 @@ const { GraphQLScalarType } = require('graphql');
 const utils = require('./utils');
 const Course = require('./models/course');
 const Person = require('./models/person');
+const Lesson = require('./models/lesson');
 const { compare } = require('bcryptjs');
 
 function passCheck(info) {
@@ -237,6 +238,41 @@ module.exports = {
     }
   },
   Mutation: {
+    register: async (_, { email, name, surname, password, accountType }, __, info) => {
+
+      const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, surname: surname, accountType: accountType };
+      // Get user document from 'user' collection.
+      const person = await Person.find({ email: email });
+      if (person.length != 0) {
+        throw new Error("User Already Exists!");
+      }
+      try {
+        // Insert User Object to Database
+        const regPerson = await Person.create(newPerson);
+        // Creating a Token from User Payload obtained.
+        const token = utils.getToken(regPerson);
+        regPerson.token = token;
+        // Adding token to user object
+        return regPerson;
+      } catch (e) {
+        throw e
+      }
+    },
+    login: async (_, { email, password }, __, info) => {
+      const person = await Person.find({ email: email });
+      // Checking For Encrypted Password Match with util func.
+      const isMatch = await utils.comparePassword(password, person[0].password)
+      if (isMatch) {
+        // Creating a Token from User Payload obtained.
+        const token = utils.getToken(person[0])
+        person[0].token = token;
+        return person[0];
+      } else {
+        // Throwing Error on Match Status Failed.
+        throw new Error("Wrong Login or Password!")
+      }
+    },
+
     createCourse: async (_, { title, description, dateStart, dateEnd, maxMark }, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
@@ -357,42 +393,6 @@ module.exports = {
       }
     },
 
-    register: async (_, { email, name, surname, password, accountType }, __, info) => {
-
-      const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, surname: surname, accountType: accountType };
-      // Get user document from 'user' collection.
-      const person = await Person.find({ email: email });
-      if (person.length != 0) {
-        throw new Error("User Already Exists!");
-      }
-      try {
-        // Insert User Object to Database
-        const regPerson = await Person.create(newPerson);
-        // Creating a Token from User Payload obtained.
-        const token = utils.getToken(regPerson);
-        regPerson.token = token;
-        // Adding token to user object
-        return regPerson;
-      } catch (e) {
-        throw e
-      }
-    },
-
-    login: async (_, { email, password }, __, info) => {
-      const person = await Person.find({ email: email });
-      // Checking For Encrypted Password Match with util func.
-      const isMatch = await utils.comparePassword(password, person[0].password)
-      if (isMatch) {
-        // Creating a Token from User Payload obtained.
-        const token = utils.getToken(person[0])
-        person[0].token = token;
-        return person[0];
-      } else {
-        // Throwing Error on Match Status Failed.
-        throw new Error("Wrong Login or Password!")
-      }
-    },
-
     addStudent: async (_, args, context, info) => {
       passCheck(info);
       const course = await Course.findById(args.idCourse);
@@ -435,6 +435,29 @@ module.exports = {
           returnOriginal: false
         });
         return updatedCourse && updatedStudent ? student : "Can't remove student 520";
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
+    addLesson: async (_,args, context, info) => {
+      passCheck(info);
+      const course = await Course.findById(args.idCourse);
+      const teacher = await Person.findById(context.payload.payload._id);
+      if (course == null) throw new Error("Course not found 404");
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+        const lesson = new Lesson({course : course._id, title: args.title});
+        let lessons = course.lessons;
+        lessons.push(lesson._id);
+        let updatedCourse = await Course.findOneAndUpdate({ _id: args.idCourse }, { lessons: lessons }, {
+          returnOriginal: false
+        });
+
+
+        lesson.save();
+
+        return updatedCourse ? lesson : "Cant modify course";
+        
       } else {
         throw new Error("Unauthorized 401");
       }

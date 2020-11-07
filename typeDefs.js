@@ -11,8 +11,57 @@ type Course {
     dateStart: Date
     dateEnd: Date
     maxMark: Int
+    lessons: [ID!]
     teacher: ID!
     students: [ID!]!
+}
+
+type CourseLink {
+    _id: ID!
+    title: String!
+    course: ID!
+    description: String
+    timeAdded: Date
+    link: String!
+}
+
+type CourseDoc {
+    _id: ID!
+    title: String!
+    course: ID!
+    description: String
+    timeAdded: Date
+    documentName: String
+    documentLink: String!
+}
+
+type Lesson {
+    _id: ID!
+    course: ID!
+    title:String!
+    description:String
+    dateStart: Date
+    dateEnd: Date
+    maxMark: Int
+}
+
+type LessonLink {
+    _id: ID!
+    title: String!
+    lesson: ID!
+    description: String
+    timeAdded: Date
+    link: String!
+}
+
+type LessonDoc {
+    _id: ID!
+    title: String!
+    lesson: ID!
+    description: String
+    timeAdded: Date
+    documentName: String
+    documentLink: String!
 }
 
 type Person {
@@ -95,14 +144,19 @@ type Mutation {
     ) : Person!
 
     addStudent(
-        idCourse: ID!
+        idCourse: ID!,
         idPerson: ID!
     ) : Person
 
     removeStudent(
-        idCourse: ID!
+        idCourse: ID!,
         idPerson: ID!
     ) : Person
+
+    addLesson(
+        idCourse: ID!,
+        title: String
+    ) : Lesson!
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!
     login(email: String!, password: String!): Person
