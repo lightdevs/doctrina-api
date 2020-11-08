@@ -97,7 +97,7 @@ type ExtendedPerson {
 
 
 type Query {
-    courses(sort: String, page: Int!, count: Int!): ExtendedPerson
+    courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
     personsNotOnCourse(courseId: String, email: String, page: Int!, count: Int!): ExtendedCourse
     me: Person

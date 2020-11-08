@@ -79,7 +79,14 @@ module.exports = {
             let skip = args.count * args.page;
             let limit = args.count;
             let myCourses = await Course.find({ teacher: person._id }, null, { skip: skip, limit: limit, sort: args.sort });
-            let allMyCoursesLength = await (await Course.find({ teacher: person._id })).length;
+            if (args.title != null) {
+              myCourses = myCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
+            }
+            let allMyCourses = await Course.find({ teacher: person._id });
+            if (args.title != null) {
+              allMyCourses = allMyCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
+            }
+            let allMyCoursesLength = allMyCourses.length;
             return { person: person, courses: myCourses, isEnd: allMyCoursesLength > skip + limit ? false : true };
           }
           else if (person.accountType == "student") {
@@ -92,6 +99,9 @@ module.exports = {
               }
               let currentCourse = await Course.findById(courseId);
               if (currentCourse) myCourses.push(currentCourse);
+            }
+            if (args.title != null) {
+              myCourses = myCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
             }
             return { person: person, courses: myCourses, isEnd: end };
           } else throw new Error("Invalid account type");
