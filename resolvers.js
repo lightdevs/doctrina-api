@@ -4,7 +4,9 @@ const utils = require('./utils');
 const Course = require('./models/course');
 const Person = require('./models/person');
 const Lesson = require('./models/lesson');
-const { compare } = require('bcryptjs');
+const File = require('./models/file');
+const { createWriteStream }= require('fs');
+const path = require('path');
 
 function passCheck(info) {
   function check(parentField) {
@@ -143,6 +145,7 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
+    files: async () => File.find(),
     personsNotOnCourse: async (parent, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
@@ -151,7 +154,7 @@ module.exports = {
         if (course) {
           if (person.accountType == "teacher") {
             let difference = (await Person.find()).filter(x => !course.students.includes(x._id) && x.accountType == "student");
-            if(args.email) difference = difference.filter(student => !!student.email.toString().match(new RegExp(args.email, 'i')));
+            if (args.email) difference = difference.filter(student => !!student.email.toString().match(new RegExp(args.email, 'i')));
             let persons = [];
             let end = false;
             for (let student of paginator(args.page, args.count, difference)) {
@@ -283,6 +286,20 @@ module.exports = {
       }
     },
 
+    uploadFile: async (parent, { file }) => {
+      const { createReadStream, filename } = await file;
+
+      await new Promise(res => 
+        createReadStream()
+        .pipe(createWriteStream(path.join(__dirname, "../files", filename)))
+        .on("close",res));
+      
+      const newFile = new File({title: filename});
+      newFile.save();
+
+      return !!newFile;
+    },
+
     createCourse: async (_, { title, description, dateStart, dateEnd, maxMark }, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
@@ -365,9 +382,9 @@ module.exports = {
             coursesUpdated = !!updSt && coursesUpdated;
           }
         } else {
-          for(let courseId of person.coursesConducts) {
+          for (let courseId of person.coursesConducts) {
             let course = await Course.findById(courseId);
-            for(let studentId of course.students) {
+            for (let studentId of course.students) {
               let student = await Person.findById(studentId);
               let updTakesPart = student.coursesTakesPart;
               updTakesPart.remove(courseId);
@@ -376,8 +393,8 @@ module.exports = {
               });
               coursesUpdated = !!updSt && coursesUpdated;
             }
-            let delCourseResult = await Course.remove({_id: courseId});
-            if(!delCourseResult) throw new Error("Course of the teacher can't be deleted")
+            let delCourseResult = await Course.remove({ _id: courseId });
+            if (!delCourseResult) throw new Error("Course of the teacher can't be deleted")
           }
         }
 
@@ -450,13 +467,13 @@ module.exports = {
       }
     },
 
-    addLesson: async (_,args, context, info) => {
+    addLesson: async (_, args, context, info) => {
       passCheck(info);
       const course = await Course.findById(args.idCourse);
       const teacher = await Person.findById(context.payload.payload._id);
       if (course == null) throw new Error("Course not found 404");
       if (context.loggedIn && course.teacher == context.payload.payload._id) {
-        const lesson = new Lesson({course : course._id, title: args.title});
+        const lesson = new Lesson({ course: course._id, title: args.title });
         let lessons = course.lessons;
         lessons.push(lesson._id);
         let updatedCourse = await Course.findOneAndUpdate({ _id: args.idCourse }, { lessons: lessons }, {
@@ -467,7 +484,7 @@ module.exports = {
         lesson.save();
 
         return updatedCourse ? lesson : "Cant modify course";
-        
+
       } else {
         throw new Error("Unauthorized 401");
       }
