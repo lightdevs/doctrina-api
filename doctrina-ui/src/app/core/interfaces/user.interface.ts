@@ -26,3 +26,15 @@ export interface IRegistrationForm {
   password: string;
   accountType: string;
 }
+
+export interface IEditPersonForm {
+  _id: string;
+  email: string;
+  name: string;
+  surname: string;
+  country: string;
+  city: string;
+  institution: string;
+  description: string;
+  photo: string;
+}
