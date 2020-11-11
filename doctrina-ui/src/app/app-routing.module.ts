@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from './core/extension/auth.guard';
 import { ControlsTestComponent } from './shared/components/controls-test/controls-test.component';
+import {ProfileComponent} from "./features/profile/profile/profile.component";
 
 
 const routes: Routes = [
@@ -27,8 +28,7 @@ const routes: Routes = [
   },
   {
     path: 'profile',
-    loadChildren: () =>
-      import('./features/profile/profile.module').then(m => m.ProfileModule),
+    component: ProfileComponent,
     canActivate: [AuthGuard],
   },
 ];

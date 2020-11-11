@@ -14,8 +14,8 @@ import { CoursesService } from '../courses.service';
 
 @Component({
   selector: 'app-courses',
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss'],
+  templateUrl: './courses.component.html',
+  styleUrls: ['./courses.component.scss'],
   providers: [DatePipe]
 })
 export class CoursesComponent implements OnInit, OnDestroy {
