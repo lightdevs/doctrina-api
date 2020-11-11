@@ -1,0 +1,92 @@
+
+.search-course-block {
+  margin-top: 3em;
+}
+
+.search-tool {
+  padding: 15px;
+}
+
+.flex-row {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.flex-column {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.course-list {
+  background-color: #f2f2f2;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px;
+}
+
+.course-block {
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 10px;
+  border: 1.5px solid #ffffff;
+}
+
+
+.course-block:hover {
+  border: 1.5px dashed #21c8e6;
+}
+
+.settings {
+  font-size: 1.3em;
+  margin-top: 0.5em;
+}
+
+.progress {
+  width: 20em;
+  height: 2em;
+}
+
+.course-name {
+  font-size: 2em;
+  font-weight: bold;
+  text-align: center;
+  padding: 1% 0;
+}
+
+.date-info {
+  font-size: 0.7em;
+  font-weight: bold;
+  color: #000000;
+}
+
+.padding-between {
+  padding-left: 3em;
+  padding-right: 3em;
+}
+
+.progress-bar {
+  background-color: #21c8e6;
+}
+
+.progress {
+  margin-top: 0.8em;
+}
+
+.grade {
+  margin-top: 0.7em;
+  font-size: 1em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.spacer-beetwen {
+  display: flex;
+  justify-content: space-between;
+}

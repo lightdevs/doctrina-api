@@ -18,7 +18,7 @@ import { CoursesService } from '../courses.service';
   styleUrls: ['./profile.component.scss'],
   providers: [DatePipe]
 })
-export class CoursesComponent implements OnInit, OnDestroy {
+export class ProfileComponent implements OnInit, OnDestroy {
 
   @ViewChild(CreateCourseComponent) createCourse: CreateCourseComponent;
 

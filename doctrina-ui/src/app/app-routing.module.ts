@@ -15,13 +15,20 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/authentication/authentication.module').then(m => m.AuthenticationModule),
   },
-  { path: 'control', component: ControlsTestComponent,
+  {
+    path: 'control', component: ControlsTestComponent,
     canActivate: [AuthGuard],
   },
   {
     path: 'courses',
     loadChildren: () =>
       import('./features/courses/courses.module').then(m => m.CoursesModule),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'profile',
+    loadChildren: () =>
+      import('./features/profile/profile.module').then(m => m.ProfileModule),
     canActivate: [AuthGuard],
   },
 ];
