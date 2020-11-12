@@ -1,12 +1,16 @@
 const { Kind } = require('graphql/language');
 const { GraphQLScalarType } = require('graphql');
 const utils = require('./utils');
+const md5 = require('md5');
+const config = require('./config');
 const Course = require('./models/course');
 const Person = require('./models/person');
 const Lesson = require('./models/lesson');
 const File = require('./models/file');
-const { createWriteStream }= require('fs');
+const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
+
 
 function passCheck(info) {
   function check(parentField) {
@@ -286,15 +290,49 @@ module.exports = {
       }
     },
 
-    uploadFile: async (parent, { file }) => {
+    uploadMaterial: async (parent, { file }) => {
       const { createReadStream, filename } = await file;
 
-      await new Promise(res => 
+      const materialsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,
+        {
+          chunkSizeBytes: 1024*1024,
+          bucketName: 'materials'
+        }
+      );
+
+      // fs.createReadStream('C:/Папочка/Pics/pic.png').
+      //   pipe(gridFSBucket.openUploadStream('pic.png')).
+      //   on('error', function (error) {
+      //     console.error(error);
+      //     throw new Error("Can't upload file ");
+      //   }).
+      //   on('finish', function () {
+      //     console.log('done!');
+      //   });
+
+      //   gridFSBucket.openDownloadStreamByName('pic.png').
+      //   pipe(fs.createWriteStream('../pic.png')).
+      //   on('error', function (error) {
+      //     console.error(error);
+      //     throw new Error("Can't download file");
+      //   }).
+      //   on('finish', function () {
+      //     console.log('done!');
+      //   });
+
+
+      await new Promise(res => {
         createReadStream()
-        .pipe(createWriteStream(path.join(__dirname, "../files", filename)))
-        .on("close",res));
-      
-      const newFile = new File({title: filename});
+          .pipe(materialsBucket.openUploadStream(filename))
+          .on('error', function (error) {
+            console.error(error);
+            throw new Error("Can't upload file ");
+          })
+          .on('finish', res);
+      }
+      );
+
+      const newFile = new File({ title: filename, hash: md5(filename) });
       newFile.save();
 
       return !!newFile;

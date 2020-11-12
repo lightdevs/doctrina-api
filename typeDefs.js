@@ -7,6 +7,7 @@ scalar Date
 type File {
     _id: ID!
     title:String!
+    hash: String
     description:String
 }
 
@@ -116,7 +117,7 @@ type Query {
 
 type Mutation {
 
-    uploadFile(file: Upload!): Boolean!
+    uploadMaterial(file: Upload!): Boolean!
 
     createCourse(
     title:String!,
