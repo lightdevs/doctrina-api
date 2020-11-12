@@ -4,6 +4,14 @@ module.exports = gql`
 
 scalar Date
 
+type File {
+    _id: ID!
+    title:String!
+    hash: String
+    description:String
+}
+
+
 type Course {
     _id: ID!
     title:String!
@@ -97,7 +105,9 @@ type ExtendedPerson {
 
 
 type Query {
-    courses(sort: String, page: Int!, count: Int!): ExtendedPerson
+    files: [File]
+
+    courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
     personsNotOnCourse(courseId: String, email: String, page: Int!, count: Int!): ExtendedCourse
     me: Person
@@ -106,6 +116,9 @@ type Query {
 }
 
 type Mutation {
+
+    uploadMaterial(file: Upload!): Boolean!
+
     createCourse(
     title:String!,
     description:String,
