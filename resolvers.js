@@ -292,7 +292,6 @@ module.exports = {
 
     uploadMaterial: async (parent, { file }) => {
       const { createReadStream, filename } = await file;
-
       const materialsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,
         {
           chunkSizeBytes: 1024*1024,
