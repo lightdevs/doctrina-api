@@ -9,6 +9,7 @@ type File {
     title:String!
     hash: String
     description:String
+    mimetype: String
 }
 
 
@@ -20,27 +21,10 @@ type Course {
     dateEnd: Date
     maxMark: Int
     lessons: [ID!]
+    materials: [ID!]
+    links: [Link!]
     teacher: ID!
     students: [ID!]!
-}
-
-type CourseLink {
-    _id: ID!
-    title: String!
-    course: ID!
-    description: String
-    timeAdded: Date
-    link: String!
-}
-
-type CourseDoc {
-    _id: ID!
-    title: String!
-    course: ID!
-    description: String
-    timeAdded: Date
-    documentName: String
-    documentLink: String!
 }
 
 type Lesson {
@@ -53,24 +37,12 @@ type Lesson {
     maxMark: Int
 }
 
-type LessonLink {
+type Link {
     _id: ID!
-    title: String!
-    lesson: ID!
-    description: String
-    timeAdded: Date
+    title: String
     link: String!
 }
 
-type LessonDoc {
-    _id: ID!
-    title: String!
-    lesson: ID!
-    description: String
-    timeAdded: Date
-    documentName: String
-    documentLink: String!
-}
 
 type Person {
     _id: ID!
@@ -97,15 +69,21 @@ type ExtendedCourse {
     persons: [Person!]!
     isEnd: Boolean!
 }
+
+type CourseWithTeacher {
+    course: Course!
+    teacher: Person!
+}
 type ExtendedPerson {
     person: Person,
-    courses: [Course!]!,
+    courses: [CourseWithTeacher!]!,
     isEnd: Boolean!
 }
 
 
 type Query {
     files: [File]
+    downloadMaterial(name: String!, id: String): String
 
     courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
@@ -117,7 +95,7 @@ type Query {
 
 type Mutation {
 
-    uploadMaterial(file: Upload!): Boolean!
+    uploadCourseMaterial(file: Upload!): Boolean!
 
     createCourse(
     title:String!,

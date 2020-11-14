@@ -93,6 +93,12 @@ module.exports = {
               allMyCourses = allMyCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
             }
             let allMyCoursesLength = allMyCourses.length;
+            myCourses = myCourses.map(function (el) {
+              return {
+                course: el,
+                teacher: Person.findById(el.teacher)
+              }
+            });
             return { person: person, courses: myCourses, isEnd: allMyCoursesLength > skip + limit ? false : true };
           }
           else if (person.accountType == "student") {
@@ -109,6 +115,12 @@ module.exports = {
             if (args.title != null) {
               myCourses = myCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
             }
+            myCourses = myCourses.map(function (el) {
+              return {
+                course: el,
+                teacher: Person.findById(el.teacher)
+              }
+            });
             return { person: person, courses: myCourses, isEnd: end };
           } else throw new Error("Invalid account type");
         } else throw new Error("No such user 404");
@@ -150,6 +162,19 @@ module.exports = {
       }
     },
     files: async () => File.find(),
+    downloadMaterial: async (_, args, context, info) => {
+      const { materialsBucket } = require("./buckets");
+      const readStream = materialsBucket.openDownloadStreamByName("pic.png");
+
+      readStream.pipe(fs.createWriteStream('../pic.png')).
+        on('error', function (error) {
+          console.error(error);
+          throw new Error("Can't download file");
+        }).
+        on('finish', function () {
+          console.log('done!');
+        });
+    },
     personsNotOnCourse: async (parent, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
@@ -248,6 +273,12 @@ module.exports = {
             courses.push(await Course.findById(courseId));
           }
         }
+        courses = courses.map(function (el) {
+          return {
+            course: el,
+            teacher: Person.findById(el.teacher)
+          }
+        });
         return { person: person, courses: courses, isEnd: end };
       } else {
         throw new Error("Unauthorized 401");
@@ -290,39 +321,19 @@ module.exports = {
       }
     },
 
-    uploadMaterial: async (parent, { file }) => {
+    uploadCourseMaterial: async (parent, { file }) => {
       const { createReadStream, filename } = await file;
-      const materialsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,
-        {
-          chunkSizeBytes: 1024*1024,
-          bucketName: 'materials'
+      const { courseMaterialsBucket } = require("./buckets");
+      const metadata = {
+        metadata: {
+          userId: "5364564",
+          hash: "dbdfnbfg"
         }
-      );
-
-      // fs.createReadStream('C:/Папочка/Pics/pic.png').
-      //   pipe(gridFSBucket.openUploadStream('pic.png')).
-      //   on('error', function (error) {
-      //     console.error(error);
-      //     throw new Error("Can't upload file ");
-      //   }).
-      //   on('finish', function () {
-      //     console.log('done!');
-      //   });
-
-      //   gridFSBucket.openDownloadStreamByName('pic.png').
-      //   pipe(fs.createWriteStream('../pic.png')).
-      //   on('error', function (error) {
-      //     console.error(error);
-      //     throw new Error("Can't download file");
-      //   }).
-      //   on('finish', function () {
-      //     console.log('done!');
-      //   });
-
+      };
 
       await new Promise(res => {
         createReadStream()
-          .pipe(materialsBucket.openUploadStream(filename))
+          .pipe(courseMaterialsBucket.openUploadStream(filename, metadata))
           .on('error', function (error) {
             console.error(error);
             throw new Error("Can't upload file ");
