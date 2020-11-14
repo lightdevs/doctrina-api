@@ -9,22 +9,18 @@ const courseMaterialsBucket = new mongoose.mongo.GridFSBucket(mongoose.connectio
 const lessonMaterialsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,
     {
         chunkSizeBytes: 1024 * 1024,
-        bucketName: 'courseMaterials'
+        bucketName: 'lessonMaterials'
     }
 );
-const courseMaterialsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,
+const profilePicsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,
     {
         chunkSizeBytes: 1024 * 1024,
-        bucketName: 'courseMaterials'
-    }
-);
-const courseMaterialsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,
-    {
-        chunkSizeBytes: 1024 * 1024,
-        bucketName: 'courseMaterials'
+        bucketName: 'profilePics'
     }
 );
 
 module.exports = {
-    courseMaterialsBucket
+    courseMaterialsBucket,
+    lessonMaterialsBucket,
+    profilePicsBucket
 }

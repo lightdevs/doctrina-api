@@ -32,6 +32,8 @@ type Lesson {
     course: ID!
     title:String!
     description:String
+    materials: [ID!]
+    links: [Link!]
     dateStart: Date
     dateEnd: Date
     maxMark: Int
@@ -96,6 +98,7 @@ type Query {
 type Mutation {
 
     uploadCourseMaterial(file: Upload!): Boolean!
+    uploadLessonMaterial(file: Upload!): Boolean!
 
     createCourse(
     title:String!,

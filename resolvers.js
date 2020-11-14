@@ -321,19 +321,47 @@ module.exports = {
       }
     },
 
-    uploadCourseMaterial: async (parent, { file }) => {
-      const { createReadStream, filename } = await file;
+    uploadCourseMaterial: async (parent, { file }, context, info) => {
+      const { createReadStream, filename, mimetype } = await file;
       const { courseMaterialsBucket } = require("./buckets");
       const metadata = {
         metadata: {
-          userId: "5364564",
-          hash: "dbdfnbfg"
+          userId: context.payload.payload._id,
+          hash: md5(filename),
+          mimetype: mimetype
         }
       };
 
       await new Promise(res => {
         createReadStream()
           .pipe(courseMaterialsBucket.openUploadStream(filename, metadata))
+          .on('error', function (error) {
+            console.error(error);
+            throw new Error("Can't upload file ");
+          })
+          .on('finish', res);
+      }
+      );
+
+      const newFile = new File({ title: filename, hash: md5(filename) });
+      newFile.save();
+
+      return !!newFile;
+    },
+    uploadLessonMaterial: async (parent, { file }) => {
+      const { createReadStream, filename } = await file;
+      const { lessonMaterialsBucket } = require("./buckets");
+      const metadata = {
+        metadata: {
+          userId: "",
+          hash: "dbdfnbfg",
+          mimetype: file.mimetype
+        }
+      };
+
+      await new Promise(res => {
+        createReadStream()
+          .pipe(lessonMaterialsBucket.openUploadStream(filename, metadata))
           .on('error', function (error) {
             console.error(error);
             throw new Error("Can't upload file ");
