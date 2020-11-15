@@ -172,10 +172,41 @@
                 Matherials
               </h1>
               <mat-label>
-                <button *ngIf="canEdit" color="primary" mat-icon-button type="button" tabindex="-1">
-                    <mat-icon>add</mat-icon>
+                <button mat-icon-button type="button" tabindex="-1" *ngIf="canEdit" color="primary" [disabled]="isUploading" (click)="inputFile.click()">
+                  <div class="spinner-container">
+                      <mat-icon *ngIf="!isUploading">add</mat-icon>
+                      <mat-spinner *ngIf="isUploading" diameter="20" mode="indeterminate"></mat-spinner>
+                  </div>
                 </button>
               </mat-label>
+            </div>
+            <div class="container span3">
+              <table class="table" style="height: 50px !important;">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">File Name</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Size</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ng-container *ngFor="let file of materials; let i = index">
+                    <tr>
+                      <th scope="row">{{i+1}}</th>
+                      <td>{{file?.title}} </td>
+                      <td>{{ file?.mimetype.split('/')[1] }}</td>
+                      <td> {{ formatSize(file?.size) }}</td>
+                      <td>
+                        <button mat-icon-button type="button" tabindex="-1" color="primary" (click)="downloadFile(file.fileId)">
+                          <mat-icon> get_app </mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
             </div>
           </mat-card>
         </div>
@@ -184,3 +215,4 @@
   </section>
 </div>
 </div>
+<input type="file" #inputFile (change)="uploadDocument($event)" hidden>

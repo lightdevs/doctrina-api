@@ -1,0 +1,56 @@
+<div class="mx-3">
+  <div class="course-list flex-column">
+    <section class="flex-row mx-3">
+      <section class="pt-2" >
+        <mat-card class="w-100">
+          <div class="card-header-container">
+            <h1 class="bold">
+              Lessons
+            </h1>
+            <mat-label>
+              <button color="primary" mat-icon-button type="button" tabindex="-1" (click)="addLesson()">
+                  <mat-icon>add</mat-icon>
+              </button>
+            </mat-label>
+          </div>
+          <div class="span1">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Title</th>
+                  <th scope="col">Date & Time Start</th>
+                  <th scope="col">Date & Time End</th>
+                  <th scope="col">Max grade</th>
+                  <th scope="col"></th>
+                  <th scope="col"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let lesson of lessons; let i = index">
+                  <tr>
+                    <th scope="row">{{i+1}}</th>
+                    <td>{{ lesson?.title}} </td>
+                    <td>{{ lesson?.dateStart?.toLocaleDateString() }} {{lesson?.dateStart?.toLocaleTimeString()}}</td>
+                    <td>{{ lesson?.dateEnd?.toLocaleDateString() }} {{lesson?.dateEnd?.toLocaleTimeString()}}</td>
+                    <td>{{ lesson?.maxMark}}</td>
+                    <td>
+                      <button mat-button type="button" tabindex="-1" color="primary" (click)="openLesson(lesson._id)">
+                        Open
+                      </button>
+                    </td>
+                    <td>
+                      <button mat-icon-button type="button" tabindex="-1" color="warn" (click)="deleteLesson(lesson._id)">
+                        <mat-icon> close </mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </mat-card>
+      </section>
+    </section>
+  </div>
+</div>
