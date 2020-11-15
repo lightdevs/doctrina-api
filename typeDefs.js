@@ -8,6 +8,8 @@ type File {
     _id: ID!
     title:String!
     hash: String
+    fileId: ID!
+    userId: ID!
     description:String
     mimetype: String
 }
@@ -97,8 +99,8 @@ type Query {
 
 type Mutation {
 
-    uploadCourseMaterial(file: Upload!): Boolean!
-    uploadLessonMaterial(file: Upload!): Boolean!
+    uploadCourseMaterial(file: Upload!, courseId: String!): Boolean
+    uploadLessonMaterial(file: Upload!): Lesson!
 
     createCourse(
     title:String!,

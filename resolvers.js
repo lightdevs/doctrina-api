@@ -321,32 +321,50 @@ module.exports = {
       }
     },
 
-    uploadCourseMaterial: async (parent, { file }, context, info) => {
-      const { createReadStream, filename, mimetype } = await file;
-      const { courseMaterialsBucket } = require("./buckets");
-      const metadata = {
-        metadata: {
-          userId: context.payload.payload._id,
-          hash: md5(filename),
-          mimetype: mimetype
+    uploadCourseMaterial: async (_, { courseId, file }, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let teacher = await Person.findById(context.payload.payload._id);
+        if (teacher.accountType == "teacher") {
+          let course = await Course.findById(courseId);
+          if (course) {
+            const { createReadStream, filename, mimetype } = await file;
+            const { courseMaterialsBucket } = require("./buckets");
+            const writeStream = courseMaterialsBucket.openUploadStream(filename);
+
+            await new Promise(res => {
+              createReadStream()
+                .pipe(writeStream)
+                .on('error', function (error) {
+                  console.error(error);
+                  throw new Error("Can't upload file ");
+                })
+                .on('finish', res);
+            }
+            );
+            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype });
+            newFile.save();
+
+            let materials = course.materials;
+            materials.push(newFile._id);
+            let updatedCourse = await Course.findByIdAndUpdate({ _id: courseId }, { materials: materials }, {
+              returnOriginal: false
+            });
+
+            if (newFile && updatedCourse) {
+              return !!updatedCourse;
+            } else {
+              throw new Error("File or course ain`t saved 500")
+            }
+          } else {
+            throw new Error("Course not found 404");
+          }
+        } else {
+          throw new Error("Students are not permitted to modify the course 403");
         }
-      };
-
-      await new Promise(res => {
-        createReadStream()
-          .pipe(courseMaterialsBucket.openUploadStream(filename, metadata))
-          .on('error', function (error) {
-            console.error(error);
-            throw new Error("Can't upload file ");
-          })
-          .on('finish', res);
+      } else {
+        throw new Error("Unauthorized 401");
       }
-      );
-
-      const newFile = new File({ title: filename, hash: md5(filename) });
-      newFile.save();
-
-      return !!newFile;
     },
     uploadLessonMaterial: async (parent, { file }) => {
       const { createReadStream, filename } = await file;

@@ -17,7 +17,8 @@ const startServer = async () => {
   });
 
   await mongoose.connect(config.database, { useNewUrlParser: true, useUnifiedTopology: true });
-
+  mongoose.set('useFindAndModify', false);
+  
   const server = new ApolloServer({
     typeDefs, resolvers, context: ({ req, res }) => {
       const token = req.headers.authorization || '';
