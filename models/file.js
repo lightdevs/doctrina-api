@@ -22,6 +22,10 @@ const fileSchema = new mongoose.Schema(
             type: String,
             required: false
         },
+        size: {
+            type: Number,
+            required: false
+        },
         description: {
             type: String,
             required: false,
