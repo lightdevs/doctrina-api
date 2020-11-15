@@ -7,8 +7,8 @@ import { ProfileService } from '../profile.service';
 import { Subject } from 'rxjs';
 import { Message } from '../../../core/extension/messages';
 import { FormGroup, FormBuilder, Validators, FormGroupDirective } from '@angular/forms';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { configureToastr } from '../../../core/helpers';
+import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
+import {configureToastr, toastrTitle} from '../../../core/helpers';
 import { ToastrService } from 'ngx-toastr';
 
 
@@ -34,7 +34,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private apollo: Apollo,
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
-    private toastr: ToastrService
+    private toastr: ToastrService,
   ) {
     authService.currentUser.subscribe( x => this.currentUser = x);
   }
@@ -70,10 +70,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.profileService.updatePerson(
         {
           ...this.updateProfileForm.value
-        }).subscribe(res => {
-          console.log(res);
+        }).subscribe(
+        (res) => {
           this.currentUser = res.data.updatePerson;
-      });
+          this.toastr.success(this.message.PROFILE_UPDATED, toastrTitle.Success);
+        },
+        () => {
+          this.toastr.error(this.message.SOMETHING_IS_WRONG, toastrTitle.Error);
+        }
+      );
     } else {
       this.updateProfileForm.markAllAsTouched();
     }
