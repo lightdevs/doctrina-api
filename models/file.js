@@ -6,6 +6,14 @@ const fileSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        searchTitle: {
+            type: String,
+            required: true,
+        },
+        bucket: {
+            type: String,
+            required: true,
+        },
         fileId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true
@@ -15,10 +23,6 @@ const fileSchema = new mongoose.Schema(
             required: true
         },
         mimetype: {
-            type: String,
-            required: false
-        },
-        hash: {
             type: String,
             required: false
         },

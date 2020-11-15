@@ -191,18 +191,15 @@ module.exports = {
       }
     },
 
-    downloadMaterial: async (_, args, context, info) => {
-      const { materialsBucket } = require("./buckets");
-      const readStream = materialsBucket.openDownloadStreamByName("pic.png");
-
-      readStream.pipe(fs.createWriteStream('../pic.png')).
-        on('error', function (error) {
-          console.error(error);
-          throw new Error("Can't download file");
-        }).
-        on('finish', function () {
-          console.log('done!');
-        });
+    downloadFile: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let url = `http://localhost:${config.PORT}/download?id=${args.id}`;
+        return url;
+      }
+      else {
+        throw new Error("Unauthorized 401");
+      }
     },
     personsNotOnCourse: async (parent, args, context, info) => {
       passCheck(info);
@@ -318,7 +315,7 @@ module.exports = {
       if (context.loggedIn) {
         passCheck(info);
         let lesson = Lesson.findById(args.id);
-        if(lesson) {
+        if (lesson) {
           return lesson;
         } else {
           throw new Error("Not found 404");
@@ -374,7 +371,8 @@ module.exports = {
           if (course) {
             const { createReadStream, filename, mimetype } = await file;
             const { courseMaterialsBucket } = require("./buckets");
-            const writeStream = courseMaterialsBucket.openUploadStream(filename);
+            let hash = md5(filename.concat(teacher.email, course.title));
+            const writeStream = courseMaterialsBucket.openUploadStream(hash);
 
             await new Promise(res => {
               createReadStream()
@@ -387,7 +385,7 @@ module.exports = {
             }
             );
 
-            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
+            const newFile = new File({ title: filename, searchTitle: hash, bucket: "course", userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
             newFile.save();
 
             let materials = course.materials;
@@ -420,7 +418,8 @@ module.exports = {
           if (lesson) {
             const { createReadStream, filename, mimetype } = await file;
             const { lessonMaterialsBucket } = require("./buckets");
-            const writeStream = lessonMaterialsBucket.openUploadStream(filename);
+            let hash = md5(filename.concat(teacher.email, course.title));
+            const writeStream = lessonMaterialsBucket.openUploadStream(hash);
 
             await new Promise(res => {
               createReadStream()
@@ -432,7 +431,7 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
+            const newFile = new File({ title: filename, searchTitle: hash, bucket: "lesson", userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
             newFile.save();
 
             let materials = lesson.materials;
@@ -467,7 +466,8 @@ module.exports = {
             if (!(mimetype.indexOf('image') + 1)) throw new Error("It must be an image 406");
 
             const { profilePicsBucket } = require("./buckets");
-            const writeStream = profilePicsBucket.openUploadStream(filename);
+            let hash = md5(filename.concat(teacher.email, course.title));
+            const writeStream = profilePicsBucket.openUploadStream(hash);
 
             await new Promise(res => {
               createReadStream()
@@ -479,7 +479,7 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, userId: person._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
+            const newFile = new File({ title: filename, searchTitle: hash, bucket: "pic", userId: person._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
             newFile.save();
 
             let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {

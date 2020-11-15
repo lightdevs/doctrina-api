@@ -16,6 +16,8 @@ const startServer = async () => {
     next();
   });
 
+  app.use('/download', require('./download.js').router);
+
   await mongoose.connect(config.database, { useNewUrlParser: true, useUnifiedTopology: true });
   mongoose.set('useFindAndModify', false);
   

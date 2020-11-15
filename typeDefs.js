@@ -7,7 +7,8 @@ scalar Date
 type File {
     _id: ID!
     title:String!
-    hash: String
+    searchTitle: String
+    bucket: String
     fileId: ID!
     userId: ID!
     description: String
@@ -88,7 +89,7 @@ type ExtendedPerson {
 
 type Query {
     files: [File]
-    downloadMaterial(name: String!, id: String): String
+    downloadFile(id: String!): String
 
     filesByCourse(courseId: String!, mimetype: String): [File!]
     lessonsByCourse(courseId: String!): [Lesson!]
@@ -138,7 +139,8 @@ type Mutation {
     title:String
     description:String
     dateStart: Date
-    dateEnd: Date): Lesson!
+    dateEnd: Date
+    maxMark: Int): Lesson!
 
     deletePerson(
         id: ID!
