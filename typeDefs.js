@@ -91,6 +91,7 @@ type Query {
     downloadMaterial(name: String!, id: String): String
 
     filesByCourse(courseId: String!, mimetype: String): [File!]
+    lessonsByCourse(courseId: String!): [Lesson!]
 
     courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
@@ -98,6 +99,7 @@ type Query {
     me: Person
     courseById(id: String!, sort: String, page: Int!, count: Int!): ExtendedCourse
     personById(id: String!, sort: String, page: Int!, count: Int!): ExtendedPerson
+    lessonById(id: String!): Lesson
 }
 
 type Mutation {
@@ -126,6 +128,17 @@ type Mutation {
     dateEnd: Date
     maxMark: Int
     teacher: ID) : Course!
+
+    deleteLesson(
+    id: ID!
+    ) : MutationResult!
+
+    updateLesson(
+    id: ID!
+    title:String
+    description:String
+    dateStart: Date
+    dateEnd: Date): Lesson!
 
     deletePerson(
         id: ID!
@@ -157,6 +170,8 @@ type Mutation {
         idCourse: ID!,
         title: String
     ) : Lesson!
+
+
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!
     login(email: String!, password: String!): Person
