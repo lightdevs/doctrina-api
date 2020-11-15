@@ -10,7 +10,8 @@ type File {
     hash: String
     fileId: ID!
     userId: ID!
-    description:String
+    description: String
+    size: Int
     mimetype: String
 }
 
@@ -88,6 +89,8 @@ type ExtendedPerson {
 type Query {
     files: [File]
     downloadMaterial(name: String!, id: String): String
+
+    filesByCourse(courseId: String!, mimetype: String): [File!]
 
     courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse

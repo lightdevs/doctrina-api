@@ -75,6 +75,7 @@ function sortByFunc(sortString, array) {    //TODO: Strategy pattern
 
 module.exports = {
   Query: {
+    files: () => { return null },
     courses: async (parent, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
@@ -161,7 +162,22 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
-    files: async () => File.find(),
+    filesByCourse: async (parent, args, context, info) => {
+      if (context.loggedIn) {
+        let files = [];
+        let course = await Course.findById(args.courseId);
+        if (course) {
+          for(let fileId of course.materials) {
+            files.push(await File.findById(fileId));
+          }
+          return files;
+        } else {
+          throw new Error("Course not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
     downloadMaterial: async (_, args, context, info) => {
       const { materialsBucket } = require("./buckets");
       const readStream = materialsBucket.openDownloadStreamByName("pic.png");
@@ -342,7 +358,8 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype });
+
+            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
             newFile.save();
 
             let materials = course.materials;
@@ -387,7 +404,7 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype });
+            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length  });
             newFile.save();
 
             let materials = lesson.materials;
@@ -419,7 +436,7 @@ module.exports = {
           if (person) {
             const { createReadStream, filename, mimetype } = await file;
 
-            if(!(mimetype.indexOf('image') + 1)) throw new Error("It must be an image 406");
+            if (!(mimetype.indexOf('image') + 1)) throw new Error("It must be an image 406");
 
             const { profilePicsBucket } = require("./buckets");
             const writeStream = profilePicsBucket.openUploadStream(filename);
@@ -434,7 +451,7 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, userId: person._id, fileId: writeStream.id, mimetype: mimetype });
+            const newFile = new File({ title: filename, userId: person._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length  });
             newFile.save();
 
             let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {
