@@ -16,6 +16,7 @@ import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
+import {ProfileModule} from './features/profile/profile.module';
 
 const myDefaultOptions: DefaultOptions = {
   watchQuery: {
@@ -44,6 +45,7 @@ const myDefaultOptions: DefaultOptions = {
     GraphQLModule,
     LoadingBarHttpClientModule,
     LoadingBarRouterModule,
+    ProfileModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: Interceptor, multi: true },
