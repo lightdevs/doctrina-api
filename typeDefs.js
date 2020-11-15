@@ -4,6 +4,14 @@ module.exports = gql`
 
 scalar Date
 
+type File {
+    _id: ID!
+    title:String!
+    hash: String
+    description:String
+}
+
+
 type Course {
     _id: ID!
     title:String!
@@ -11,8 +19,57 @@ type Course {
     dateStart: Date
     dateEnd: Date
     maxMark: Int
+    lessons: [ID!]
     teacher: ID!
     students: [ID!]!
+}
+
+type CourseLink {
+    _id: ID!
+    title: String!
+    course: ID!
+    description: String
+    timeAdded: Date
+    link: String!
+}
+
+type CourseDoc {
+    _id: ID!
+    title: String!
+    course: ID!
+    description: String
+    timeAdded: Date
+    documentName: String
+    documentLink: String!
+}
+
+type Lesson {
+    _id: ID!
+    course: ID!
+    title:String!
+    description:String
+    dateStart: Date
+    dateEnd: Date
+    maxMark: Int
+}
+
+type LessonLink {
+    _id: ID!
+    title: String!
+    lesson: ID!
+    description: String
+    timeAdded: Date
+    link: String!
+}
+
+type LessonDoc {
+    _id: ID!
+    title: String!
+    lesson: ID!
+    description: String
+    timeAdded: Date
+    documentName: String
+    documentLink: String!
 }
 
 type Person {
@@ -48,7 +105,9 @@ type ExtendedPerson {
 
 
 type Query {
-    courses(sort: String, page: Int!, count: Int!): ExtendedPerson
+    files: [File]
+
+    courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
     personsNotOnCourse(courseId: String, email: String, page: Int!, count: Int!): ExtendedCourse
     me: Person
@@ -57,6 +116,9 @@ type Query {
 }
 
 type Mutation {
+
+    uploadMaterial(file: Upload!): Boolean!
+
     createCourse(
     title:String!,
     description:String,
@@ -95,14 +157,19 @@ type Mutation {
     ) : Person!
 
     addStudent(
-        idCourse: ID!
+        idCourse: ID!,
         idPerson: ID!
     ) : Person
 
     removeStudent(
-        idCourse: ID!
+        idCourse: ID!,
         idPerson: ID!
     ) : Person
+
+    addLesson(
+        idCourse: ID!,
+        title: String
+    ) : Lesson!
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!
     login(email: String!, password: String!): Person
