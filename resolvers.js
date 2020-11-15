@@ -167,7 +167,7 @@ module.exports = {
         let files = [];
         let course = await Course.findById(args.courseId);
         if (course) {
-          for(let fileId of course.materials) {
+          for (let fileId of course.materials) {
             files.push(await File.findById(fileId));
           }
           return files;
@@ -178,6 +178,19 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
+    lessonsByCourse: async (parent, args, context, info) => {
+      if (context.loggedIn) {
+        let course = await Course.findById(args.courseId);
+        if (course) {
+          return Lesson.find({ course: course._id });
+        } else {
+          throw new Error("Course not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
     downloadMaterial: async (_, args, context, info) => {
       const { materialsBucket } = require("./buckets");
       const readStream = materialsBucket.openDownloadStreamByName("pic.png");
@@ -299,6 +312,21 @@ module.exports = {
       } else {
         throw new Error("Unauthorized 401");
       }
+    },
+
+    lessonById: async (_, args, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        let lesson = Lesson.findById(args.id);
+        if(lesson) {
+          return lesson;
+        } else {
+          throw new Error("Not found 404");
+        }
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
     }
   },
   Mutation: {
@@ -404,7 +432,7 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length  });
+            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
             newFile.save();
 
             let materials = lesson.materials;
@@ -451,7 +479,7 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, userId: person._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length  });
+            const newFile = new File({ title: filename, userId: person._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
             newFile.save();
 
             let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {
@@ -658,6 +686,49 @@ module.exports = {
         lesson.save();
 
         return updatedCourse ? lesson : "Cant modify course";
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    deleteLesson: async (_, args, context, info) => {
+      passCheck(info);
+      const lesson = await Lesson.findById(args.id);
+      if (lesson == null) throw new Error("Lesson not found 404");
+      const course = await Course.findById(lesson.course);
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+
+        let lessons = course.lessons;
+        lessons.remove(args.id);
+
+        let updCourse = await Course.findOneAndUpdate({ _id: lesson.course }, { lessons: lessons }, {
+          returnOriginal: false
+        });
+
+        if (!updCourse) throw new Error("Course can`t be updated")
+
+        let res = await Lesson.remove({ _id: args.id });
+        if (!res) throw new Error("Lesson can't be deleted");
+        return { affectedRows: res.deletedCount };
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    updateLesson: async (_, args, context, info) => {
+      passCheck(info);
+      const lesson = await Lesson.findById(args.id);
+      if (lesson == null) throw new Error("Lesson not found 404");
+      const course = await Course.findById(lesson.course);
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+
+        let updLes = await Lesson.findOneAndUpdate({ _id: lesson._id }, args, {
+          returnOriginal: false
+        });
+
+        if (!updLes) throw new Error("Lesson can`t be updated")
+
+        return updLes;
 
       } else {
         throw new Error("Unauthorized 401");
