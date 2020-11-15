@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {SharedModule} from '../../shared/shared.module';
 import {ProfileComponent} from './profile/profile.component';
+import {SharedModule} from "../../shared/shared.module";
+import {MaterialModule} from "../../shared/material.module";
 
 
 @NgModule({
@@ -10,7 +11,8 @@ import {ProfileComponent} from './profile/profile.component';
   ],
   imports: [
     CommonModule,
-    SharedModule
+    SharedModule,
+    MaterialModule
   ]
 })
 export class ProfileModule { }

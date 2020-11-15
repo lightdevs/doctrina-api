@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { DatePipe } from '@angular/common';
 import { IUserInfo } from 'src/app/core/interfaces/user.interface';
@@ -7,15 +7,21 @@ import { ProfileService } from '../profile.service';
 import { Subject } from 'rxjs';
 import { Message } from '../../../core/extension/messages';
 import { FormGroup, FormBuilder, Validators, FormGroupDirective } from '@angular/forms';
-import {MatDialogRef} from "@angular/material/dialog";
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { configureToastr } from '../../../core/helpers';
+import { ToastrService } from 'ngx-toastr';
+
 
 @Component({
-  selector: 'app-courses',
+  selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   providers: [DatePipe]
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+
+  @ViewChild(FormGroupDirective) formDirective: FormGroupDirective;
+
   canEdit = false;
   currentUser: IUserInfo;
   message = Message;
@@ -27,13 +33,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private profileService: ProfileService,
     private apollo: Apollo,
     private formBuilder: FormBuilder,
-    public dialogRef: MatDialogRef<ProfileComponent>
+    public dialog: MatDialog,
+    private toastr: ToastrService
   ) {
     authService.currentUser.subscribe( x => this.currentUser = x);
   }
 
   ngOnInit() {
     this.createForm();
+    configureToastr(this.toastr);
     this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
   }
 
@@ -55,6 +63,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  onSubmit() {
+    console.log('submited');
+  }
 
 
 
