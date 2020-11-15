@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const {Person} = require("./person")
+const Link = require("./link.js");
 
 const courseSchema = new mongoose.Schema(
     {
@@ -21,6 +21,19 @@ const courseSchema = new mongoose.Schema(
         },
         maxMark: {
             type: Number,
+            required: false,
+        },
+        lessons: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false,
+        },
+        materials: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false,
+        },
+        links: {
+            type: [mongoose.Schema.Types.ObjectId],
+            ref: "Link",
             required: false,
         },
         teacher: {

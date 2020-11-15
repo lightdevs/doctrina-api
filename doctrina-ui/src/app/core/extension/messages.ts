@@ -6,6 +6,7 @@ export enum Message {
     ISSUES_CREATED = `Issues Created`,
     COMMENT_ADDED = `Comment Added`,
     COURSE_CREATED = `Course created`,
-    COURSE_DELETED = `Course deleted`
-
+    COURSE_DELETED = `Course deleted`,
+    PROFILE_UPDATED = `Profile updated`,
+    PROFILE_DELETED = `Profile deleted`,
 }

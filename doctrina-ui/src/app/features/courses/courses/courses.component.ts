@@ -3,7 +3,7 @@ import { Apollo } from 'apollo-angular';
 import { CreateCourseComponent } from '../create-course/create-course.component';
 import gql from 'graphql-tag';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
+import {Observable, Subject, Subscription} from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
@@ -22,12 +22,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
 
   @ViewChild(CreateCourseComponent) createCourse: CreateCourseComponent;
 
+  filterTerm: string;
   courses = [];
   loading = false;
-  animal: string;
-  name: string;
-  filterTerm: string;
   currentUser: IUserInfo;
+  querySubscription: Subscription;
 
   constructor(
     private authService: AuthenticationService,
@@ -43,66 +42,25 @@ export class CoursesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   ngOnInit() {
-    this.apollo
-      .query<any>({
-        query: gql`
-          {
-             courses(page: 0, count: 5) {
-               person {
-                email,
-                name,
-                surname
-               }
-               courses {
-                _id,
-                title,
-                description,
-                dateStart,
-                dateEnd,
-                maxMark,
-                teacher
-               }
-               isEnd
-            }
-          }
-        `
-      })
-      .subscribe(
-        ({ data, loading }) => {
-          this.courses = data.courses.courses.map(x => {
-
-            const result = this.getTeacher(x.teacher);
-
-            return{
-              ...x,
-              dateStart: this.datepipe.transform(x.dateStart, 'dd.MM.yy'),
-              dateEnd: this.datepipe.transform(x.dateEnd, 'dd.MM.yy'),
-              teacher: result,
-            };
-          });
-          this.loading = loading;
-        }
-      );
-
+    this.getCourses();
   }
 
+  getCourses(filterValue: string = null): void {
+    this.querySubscription = this.courseService.getCourses(filterValue)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(res => {
 
-  async getTeacher(id, page = 0, count = 0) {
-    return await this.apollo
-      .query<any>({
-        query: gql`
-        query personById($id: String!, $page: Int!, $count: Int!) {
-          personById(id: $id, page: $page, count: $count) {
-            person {
-              name,
-              surname
-            }
-          }
-        }`,
-        variables: {
-          id, page, count
-        }
-      }).toPromise();
+        const data = JSON.parse(JSON.stringify(res.data.courses.courses));
+        console.log('result:' , data);
+        const transformData = data.map(x => {
+          return{
+            ...x,
+            dateStart: this.datepipe.transform(x.dateStart, 'dd.MM.yy'),
+            dateEnd: this.datepipe.transform(x.dateEnd, 'dd.MM.yy'),
+          };
+        });
+        this.courses = transformData && transformData.length > 0 ? transformData : [];
+      });
   }
 
   openDialog(): void {

@@ -1,11 +1,10 @@
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 import { IUserInfo } from 'src/app/core/interfaces/user.interface';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { CoursesService } from '../courses.service';
-import { OnDestroy } from '@angular/core';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
@@ -19,8 +18,9 @@ export class StudentListComponent implements OnInit, OnDestroy {
   courseStudents: IUserInfo[] = [];
   students: IUserInfo[] = [];
   filterTerm: string;
+  querySubscription: Subscription;
 
-  private destroy$ = new Subject<void>();
+  private destroy$: Subject<boolean> = new Subject<boolean>();
   constructor(private courseService: CoursesService,
               @Inject(MAT_DIALOG_DATA) public data: any,
               public dialog: MatDialog) {
@@ -29,6 +29,7 @@ export class StudentListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getStudentsOfCurrentCourse();
+    this.getStudentsNotOnThisCourse();
   }
 
 
@@ -36,14 +37,15 @@ export class StudentListComponent implements OnInit, OnDestroy {
     this.courseService.getStudentsOfCourse(this.courseId)
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
+        console.log(res.data.courseById.persons);
         if (res.data.courseById.persons && res.data.courseById.persons.length > 0) {
-          this.courseStudents = res.data.courseById.persons;
+          this.courseStudents = JSON.parse(JSON.stringify(res.data.courseById.persons));
         }
-        this.getAllStudents();
+        // this.getAllStudents();
       });
   }
 
-  getAllStudents(): void {
+  /*getAllStudents(): void {
     this.courseService.getStudents()
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
@@ -54,6 +56,16 @@ export class StudentListComponent implements OnInit, OnDestroy {
           this.students = filterStud && filterStud.length > 0 ? filterStud : [];
         }
       });
+  }*/
+
+  getStudentsNotOnThisCourse(filterEmail: string = null): void {
+    this.querySubscription = this.courseService.getStudentsNotOnThisCourse(this.courseId, filterEmail)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(res => {
+      console.log(res.data.personsNotOnCourse.persons);
+      const data = JSON.parse(JSON.stringify(res.data.personsNotOnCourse.persons));
+      this.students = data && data.length > 0 ? data : [];
+    });
   }
 
   drop(event: CdkDragDrop<any[]>) {
@@ -68,9 +80,32 @@ export class StudentListComponent implements OnInit, OnDestroy {
     }
   }
 
+  dropDelete(event: CdkDragDrop<any[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      this.deleteStudent((event.previousContainer.data[event.previousIndex] as IUserInfo)._id);
+      transferArrayItem(event.previousContainer.data,
+                        event.container.data,
+                        event.previousIndex,
+                        event.currentIndex);
+    }
+  }
+
   assignStudent(studentId: string) {
     this.courseService.assignStudent(studentId, this.courseId)
-      .subscribe();
+      .pipe(
+        takeUntil(this.destroy$)
+        )
+      .subscribe(res => console.log(res, 'add'));
+  }
+
+  deleteStudent(studentId: string) {
+    this.courseService.deleteStudent(studentId, this.courseId)
+    .pipe(
+      takeUntil(this.destroy$)
+      )
+      .subscribe(res => console.log(res, 'del'));
   }
 
   filterStudents(filterValue: string): void {
@@ -83,7 +118,9 @@ export class StudentListComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.destroy$.next(true);
+    // Now let's also unsubscribe from the subject itself:
+    this.querySubscription.unsubscribe();
+    this.destroy$.unsubscribe();
   }
 }

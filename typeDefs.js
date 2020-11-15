@@ -4,6 +4,18 @@ module.exports = gql`
 
 scalar Date
 
+type File {
+    _id: ID!
+    title:String!
+    hash: String
+    fileId: ID!
+    userId: ID!
+    description: String
+    size: Int
+    mimetype: String
+}
+
+
 type Course {
     _id: ID!
     title:String!
@@ -11,9 +23,31 @@ type Course {
     dateStart: Date
     dateEnd: Date
     maxMark: Int
-    teacher: ID
+    lessons: [ID!]
+    materials: [ID!]
+    links: [Link!]
+    teacher: ID!
     students: [ID!]!
 }
+
+type Lesson {
+    _id: ID!
+    course: ID!
+    title:String!
+    description:String
+    materials: [ID!]
+    links: [Link!]
+    dateStart: Date
+    dateEnd: Date
+    maxMark: Int
+}
+
+type Link {
+    _id: ID!
+    title: String
+    link: String!
+}
+
 
 type Person {
     _id: ID!
@@ -25,7 +59,7 @@ type Person {
     city: String
     institution: String
     description: String
-    photo:  String
+    photo: File
     accountType: String!
     coursesTakesPart: [ID!]!
     coursesConducts: [ID!]! 
@@ -40,22 +74,38 @@ type ExtendedCourse {
     persons: [Person!]!
     isEnd: Boolean!
 }
+
+type CourseWithTeacher {
+    course: Course!
+    teacher: Person!
+}
 type ExtendedPerson {
     person: Person,
-    courses: [Course!]!,
+    courses: [CourseWithTeacher!]!,
     isEnd: Boolean!
 }
 
 
 type Query {
-    courses(sort: String, page: Int!, count: Int!): ExtendedPerson
+    files: [File]
+    downloadMaterial(name: String!, id: String): String
+
+    filesByCourse(courseId: String!, mimetype: String): [File!]
+
+    courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
+    personsNotOnCourse(courseId: String, email: String, page: Int!, count: Int!): ExtendedCourse
     me: Person
     courseById(id: String!, sort: String, page: Int!, count: Int!): ExtendedCourse
     personById(id: String!, sort: String, page: Int!, count: Int!): ExtendedPerson
 }
 
 type Mutation {
+
+    uploadCourseMaterial(file: Upload!, courseId: String!): Boolean
+    uploadLessonMaterial(file: Upload!, lessonId: String!): Boolean
+    uploadProfilePic(file: Upload!, personId: String!): Boolean
+
     createCourse(
     title:String!,
     description:String,
@@ -77,10 +127,36 @@ type Mutation {
     maxMark: Int
     teacher: ID) : Course!
 
+    deletePerson(
+        id: ID!
+    ) : MutationResult!
+
+    updatePerson(
+        id: ID!
+        email: String,
+        name: String,
+        surname: String,
+        country: String,
+        city: String,
+        institution: String,
+        description: String,
+        photo:  String
+    ) : Person!
+
     addStudent(
-        idCourse: ID!
+        idCourse: ID!,
         idPerson: ID!
     ) : Person
+
+    removeStudent(
+        idCourse: ID!,
+        idPerson: ID!
+    ) : Person
+
+    addLesson(
+        idCourse: ID!,
+        title: String
+    ) : Lesson!
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!
     login(email: String!, password: String!): Person

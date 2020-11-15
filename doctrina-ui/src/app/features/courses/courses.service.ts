@@ -93,7 +93,7 @@ export class CoursesService {
   }
 
   getStudentsOfCourse(courseId: string): Observable<any> {
-    return  this.apollo.query<any>({
+    return  this.apollo.query({
         query: gql `query courseById($id: String!, $page: Int!, $count: Int!) {
           courseById(id: $id, page: $page, count: $count) {
             persons {
@@ -136,11 +136,50 @@ export class CoursesService {
     });
   }
 
+  getStudentsNotOnThisCourse(courseId: string, filterEmail: string | null): Observable<any> {
+    return  this.apollo.query({
+      query: gql `query personsNotOnCourse($courseId: String, $email: String, $page: Int!, $count: Int!) {
+        personsNotOnCourse(courseId: $courseId, email: $email, page: $page, count: $count) {
+          persons {
+            _id
+            email
+            name
+            surname
+            country
+            city
+          }
+        }
+      }`,
+      variables: {
+        courseId,
+        email: filterEmail,
+        page: 0,
+        count: 100000
+      },
+    });
+  }
+
   assignStudent(studentId: string, courseId: string): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
       mutation addStudent($idCourse: ID!, $idPerson: ID!) {
         addStudent(idCourse: $idCourse, idPerson: $idPerson) {
+          _id
+        }
+      }
+    `,
+        variables: {
+          idCourse: courseId,
+          idPerson: studentId,
+        },
+    });
+  }
+
+  deleteStudent(studentId: string, courseId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation removeStudent($idCourse: ID!, $idPerson: ID!) {
+        removeStudent(idCourse: $idCourse, idPerson: $idPerson) {
           _id
         }
       }
@@ -188,5 +227,30 @@ export class CoursesService {
         count: 1000
       },
   });
+  }
+
+  getCourses(filterValue: string = null, sort: string = null): Observable<any> {
+    console.log(filterValue);
+    return  this.apollo.query<any>({
+      query: gql `query courses($sort: String, $title: String, $page: Int!, $count: Int!) {
+          courses(sort: $sort, title: $title, page: $page, count: $count) {
+          courses {
+              _id,
+              title,
+              description,
+              dateStart,
+              dateEnd,
+              maxMark,
+              teacher
+            }
+          }
+        }`,
+      variables: {
+        sort,
+        title: filterValue,
+        page: 0,
+        count: 1000
+      },
+    });
   }
 }

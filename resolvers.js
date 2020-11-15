@@ -1,9 +1,16 @@
 const { Kind } = require('graphql/language');
 const { GraphQLScalarType } = require('graphql');
 const utils = require('./utils');
+const md5 = require('md5');
+const config = require('./config');
 const Course = require('./models/course');
 const Person = require('./models/person');
-const { compare } = require('bcryptjs');
+const Lesson = require('./models/lesson');
+const File = require('./models/file');
+const fs = require('fs');
+const path = require('path');
+const mongoose = require('mongoose');
+
 
 function passCheck(info) {
   function check(parentField) {
@@ -68,6 +75,7 @@ function sortByFunc(sortString, array) {    //TODO: Strategy pattern
 
 module.exports = {
   Query: {
+    files: () => { return null },
     courses: async (parent, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
@@ -78,7 +86,20 @@ module.exports = {
             let skip = args.count * args.page;
             let limit = args.count;
             let myCourses = await Course.find({ teacher: person._id }, null, { skip: skip, limit: limit, sort: args.sort });
-            let allMyCoursesLength = await (await Course.find({ teacher: person._id })).length;
+            if (args.title != null) {
+              myCourses = myCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
+            }
+            let allMyCourses = await Course.find({ teacher: person._id });
+            if (args.title != null) {
+              allMyCourses = allMyCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
+            }
+            let allMyCoursesLength = allMyCourses.length;
+            myCourses = myCourses.map(function (el) {
+              return {
+                course: el,
+                teacher: Person.findById(el.teacher)
+              }
+            });
             return { person: person, courses: myCourses, isEnd: allMyCoursesLength > skip + limit ? false : true };
           }
           else if (person.accountType == "student") {
@@ -90,8 +111,17 @@ module.exports = {
                 break;
               }
               let currentCourse = await Course.findById(courseId);
-              if(currentCourse) myCourses.push(currentCourse);
+              if (currentCourse) myCourses.push(currentCourse);
             }
+            if (args.title != null) {
+              myCourses = myCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
+            }
+            myCourses = myCourses.map(function (el) {
+              return {
+                course: el,
+                teacher: Person.findById(el.teacher)
+              }
+            });
             return { person: person, courses: myCourses, isEnd: end };
           } else throw new Error("Invalid account type");
         } else throw new Error("No such user 404");
@@ -110,7 +140,7 @@ module.exports = {
             let studentsOfAnyCourse = await Person.find({ accountType: "student" }, null, { skip: skip, limit: limit });
             let allStudentsLength = await (await Person.find({ accountType: "student" })).length;
             if (args.email != null) {
-              studentsOfAnyCourse = studentsOfAnyCourse.filter(student => !!student.email.toString().match(new RegExp(args.email,'i')));
+              studentsOfAnyCourse = studentsOfAnyCourse.filter(student => !!student.email.toString().match(new RegExp(args.email, 'i')));
             }
             return { course: null, persons: studentsOfAnyCourse, isEnd: allStudentsLength > skip + limit ? false : true };
           }
@@ -118,12 +148,12 @@ module.exports = {
             let teachersOfMyCourses = [];
             for (let courseId of person.coursesTakesPart) {
               let currentCourse = await Course.findById(courseId);
-              let currentTeacher = currentCourse ? await Person.findById(currentCourse.teacher._id) : null;
+              let currentTeacher = currentCourse ? await Person.findById(currentCourse.teacher) : null;
               if (currentTeacher) teachersOfMyCourses.push(currentTeacher);
             }
             let allTeachersLength = teachersOfMyCourses.length;
             if (args.email != null) {
-              teachersOfMyCourses = teachersOfMyCourses.filter(teacher => !!teacher.email.toString().match(new RegExp(args.email,'i')));
+              teachersOfMyCourses = teachersOfMyCourses.filter(teacher => !!teacher.email.toString().match(new RegExp(args.email, 'i')));
             }
             return { course: null, persons: teachersOfMyCourses, isEnd: allTeachersLength > skip + limit ? false : true };
           }
@@ -132,10 +162,68 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
+    filesByCourse: async (parent, args, context, info) => {
+      if (context.loggedIn) {
+        let files = [];
+        let course = await Course.findById(args.courseId);
+        if (course) {
+          for(let fileId of course.materials) {
+            files.push(await File.findById(fileId));
+          }
+          return files;
+        } else {
+          throw new Error("Course not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    downloadMaterial: async (_, args, context, info) => {
+      const { materialsBucket } = require("./buckets");
+      const readStream = materialsBucket.openDownloadStreamByName("pic.png");
+
+      readStream.pipe(fs.createWriteStream('../pic.png')).
+        on('error', function (error) {
+          console.error(error);
+          throw new Error("Can't download file");
+        }).
+        on('finish', function () {
+          console.log('done!');
+        });
+    },
+    personsNotOnCourse: async (parent, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        const person = await Person.findById(context.payload.payload._id);
+        const course = await Course.findById(args.courseId);
+        if (course) {
+          if (person.accountType == "teacher") {
+            let difference = (await Person.find()).filter(x => !course.students.includes(x._id) && x.accountType == "student");
+            if (args.email) difference = difference.filter(student => !!student.email.toString().match(new RegExp(args.email, 'i')));
+            let persons = [];
+            let end = false;
+            for (let student of paginator(args.page, args.count, difference)) {
+              if (student == "END") {
+                end = true;
+                break;
+              }
+              persons.push(student);
+            }
+            return { course: course, persons: persons, isEnd: end };
+          }
+          else if (person.accountType == "student") {
+            throw new Error("Students are not permitted 403")
+          }
+        } else throw new Error("No such course 404");
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
     me: (parent, args, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
-        return context.payload.payload;
+        return Person.findById(context.payload.payload._id);
       } else {
         throw new Error("Please Login Again!");
       }
@@ -179,7 +267,7 @@ module.exports = {
         passCheck(info);
         const currentUser = context.payload.payload._id;
         const person = await Person.findById(args.id);
-
+        if (!person) throw new Error("No such person");
         let courses = [];
         let end = false;
 
@@ -201,6 +289,12 @@ module.exports = {
             courses.push(await Course.findById(courseId));
           }
         }
+        courses = courses.map(function (el) {
+          return {
+            course: el,
+            teacher: Person.findById(el.teacher)
+          }
+        });
         return { person: person, courses: courses, isEnd: end };
       } else {
         throw new Error("Unauthorized 401");
@@ -208,12 +302,184 @@ module.exports = {
     }
   },
   Mutation: {
+    register: async (_, { email, name, surname, password, accountType }, __, info) => {
+
+      const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, surname: surname, accountType: accountType };
+      // Get user document from 'user' collection.
+      const person = await Person.find({ email: email });
+      if (person.length != 0) {
+        throw new Error("User Already Exists!");
+      }
+      try {
+        // Insert User Object to Database
+        const regPerson = await Person.create(newPerson);
+        // Creating a Token from User Payload obtained.
+        const token = utils.getToken(regPerson);
+        regPerson.token = token;
+        // Adding token to user object
+        return regPerson;
+      } catch (e) {
+        throw e
+      }
+    },
+    login: async (_, { email, password }, __, info) => {
+      const person = await Person.find({ email: email });
+      // Checking For Encrypted Password Match with util func.
+      const isMatch = await utils.comparePassword(password, person[0].password)
+      if (isMatch) {
+        // Creating a Token from User Payload obtained.
+        const token = utils.getToken(person[0])
+        person[0].token = token;
+        return person[0];
+      } else {
+        // Throwing Error on Match Status Failed.
+        throw new Error("Wrong Login or Password!")
+      }
+    },
+
+    uploadCourseMaterial: async (_, { courseId, file }, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let teacher = await Person.findById(context.payload.payload._id);
+        if (teacher.accountType == "teacher") {
+          let course = await Course.findById(courseId);
+          if (course) {
+            const { createReadStream, filename, mimetype } = await file;
+            const { courseMaterialsBucket } = require("./buckets");
+            const writeStream = courseMaterialsBucket.openUploadStream(filename);
+
+            await new Promise(res => {
+              createReadStream()
+                .pipe(writeStream)
+                .on('error', function (error) {
+                  console.error(error);
+                  throw new Error("Can't upload file ");
+                })
+                .on('finish', res);
+            }
+            );
+
+            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
+            newFile.save();
+
+            let materials = course.materials;
+            materials.push(newFile._id);
+            let updatedCourse = await Course.findByIdAndUpdate({ _id: courseId }, { materials: materials }, {
+              returnOriginal: false
+            });
+
+            if (newFile && updatedCourse) {
+              return !!updatedCourse;
+            } else {
+              throw new Error("File or course ain`t saved 500")
+            }
+          } else {
+            throw new Error("Course not found 404");
+          }
+        } else {
+          throw new Error("Students are not permitted to modify the course 403");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    uploadLessonMaterial: async (_, { lessonId, file }, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let teacher = await Person.findById(context.payload.payload._id);
+        if (teacher.accountType == "teacher") {
+          let lesson = await Lesson.findById(lessonId);
+          if (lesson) {
+            const { createReadStream, filename, mimetype } = await file;
+            const { lessonMaterialsBucket } = require("./buckets");
+            const writeStream = lessonMaterialsBucket.openUploadStream(filename);
+
+            await new Promise(res => {
+              createReadStream()
+                .pipe(writeStream)
+                .on('error', function (error) {
+                  console.error(error);
+                  throw new Error("Can't upload file ");
+                })
+                .on('finish', res);
+            }
+            );
+            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length  });
+            newFile.save();
+
+            let materials = lesson.materials;
+            materials.push(newFile._id);
+            let updatedLesson = await Lesson.findByIdAndUpdate({ _id: lessonId }, { materials: materials }, {
+              returnOriginal: false
+            });
+
+            if (newFile && updatedLesson) {
+              return !!updatedLesson;
+            } else {
+              throw new Error("File or lesson ain`t saved 500")
+            }
+          } else {
+            throw new Error("Lesson not found 404");
+          }
+        } else {
+          throw new Error("Students are not permitted to modify the lesson 403");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    uploadProfilePic: async (_, { personId, file }, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        if (context.payload.payload._id == personId) {
+          let person = await Person.findById(personId);
+          if (person) {
+            const { createReadStream, filename, mimetype } = await file;
+
+            if (!(mimetype.indexOf('image') + 1)) throw new Error("It must be an image 406");
+
+            const { profilePicsBucket } = require("./buckets");
+            const writeStream = profilePicsBucket.openUploadStream(filename);
+
+            await new Promise(res => {
+              createReadStream()
+                .pipe(writeStream)
+                .on('error', function (error) {
+                  console.error(error);
+                  throw new Error("Can't upload file ");
+                })
+                .on('finish', res);
+            }
+            );
+            const newFile = new File({ title: filename, userId: person._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length  });
+            newFile.save();
+
+            let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {
+              returnOriginal: false
+            });
+
+            if (newFile && updatedPerson) {
+              return !!updatedPerson;
+            } else {
+              throw new Error("File or profile ain`t saved 500")
+            }
+          } else {
+            throw new Error("Person not found 404");
+          }
+        } else {
+          throw new Error("Not your profile 403");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
     createCourse: async (_, { title, description, dateStart, dateEnd, maxMark }, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
         const authorId = context.payload.payload._id;
-        const course = new Course({ title, description, dateStart, dateEnd, maxMark, teacher: authorId });
         const author = await Person.findById(authorId);
+        const course = new Course({ title, description, dateStart, dateEnd, maxMark, teacher: author._id });
 
         let authorCourses = author.coursesConducts;
         authorCourses.push(course._id);
@@ -230,8 +496,8 @@ module.exports = {
     deleteCourse: async (_, { id }, context, info) => {
       passCheck(info);
       const course = await Course.findById(id);
-      const teacher = await Person.findById(course.teacher);
       if (course == null) throw new Error("Course not found 404");
+      const teacher = await Person.findById(course.teacher);
       if (context.loggedIn && course.teacher == context.payload.payload._id) {
         let authorCourses = teacher.coursesConducts;
         let students = course.students;
@@ -260,7 +526,6 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
-
     updateCourse: async (_, args, context, info) => {
       passCheck(info);
       const course = await Course.findById(args.id);
@@ -273,39 +538,59 @@ module.exports = {
       }
     },
 
-    register: async (_, { email, name, surname, password, accountType }, __, info) => {
+    deletePerson: async (_, { id }, context, info) => {
+      passCheck(info);
+      const person = await Person.findById(id);
+      if (person == null) throw new Error("Student not found 404");
+      if (context.loggedIn && person._id == context.payload.payload._id) {
+        let coursesUpdated = true;
+        if (person.accountType == "student") {
+          let studentCourses = person.coursesTakesPart;
+          for (let courseId of studentCourses) {
+            let course = await Course.findById(courseId);
+            let courseStudents = course.students;
+            courseStudents.remove(id);
+            let updSt = await Course.findOneAndUpdate({ _id: courseId }, { students: courseStudents }, {
+              returnOriginal: false
+            });
+            coursesUpdated = !!updSt && coursesUpdated;
+          }
+        } else {
+          for (let courseId of person.coursesConducts) {
+            let course = await Course.findById(courseId);
+            for (let studentId of course.students) {
+              let student = await Person.findById(studentId);
+              let updTakesPart = student.coursesTakesPart;
+              updTakesPart.remove(courseId);
+              let updSt = await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: updTakesPart }, {
+                returnOriginal: false
+              });
+              coursesUpdated = !!updSt && coursesUpdated;
+            }
+            let delCourseResult = await Course.remove({ _id: courseId });
+            if (!delCourseResult) throw new Error("Course of the teacher can't be deleted")
+          }
+        }
 
-      const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, surname: surname, accountType: accountType };
-      // Get user document from 'user' collection.
-      const person = await Person.find({ email: email });
-      if (person.length != 0) {
-        throw new Error("User Already Exists!");
-      }
-      try {
-        // Insert User Object to Database
-        const regPerson = await Person.create(newPerson);
-        // Creating a Token from User Payload obtained.
-        const token = utils.getToken(regPerson);
-        regPerson.token = token;
-        // Adding token to user object
-        return regPerson;
-      } catch (e) {
-        throw e
+        let res = await Person.remove({ _id: id });
+
+        if (coursesUpdated && res) {
+          return { affectedRows: res.deletedCount };
+        } else throw new Error("Can't modify courses 520");
+      } else {
+        throw new Error("Unauthorized 401");
       }
     },
-
-    login: async (_, { email, password }, __, info) => {
-      const person = await Person.find({ email: email });
-      // Checking For Encrypted Password Match with util func.
-      const isMatch = await utils.comparePassword(password, person[0].password)
-      if (isMatch) {
-        // Creating a Token from User Payload obtained.
-        const token = utils.getToken(person[0])
-        person[0].token = token;
-        return person[0];
+    updatePerson: async (_, args, context, info) => {
+      passCheck(info);
+      const person = await Person.findById(args.id);
+      if (person == null) throw new Error("Person not found 404");
+      if (!!args.accountType && !!args.password) throw new Error("You are not permitted to modify these fields 403");
+      if (context.loggedIn && person._id == context.payload.payload._id) {
+        const newPerson = await Person.findOneAndUpdate({ _id: args.id }, args, { new: true });
+        return newPerson;
       } else {
-        // Throwing Error on Match Status Failed.
-        throw new Error("Wrong Login or Password!")
+        throw new Error("Unauthorized 401");
       }
     },
 
@@ -328,6 +613,52 @@ module.exports = {
           returnOriginal: false
         });
         return updatedCourse && updatedStudent ? student : "Can't add student 520";
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    removeStudent: async (_, args, context, info) => {
+      passCheck(info);
+      const course = await Course.findById(args.idCourse);
+      const student = await Person.findById(args.idPerson);
+      if (course == null) throw new Error("Course not found 404");
+      if (student == null) throw new Error("Student not found 404");
+      if (context.loggedIn && (course.teacher == context.payload.payload._id || student._id == context.payload.payload._id)) {
+        let studentArray = course.students;
+        studentArray.remove(student._id);
+        let updatedCourse = await Course.findOneAndUpdate({ _id: args.idCourse }, { students: studentArray }, {
+          returnOriginal: false
+        });
+
+        let participatesArray = student.coursesTakesPart;
+        participatesArray.remove(course._id);
+        let updatedStudent = await Person.findOneAndUpdate({ _id: args.idPerson }, { coursesTakesPart: participatesArray }, {
+          returnOriginal: false
+        });
+        return updatedCourse && updatedStudent ? student : "Can't remove student 520";
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
+    addLesson: async (_, args, context, info) => {
+      passCheck(info);
+      const course = await Course.findById(args.idCourse);
+      const teacher = await Person.findById(context.payload.payload._id);
+      if (course == null) throw new Error("Course not found 404");
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+        const lesson = new Lesson({ course: course._id, title: args.title });
+        let lessons = course.lessons;
+        lessons.push(lesson._id);
+        let updatedCourse = await Course.findOneAndUpdate({ _id: args.idCourse }, { lessons: lessons }, {
+          returnOriginal: false
+        });
+
+
+        lesson.save();
+
+        return updatedCourse ? lesson : "Cant modify course";
+
       } else {
         throw new Error("Unauthorized 401");
       }
