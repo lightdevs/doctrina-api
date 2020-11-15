@@ -58,7 +58,7 @@ type Person {
     city: String
     institution: String
     description: String
-    photo:  String
+    photo: File
     accountType: String!
     coursesTakesPart: [ID!]!
     coursesConducts: [ID!]! 
@@ -100,7 +100,8 @@ type Query {
 type Mutation {
 
     uploadCourseMaterial(file: Upload!, courseId: String!): Boolean
-    uploadLessonMaterial(file: Upload!): Lesson!
+    uploadLessonMaterial(file: Upload!, lessonId: String!): Boolean
+    uploadProfilePic(file: Upload!, personId: String!): Boolean
 
     createCourse(
     title:String!,
