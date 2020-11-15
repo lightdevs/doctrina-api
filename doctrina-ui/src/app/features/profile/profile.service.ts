@@ -11,7 +11,6 @@ export class ProfileService {
   constructor(private apollo: Apollo) { }
 
   updatePerson(form: IEditPersonForm): Observable<any> {
-    console.log('update servb');
     return this.apollo.mutate({
       mutation: gql`
       mutation updatePerson(
@@ -49,6 +48,21 @@ export class ProfileService {
     `,
       variables: {
         ...form
+      },
+    });
+  }
+
+  deleteProfile(userId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation deletePerson($id: ID!) {
+        deletePerson(id: $id) {
+          affectedRows
+        }
+      }
+    `,
+      variables: {
+        id: userId
       },
     });
   }

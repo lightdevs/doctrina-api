@@ -10,6 +10,9 @@ import { FormGroup, FormBuilder, Validators, FormGroupDirective } from '@angular
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
 import {configureToastr, toastrTitle} from '../../../core/helpers';
 import { ToastrService } from 'ngx-toastr';
+import {DeletePopUpComponent} from '../../../shared/components/delete-pop-up/delete-pop-up.component';
+import {takeUntil} from 'rxjs/operators';
+import {Router} from '@angular/router';
 
 
 @Component({
@@ -29,12 +32,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   constructor(
-    private authService: AuthenticationService,
     private profileService: ProfileService,
     private apollo: Apollo,
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
     private toastr: ToastrService,
+    private authService: AuthenticationService,
+    private router: Router
   ) {
     authService.currentUser.subscribe( x => this.currentUser = x);
   }
@@ -105,5 +109,31 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.currentUser = data.me;
       }
     );
+  }
+
+  deleteProfile(): void {
+    const config = new MatDialogConfig();
+    config.panelClass = `modal-setting`;
+    config.width = '500px';
+    config.height = '200px';
+    config.data = {
+      title: `Are you sure?`,
+      body: `Your profile will be deleted.`
+    };
+    const dialogRef = this.dialog.open(DeletePopUpComponent, config);
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        if (result != null) {
+          if (result === true ) {
+            this.profileService.deleteProfile(this.currentUser._id)
+              .subscribe(() => {
+                this.authService.logout();
+                this.router.navigate(['/']);
+              });
+          }
+        }
+        return;
+      });
   }
 }
