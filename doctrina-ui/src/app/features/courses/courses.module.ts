@@ -5,7 +5,7 @@ import { CoursesComponent } from './courses/courses.component';
 import {SharedModule} from '../../shared/shared.module';
 import { CoursesRoutingModule } from './courses-routing.module';
 import { EditCourseComponent } from './edit-course/edit-course.component';
-import { FilterPipe } from '../courses/courses/filter.pipe';
+import { FilterPipe } from './courses/filter.pipe';
 import { CourseInfoComponent } from './course-info/course-info.component';
 import { StudentListComponent } from './student-list/student-list.component';
 
