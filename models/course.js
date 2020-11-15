@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-const {Person} = require("./person")
 
 const courseSchema = new mongoose.Schema(
     {
@@ -23,8 +22,20 @@ const courseSchema = new mongoose.Schema(
             type: Number,
             required: false,
         },
+        lessons: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false,
+        },
+        docs: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false,
+        },
+        links: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false,
+        },
         teacher: {
-            type: mongoose.Schema.Types.ObjectId, // type: mongoose.Schema.Types.Object,
+            type: mongoose.Schema.Types.ObjectId,
             required: true,
          },
         students: {
