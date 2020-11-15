@@ -207,7 +207,7 @@ module.exports = {
     me: (parent, args, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
-        return context.payload.payload;
+        return Person.findById(context.payload.payload._id);
       } else {
         throw new Error("Please Login Again!");
       }
@@ -366,32 +366,95 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
-    uploadLessonMaterial: async (parent, { file }) => {
-      const { createReadStream, filename } = await file;
-      const { lessonMaterialsBucket } = require("./buckets");
-      const metadata = {
-        metadata: {
-          userId: "",
-          hash: "dbdfnbfg",
-          mimetype: file.mimetype
+    uploadLessonMaterial: async (_, { lessonId, file }, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let teacher = await Person.findById(context.payload.payload._id);
+        if (teacher.accountType == "teacher") {
+          let lesson = await Lesson.findById(lessonId);
+          if (lesson) {
+            const { createReadStream, filename, mimetype } = await file;
+            const { lessonMaterialsBucket } = require("./buckets");
+            const writeStream = lessonMaterialsBucket.openUploadStream(filename);
+
+            await new Promise(res => {
+              createReadStream()
+                .pipe(writeStream)
+                .on('error', function (error) {
+                  console.error(error);
+                  throw new Error("Can't upload file ");
+                })
+                .on('finish', res);
+            }
+            );
+            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype });
+            newFile.save();
+
+            let materials = lesson.materials;
+            materials.push(newFile._id);
+            let updatedLesson = await Lesson.findByIdAndUpdate({ _id: lessonId }, { materials: materials }, {
+              returnOriginal: false
+            });
+
+            if (newFile && updatedLesson) {
+              return !!updatedLesson;
+            } else {
+              throw new Error("File or lesson ain`t saved 500")
+            }
+          } else {
+            throw new Error("Lesson not found 404");
+          }
+        } else {
+          throw new Error("Students are not permitted to modify the lesson 403");
         }
-      };
-
-      await new Promise(res => {
-        createReadStream()
-          .pipe(lessonMaterialsBucket.openUploadStream(filename, metadata))
-          .on('error', function (error) {
-            console.error(error);
-            throw new Error("Can't upload file ");
-          })
-          .on('finish', res);
+      } else {
+        throw new Error("Unauthorized 401");
       }
-      );
+    },
+    uploadProfilePic: async (_, { personId, file }, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        if (context.payload.payload._id == personId) {
+          let person = await Person.findById(personId);
+          if (person) {
+            const { createReadStream, filename, mimetype } = await file;
 
-      const newFile = new File({ title: filename, hash: md5(filename) });
-      newFile.save();
+            if(!(mimetype.indexOf('image') + 1)) throw new Error("It must be an image 406");
 
-      return !!newFile;
+            const { profilePicsBucket } = require("./buckets");
+            const writeStream = profilePicsBucket.openUploadStream(filename);
+
+            await new Promise(res => {
+              createReadStream()
+                .pipe(writeStream)
+                .on('error', function (error) {
+                  console.error(error);
+                  throw new Error("Can't upload file ");
+                })
+                .on('finish', res);
+            }
+            );
+            const newFile = new File({ title: filename, userId: person._id, fileId: writeStream.id, mimetype: mimetype });
+            newFile.save();
+
+            let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {
+              returnOriginal: false
+            });
+
+            if (newFile && updatedPerson) {
+              return !!updatedPerson;
+            } else {
+              throw new Error("File or profile ain`t saved 500")
+            }
+          } else {
+            throw new Error("Person not found 404");
+          }
+        } else {
+          throw new Error("Not your profile 403");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
     },
 
     createCourse: async (_, { title, description, dateStart, dateEnd, maxMark }, context, info) => {
