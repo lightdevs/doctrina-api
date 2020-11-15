@@ -6,6 +6,18 @@ const fileSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        fileId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        mimetype: {
+            type: String,
+            required: false
+        },
         hash: {
             type: String,
             required: false
