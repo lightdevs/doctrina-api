@@ -78,7 +78,7 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
 
   updateCourseInfo(): void {
     if (this.editCourseForm.valid) {
-      console.log(this.editCourseForm.value)
+
       this.courseService.updateCourse(
         {
           ...this.editCourseForm.value

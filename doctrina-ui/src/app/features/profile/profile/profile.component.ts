@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import { Apollo } from 'apollo-angular';
+import {Apollo, gql} from 'apollo-angular';
 import { DatePipe } from '@angular/common';
 import { IUserInfo } from 'src/app/core/interfaces/user.interface';
 import { AuthenticationService } from '../../authentication/authentication.service';
@@ -42,19 +42,21 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.createForm();
     configureToastr(this.toastr);
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    this.getMe();
+
+    // this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
   }
 
   createForm(): void  {
     this.updateProfileForm = this.formBuilder.group({
-      _id: [null, Validators.required],
-      email: [null, Validators.required],
-      name: [null, Validators.required],
-      surname: [null, Validators.required],
-      country: [null, Validators.required],
-      city: [null, Validators.required],
-      institution: [null,  Validators.required],
-      description: [null,  Validators.required],
+      _id: [this.currentUser._id],
+      email: [this.currentUser.email, Validators.required],
+      name: [this.currentUser.name, Validators.required],
+      surname: [this.currentUser.surname, Validators.required],
+      country: [this.currentUser.country],
+      city: [this.currentUser.city],
+      institution: [this.currentUser.institution],
+      description: [this.currentUser.description],
     });
   }
 
@@ -63,13 +65,40 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  onSubmit() {
-    console.log('submited');
+  updateProfile(): void {
+    if (this.updateProfileForm.valid) {
+      this.profileService.updatePerson(
+        {
+          ...this.updateProfileForm.value
+        }).subscribe(res => {
+          console.log(res);
+          this.currentUser = res.data.updatePerson;
+      });
+    } else {
+      this.updateProfileForm.markAllAsTouched();
+    }
   }
 
-
-
-
-
-
+  getMe(){
+    return  this.apollo.query<any>({
+      query: gql `
+        query {
+        me {
+          _id
+          email
+          name
+          surname
+          country
+          city
+          institution
+          description
+        }
+      }`,
+    }).subscribe(
+      ({ data }) => {
+        console.log('user: ', data.me);
+        this.currentUser = data.me;
+      }
+    );
+  }
 }

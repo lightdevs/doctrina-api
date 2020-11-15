@@ -4,11 +4,6 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {IUserInfo} from '../../core/interfaces/user.interface';
 import {IEditPersonForm} from '../../core/interfaces/user.interface';
 
-const getTokenValue = (): any => {
-  const user = JSON.parse(localStorage.getItem('currentUser'));
-  return user;
-};
-
 @Injectable({
   providedIn: 'root'
 })
@@ -16,10 +11,11 @@ export class ProfileService {
   constructor(private apollo: Apollo) { }
 
   updatePerson(form: IEditPersonForm): Observable<any> {
+    console.log('update servb');
     return this.apollo.mutate({
       mutation: gql`
       mutation updatePerson(
-        $id: ID!,
+        $_id: ID!,
         $email: String,
         $name: String,
         $surname: String,
@@ -30,7 +26,7 @@ export class ProfileService {
         $photo: String
       ) {
         updatePerson(
-          id: $id,
+          id: $_id,
           email: $email,
           name: $name,
           surname: $surname,
@@ -56,4 +52,5 @@ export class ProfileService {
       },
     });
   }
+
 }
