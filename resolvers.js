@@ -1,9 +1,16 @@
 const { Kind } = require('graphql/language');
 const { GraphQLScalarType } = require('graphql');
 const utils = require('./utils');
+const md5 = require('md5');
+const config = require('./config');
 const Course = require('./models/course');
 const Person = require('./models/person');
-const { compare } = require('bcryptjs');
+const Lesson = require('./models/lesson');
+const File = require('./models/file');
+const fs = require('fs');
+const path = require('path');
+const mongoose = require('mongoose');
+
 
 function passCheck(info) {
   function check(parentField) {
@@ -78,7 +85,14 @@ module.exports = {
             let skip = args.count * args.page;
             let limit = args.count;
             let myCourses = await Course.find({ teacher: person._id }, null, { skip: skip, limit: limit, sort: args.sort });
-            let allMyCoursesLength = await (await Course.find({ teacher: person._id })).length;
+            if (args.title != null) {
+              myCourses = myCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
+            }
+            let allMyCourses = await Course.find({ teacher: person._id });
+            if (args.title != null) {
+              allMyCourses = allMyCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
+            }
+            let allMyCoursesLength = allMyCourses.length;
             return { person: person, courses: myCourses, isEnd: allMyCoursesLength > skip + limit ? false : true };
           }
           else if (person.accountType == "student") {
@@ -91,6 +105,9 @@ module.exports = {
               }
               let currentCourse = await Course.findById(courseId);
               if (currentCourse) myCourses.push(currentCourse);
+            }
+            if (args.title != null) {
+              myCourses = myCourses.filter(course => !!course.title.toString().match(new RegExp(args.title, 'i')));
             }
             return { person: person, courses: myCourses, isEnd: end };
           } else throw new Error("Invalid account type");
@@ -132,6 +149,7 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
+    files: async () => File.find(),
     personsNotOnCourse: async (parent, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
@@ -140,7 +158,7 @@ module.exports = {
         if (course) {
           if (person.accountType == "teacher") {
             let difference = (await Person.find()).filter(x => !course.students.includes(x._id) && x.accountType == "student");
-            if(args.email) difference = difference.filter(student => !!student.email.toString().match(new RegExp(args.email, 'i')));
+            if (args.email) difference = difference.filter(student => !!student.email.toString().match(new RegExp(args.email, 'i')));
             let persons = [];
             let end = false;
             for (let student of paginator(args.page, args.count, difference)) {
@@ -237,6 +255,89 @@ module.exports = {
     }
   },
   Mutation: {
+    register: async (_, { email, name, surname, password, accountType }, __, info) => {
+
+      const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, surname: surname, accountType: accountType };
+      // Get user document from 'user' collection.
+      const person = await Person.find({ email: email });
+      if (person.length != 0) {
+        throw new Error("User Already Exists!");
+      }
+      try {
+        // Insert User Object to Database
+        const regPerson = await Person.create(newPerson);
+        // Creating a Token from User Payload obtained.
+        const token = utils.getToken(regPerson);
+        regPerson.token = token;
+        // Adding token to user object
+        return regPerson;
+      } catch (e) {
+        throw e
+      }
+    },
+    login: async (_, { email, password }, __, info) => {
+      const person = await Person.find({ email: email });
+      // Checking For Encrypted Password Match with util func.
+      const isMatch = await utils.comparePassword(password, person[0].password)
+      if (isMatch) {
+        // Creating a Token from User Payload obtained.
+        const token = utils.getToken(person[0])
+        person[0].token = token;
+        return person[0];
+      } else {
+        // Throwing Error on Match Status Failed.
+        throw new Error("Wrong Login or Password!")
+      }
+    },
+
+    uploadMaterial: async (parent, { file }) => {
+      const { createReadStream, filename } = await file;
+
+      const materialsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,
+        {
+          chunkSizeBytes: 1024*1024,
+          bucketName: 'materials'
+        }
+      );
+
+      // fs.createReadStream('C:/Папочка/Pics/pic.png').
+      //   pipe(gridFSBucket.openUploadStream('pic.png')).
+      //   on('error', function (error) {
+      //     console.error(error);
+      //     throw new Error("Can't upload file ");
+      //   }).
+      //   on('finish', function () {
+      //     console.log('done!');
+      //   });
+
+      //   gridFSBucket.openDownloadStreamByName('pic.png').
+      //   pipe(fs.createWriteStream('../pic.png')).
+      //   on('error', function (error) {
+      //     console.error(error);
+      //     throw new Error("Can't download file");
+      //   }).
+      //   on('finish', function () {
+      //     console.log('done!');
+      //   });
+
+
+      await new Promise(res => {
+        createReadStream()
+          .pipe(materialsBucket.openUploadStream(filename))
+          .on('error', function (error) {
+            console.error(error);
+            throw new Error("Can't upload file ");
+          })
+          .on('finish', res);
+      }
+      );
+
+      const newFile = new File({ title: filename, hash: md5(filename) });
+      newFile.save();
+
+      return !!newFile;
+    },
+
     createCourse: async (_, { title, description, dateStart, dateEnd, maxMark }, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
@@ -319,9 +420,9 @@ module.exports = {
             coursesUpdated = !!updSt && coursesUpdated;
           }
         } else {
-          for(let courseId of person.coursesConducts) {
+          for (let courseId of person.coursesConducts) {
             let course = await Course.findById(courseId);
-            for(let studentId of course.students) {
+            for (let studentId of course.students) {
               let student = await Person.findById(studentId);
               let updTakesPart = student.coursesTakesPart;
               updTakesPart.remove(courseId);
@@ -330,8 +431,8 @@ module.exports = {
               });
               coursesUpdated = !!updSt && coursesUpdated;
             }
-            let delCourseResult = await Course.remove({_id: courseId});
-            if(!delCourseResult) throw new Error("Course of the teacher can't be deleted")
+            let delCourseResult = await Course.remove({ _id: courseId });
+            if (!delCourseResult) throw new Error("Course of the teacher can't be deleted")
           }
         }
 
@@ -354,42 +455,6 @@ module.exports = {
         return newPerson;
       } else {
         throw new Error("Unauthorized 401");
-      }
-    },
-
-    register: async (_, { email, name, surname, password, accountType }, __, info) => {
-
-      const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, surname: surname, accountType: accountType };
-      // Get user document from 'user' collection.
-      const person = await Person.find({ email: email });
-      if (person.length != 0) {
-        throw new Error("User Already Exists!");
-      }
-      try {
-        // Insert User Object to Database
-        const regPerson = await Person.create(newPerson);
-        // Creating a Token from User Payload obtained.
-        const token = utils.getToken(regPerson);
-        regPerson.token = token;
-        // Adding token to user object
-        return regPerson;
-      } catch (e) {
-        throw e
-      }
-    },
-
-    login: async (_, { email, password }, __, info) => {
-      const person = await Person.find({ email: email });
-      // Checking For Encrypted Password Match with util func.
-      const isMatch = await utils.comparePassword(password, person[0].password)
-      if (isMatch) {
-        // Creating a Token from User Payload obtained.
-        const token = utils.getToken(person[0])
-        person[0].token = token;
-        return person[0];
-      } else {
-        // Throwing Error on Match Status Failed.
-        throw new Error("Wrong Login or Password!")
       }
     },
 
@@ -435,6 +500,29 @@ module.exports = {
           returnOriginal: false
         });
         return updatedCourse && updatedStudent ? student : "Can't remove student 520";
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
+    addLesson: async (_, args, context, info) => {
+      passCheck(info);
+      const course = await Course.findById(args.idCourse);
+      const teacher = await Person.findById(context.payload.payload._id);
+      if (course == null) throw new Error("Course not found 404");
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+        const lesson = new Lesson({ course: course._id, title: args.title });
+        let lessons = course.lessons;
+        lessons.push(lesson._id);
+        let updatedCourse = await Course.findOneAndUpdate({ _id: args.idCourse }, { lessons: lessons }, {
+          returnOriginal: false
+        });
+
+
+        lesson.save();
+
+        return updatedCourse ? lesson : "Cant modify course";
+
       } else {
         throw new Error("Unauthorized 401");
       }
