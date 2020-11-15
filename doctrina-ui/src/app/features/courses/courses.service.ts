@@ -228,4 +228,29 @@ export class CoursesService {
       },
   });
   }
+
+  getCourses(filterValue: string = null, sort: string = null): Observable<any> {
+    console.log(filterValue);
+    return  this.apollo.query<any>({
+      query: gql `query courses($sort: String, $title: String, $page: Int!, $count: Int!) {
+          courses(sort: $sort, title: $title, page: $page, count: $count) {
+          courses {
+              _id,
+              title,
+              description,
+              dateStart,
+              dateEnd,
+              maxMark,
+              teacher
+            }
+          }
+        }`,
+      variables: {
+        sort,
+        title: filterValue,
+        page: 0,
+        count: 1000
+      },
+    });
+  }
 }
