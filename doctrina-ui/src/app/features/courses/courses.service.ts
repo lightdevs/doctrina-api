@@ -235,13 +235,16 @@ export class CoursesService {
       query: gql `query courses($sort: String, $title: String, $page: Int!, $count: Int!) {
           courses(sort: $sort, title: $title, page: $page, count: $count) {
           courses {
-              _id,
-              title,
-              description,
-              dateStart,
-              dateEnd,
-              maxMark,
-              teacher
+            course{
+                _id
+                title
+                description
+                dateStart
+                dateEnd
+                maxMark
+                teacher
+            }
+            teacher { name surname email}
             }
           }
         }`,
