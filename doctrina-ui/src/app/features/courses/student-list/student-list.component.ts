@@ -1,11 +1,9 @@
 import { takeUntil } from 'rxjs/operators';
 import { IUserInfo } from 'src/app/core/interfaces/user.interface';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { CoursesService } from '../courses.service';
-import { OnDestroy } from '@angular/core';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
@@ -29,6 +27,7 @@ export class StudentListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getStudentsOfCurrentCourse();
+    this.getStudentsNotOnThisCourse();
   }
 
 
@@ -37,23 +36,22 @@ export class StudentListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
         if (res.data.courseById.persons && res.data.courseById.persons.length > 0) {
-          this.courseStudents = res.data.courseById.persons;
+          this.courseStudents = JSON.parse(JSON.stringify(res.data.courseById.persons));
         }
-        this.getAllStudents();
       });
   }
 
-  getAllStudents(): void {
-    this.courseService.getStudents()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(res => {
-        if (res.data.persons.persons && res.data.persons.persons.length > 0) {
-          console.log(res.data.persons.persons as IUserInfo[]);
-          const filterStud = res.data.persons.persons
-          .filter(o => this.courseStudents.filter(z => z._id === o._id).length === 0);
-          this.students = filterStud && filterStud.length > 0 ? filterStud : [];
-        }
-      });
+  getStudentsNotOnThisCourse(filterEmail: string = null): void {
+    this.courseService.getStudentsNotOnThisCourse(this.courseId, filterEmail)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(res => {
+      if (res.data.personsNotOnCourse.persons && res.data.personsNotOnCourse.persons.length > 0) {
+        const data = JSON.parse(JSON.stringify(res.data.personsNotOnCourse.persons));
+        this.students = data && data.length > 0 ? data : [];
+      } else {
+        this.students = [];
+      }
+    });
   }
 
   drop(event: CdkDragDrop<any[]>) {
@@ -68,9 +66,28 @@ export class StudentListComponent implements OnInit, OnDestroy {
     }
   }
 
+  dropDelete(event: CdkDragDrop<any[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      this.deleteStudent((event.previousContainer.data[event.previousIndex] as IUserInfo)._id);
+      transferArrayItem(event.previousContainer.data,
+                        event.container.data,
+                        event.previousIndex,
+                        event.currentIndex);
+    }
+  }
+
   assignStudent(studentId: string) {
     this.courseService.assignStudent(studentId, this.courseId)
+      .pipe(takeUntil(this.destroy$))
       .subscribe();
+  }
+
+  deleteStudent(studentId: string) {
+    this.courseService.deleteStudent(studentId, this.courseId)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe();
   }
 
   filterStudents(filterValue: string): void {

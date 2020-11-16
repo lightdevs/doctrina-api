@@ -6,20 +6,23 @@ import { filesQuery } from "./Files";
 
 const uploadFileMutation = gql`
   mutation UploadFile($file: Upload!) {
-    uploadFile(file: $file)
+    uploadCourseMaterial(file: $file, courseId: "5fb164a9a716a209f844f966")
   }
 `;
 
 export const Upload = () => {
+
   const [uploadFile] = useMutation(uploadFileMutation, {
     refetchQueries: [{ query: filesQuery }]
   });
+
   const onDrop = useCallback(
     ([file]) => {
       uploadFile({ variables: { file } });
     },
     [uploadFile]
   );
+  
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return (

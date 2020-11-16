@@ -6,15 +6,29 @@
   </button>
 </mat-toolbar>
 <div class="mx-3">
+  <div class="row pt-3 px-3">
+    <div class="col-6 px-4">
+    </div>
+    <div class="col-6 px-4">
+      <div class="d-flex justify-content-between uppercase">
+        <input type="text" class="form-control" placeholder="Filter by E-mail..."
+        (keydown.enter)="getStudentsNotOnThisCourse($event.target.value)"
+        [(ngModel)]="filterTerm" name="filterTerm">
+      </div>
+    </div>
+  </div>
   <div class="d-flex px-3" cdkDropListGroup>
     <div class="p-4 col-6">
       <div class="d-flex justify-content-between uppercase mb-2">
         <b>Students of the course</b>
       </div>
       <div class="bordered rounded">
-        <div class="list p-3" cdkDropList #courseStudentsList="cdkDropList"
-        [cdkDropListConnectedTo]="[studentList] "[cdkDropListData]="courseStudents"
-             (cdkDropListDropped)="drop($event)">
+        <div class="list p-3"
+          cdkDropList
+          #courseStudentsList="cdkDropList"
+          [cdkDropListConnectedTo]="[studentList]
+          "[cdkDropListData]="courseStudents"
+          (cdkDropListDropped)="drop($event)">
              <div class="container">
               <div class="row">
                 <div class="col-1 text-left">
@@ -29,13 +43,13 @@
                   E-mail
                 </div>
               </div>
-          <div *ngFor="let column of courseStudents" class="drag-row">
-            <div class="row">
+          <div *ngFor="let column of courseStudents" cdkDrag class="drag-row">
+            <div class="row" cdkDragHandle>
               <div class="col-1 text-left">
                 <mat-icon class="drag-icon" color="primary">drag_indicator</mat-icon>
               </div>
               <div class="col-4 text-center">
-                <mat-label class="mat-body-2">{{column.name}} {{column.surname}}</mat-label>
+                <mat-label class="mat-body-2">{{column.surname}}</mat-label>
               </div>
               <div class="col-2 text-center">
                 ?????
@@ -51,10 +65,8 @@
     </div>
   </div>
     <div class="p-4 col-6">
-      <div class="d-flex justify-content-between uppercase">
-        <input type="text" class="form-control" placeholder="Filter by E-mail..."
-        (keydown.enter)="filterStudents($event.target.value)"
-        [(ngModel)]="filterTerm" name="filterTerm">
+      <div class="d-flex justify-content-between uppercase mb-2">
+        <b>Othere Students</b>
       </div>
       <div class="bordered rounded">
         <div class="list p-3"
@@ -62,7 +74,7 @@
             [cdkDropListData]="students"
             [cdkDropListConnectedTo]="[courseStudentsList]"
             cdkDropList
-             (cdkDropListDropped)="drop($event)">
+             (cdkDropListDropped)="dropDelete($event)">
              <div class="container">
               <div class="row">
                 <div class="col-1 text-left">
@@ -78,12 +90,12 @@
                 </div>
               </div>
               <div *ngFor="let column of students" cdkDrag class="drag-row">
-                <div class="row">
+                <div class="row" cdkDragHandle>
                   <div class="col-1 text-left">
-                    <mat-icon class="drag-icon" color="primary" cdkDragHandle>drag_indicator</mat-icon>
+                    <mat-icon class="drag-icon" color="primary">drag_indicator</mat-icon>
                   </div>
                   <div class="col-4 text-center">
-                    <mat-label class="mat-body-2">{{column.name}} {{column.surname}}</mat-label>
+                    <mat-label class="mat-body-2">{{column.surname}}</mat-label>
                   </div>
                   <div class="col-2 text-center">
                     ?????
@@ -98,4 +110,5 @@
         </div>
       </div>
     </div>
+  </div>
 </div>

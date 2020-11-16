@@ -14,6 +14,18 @@ const lessonSchema = new mongoose.Schema(
             type: String,
             required: false,
         },
+        materials: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false
+        },
+        links: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false
+        },
+        links: {
+            type: String,
+            required: false
+        },
         dateStart: {
             type: Date,
             required: false,

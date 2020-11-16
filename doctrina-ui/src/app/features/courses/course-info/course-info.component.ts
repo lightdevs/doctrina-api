@@ -1,3 +1,6 @@
+import { ICourseMaterials } from './../../../core/interfaces/filte.interface';
+import { toastrTitle } from 'src/app/core/helpers';
+import { ToastrService } from 'ngx-toastr';
 import { HostListener, Input, OnDestroy } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -24,11 +27,13 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
   filteredOptions: Observable<number[]>;
   editCourseForm: FormGroup;
   editCourse = false;
+  isUploading: boolean;
+  materials: ICourseMaterials[] = [];
 
   private destroy$ = new Subject<void>();
   constructor(private formBuilder: FormBuilder,
-              private route: ActivatedRoute,
               private courseService: CoursesService,
+              private toastr: ToastrService,
               public dialog: MatDialog) { }
 
       // tslint:disable-next-line:typedef
@@ -45,6 +50,7 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         if(this.course.value) {
           this.initForm(this.course.value);
+          this.getCourseMaterial();
         }
       })
     this.filteredOptions = (this.editCourseForm.get('maxMark') as FormControl).valueChanges
@@ -93,6 +99,35 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
     }
   }
 
+  uploadDocument(event: any): void {
+    if (event.target.files.length === 0){
+      return;
+    }
+
+    this.isUploading = true;
+    this.courseService.uploadFile(event.target.files[0], this.course.value._id)
+      .subscribe(() => {
+          this.isUploading = false;
+          this.getCourseMaterial();
+          this.toastr.success('Document has been uploaded!', toastrTitle.Success);
+        },
+        () => {
+          this.isUploading = false;
+        }
+      );
+
+    event.target.value = '';
+  }
+
+  getCourseMaterial(): void {
+    this.courseService.getCourseMaterial(this.course.value._id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(res => {
+        console.log(res);
+        this.materials = res.data.filesByCourse;
+      });
+  }
+
   getDate(date: string): string {
     return new Date(date).toLocaleDateString();
   }
@@ -124,6 +159,22 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
     } else {
       this.editCourse = !this.editCourse;
     }
+  }
+
+  downloadFile(fileId: string): void {
+
+  }
+
+  formatSize(bytes): string {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = 1 < 0 ? 0 : 1;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 
   private _filter(value: string): number[] {

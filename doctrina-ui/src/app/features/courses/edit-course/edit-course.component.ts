@@ -100,7 +100,10 @@ export class EditCourseComponent implements OnInit, OnDestroy {
     config.width = '1000px';
     config.height = '500px';
     config.data = this.courseId;
-    this.dialog.open(StudentListComponent, config);
+    const dialogRef = this.dialog.open(StudentListComponent, config);
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe();
   }
 
   ngOnDestroy(): void {

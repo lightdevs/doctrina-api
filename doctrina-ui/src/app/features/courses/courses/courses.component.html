@@ -1,62 +1,59 @@
-<form>
+
   <div class="form-group search-course-block flex-row">
-    <div class="search-tool">
+    <div class="search-tool flex-row">
+
       <div class="form-group">
-        <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="filterTerm" name="filterTerm">
+        <input type="text" class="form-control" placeholder="title..."
+               (keydown.enter)="getCourses($event.target.value)"
+               [(ngModel)]="filterTerm" name="filterTerm">
+      </div>
+
+      <div class="form-group">
+        <mat-form-field appearance="outline" color="accent" class="filter">
+          <mat-select color="accent" placeholder="sorting">
+            <mat-option [value]="0">maxGrade</mat-option>
+            <mat-option [value]="1">startDate</mat-option>
+            <mat-option [value]="2">endDate</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="form-group">
+
+        <div *ngIf="currentUser.accountType == 'student'; else elseBlock"></div>
+        <ng-template #elseBlock>
+          <div>
+            <button mat-flat-button color="primary" (click)="openDialog()">Add new course</button>
+          </div>
+        </ng-template>
+
       </div>
     </div>
-
-    <div class="flex-row">
-      <mat-form-field appearance="outline" color="accent" class="search-tool">
-        <mat-select color="accent" placeholder="Filters">
-          <mat-option [value]="1">1</mat-option>
-          <mat-option [value]="2">2</mat-option>
-          <mat-option [value]="3">3</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" color="accent" class="search-tool">
-        <mat-select color="accent" placeholder="Sorting">
-          <mat-option [value]="1">1</mat-option>
-          <mat-option [value]="2">2</mat-option>
-          <mat-option [value]="3">3</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-    </div>
-
-    <div *ngIf="currentUser.accountType == 'student'; else elseBlock"></div>
-    <ng-template #elseBlock>
-    <div>
-      <button mat-flat-button color="primary" (click)="openDialog()">Add new course</button>
-    </div>
-    </ng-template>
   </div>
-</form>
+
 <div class="course-list flex-column">
   <ng-container *ngFor="let course of courses">
     <section class="flex-row pt-3 mx-3">
       <mat-card class="w-100">
         <div class="row">
-          <div class="course-name padding-between">{{ course.title }}</div>
+          <div class="course-name padding-between">{{ course.course.title }}</div>
           <div class="progress">
             <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
           </div>
           <div class="teacher padding-between">
-            {{ course.teacher }}
-            <div class="date-info">{{ course.dateStart }} - {{ course.dateEnd }}</div>
+            {{ course.teacher.name }} {{ course.teacher.surname }}
+            <div class="date-info">{{ course.course.dateStart }} - {{ course.course.dateEnd }}</div>
           </div>
           <div class="lesson padding-between">
-            Lesson #1
-            <div class="date-info">21.03.10 | 14:30 - 15:30</div>
+            <div class="date-info"></div>
           </div>
-          <div class="grade padding-between">0/{{ course.maxMark }}</div>
+          <div class="grade padding-between">0/{{ course.course.maxMark }}</div>
           <span class="spacer"></span>
 
           <div *ngIf="currentUser.accountType == 'student'; else elseBlock"></div>
           <ng-template #elseBlock>
             <div class="pr-3">
-              <button mat-icon-button color="primary" (click)="editCourse(course._id)">
+              <button mat-icon-button color="primary" (click)="editCourse(course.course._id)">
                 <mat-icon color="primary">settings</mat-icon>
               </button>
             </div>

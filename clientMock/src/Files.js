@@ -18,12 +18,11 @@ export const Files = () => {
   return (
     <div>
       {/* {data.files.map(x => (
-        <img
+        <div
           style={{ width: 200 }}
-          key={x}
-          src={`http://localhost:5000/files/${x}`}
-          alt={x}
-        />
+        >
+          {x}
+        </div>
       ))} */}
     </div>
   );

@@ -7,8 +7,14 @@ scalar Date
 type File {
     _id: ID!
     title:String!
-    hash: String
-    description:String
+    searchTitle: String
+    bucket: String
+    fileId: ID!
+    userId: ID!
+    parentInstance: ID
+    description: String
+    size: Int
+    mimetype: String
 }
 
 
@@ -20,27 +26,10 @@ type Course {
     dateEnd: Date
     maxMark: Int
     lessons: [ID!]
+    materials: [ID!]
+    links: [ID!]
     teacher: ID!
     students: [ID!]!
-}
-
-type CourseLink {
-    _id: ID!
-    title: String!
-    course: ID!
-    description: String
-    timeAdded: Date
-    link: String!
-}
-
-type CourseDoc {
-    _id: ID!
-    title: String!
-    course: ID!
-    description: String
-    timeAdded: Date
-    documentName: String
-    documentLink: String!
 }
 
 type Lesson {
@@ -48,29 +37,22 @@ type Lesson {
     course: ID!
     title:String!
     description:String
+    materials: [ID!]
+    links: [ID!]
+    type: String
     dateStart: Date
     dateEnd: Date
     maxMark: Int
 }
 
-type LessonLink {
+type Link {
     _id: ID!
-    title: String!
-    lesson: ID!
     description: String
-    timeAdded: Date
     link: String!
+    parentInstance: ID
+    parentType: String
 }
 
-type LessonDoc {
-    _id: ID!
-    title: String!
-    lesson: ID!
-    description: String
-    timeAdded: Date
-    documentName: String
-    documentLink: String!
-}
 
 type Person {
     _id: ID!
@@ -82,7 +64,7 @@ type Person {
     city: String
     institution: String
     description: String
-    photo:  String
+    photo: File
     accountType: String!
     coursesTakesPart: [ID!]!
     coursesConducts: [ID!]! 
@@ -97,15 +79,25 @@ type ExtendedCourse {
     persons: [Person!]!
     isEnd: Boolean!
 }
+
+type CourseWithTeacher {
+    course: Course!
+    teacher: Person!
+}
 type ExtendedPerson {
     person: Person,
-    courses: [Course!]!,
+    courses: [CourseWithTeacher!]!,
     isEnd: Boolean!
 }
 
 
 type Query {
     files: [File]
+    downloadFile(id: String!): String
+
+    filesByCourse(courseId: String!, mimetype: String): [File!]
+    filesByLesson(lessonId: String!, mimetype: String): [File!]
+    lessonsByCourse(courseId: String!): [Lesson!]
 
     courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
@@ -113,11 +105,17 @@ type Query {
     me: Person
     courseById(id: String!, sort: String, page: Int!, count: Int!): ExtendedCourse
     personById(id: String!, sort: String, page: Int!, count: Int!): ExtendedPerson
+    lessonById(id: String!): Lesson
+    linkById(id: String!): Link
 }
 
 type Mutation {
 
-    uploadMaterial(file: Upload!): Boolean!
+    uploadCourseMaterial(file: Upload!, courseId: String!): Boolean
+    uploadLessonMaterial(file: Upload!, lessonId: String!): Boolean
+    uploadProfilePic(file: Upload!, personId: String!): Boolean
+
+    deleteFile(id: String!): MutationResult
 
     createCourse(
     title:String!,
@@ -139,6 +137,19 @@ type Mutation {
     dateEnd: Date
     maxMark: Int
     teacher: ID) : Course!
+
+    deleteLesson(
+    id: ID!
+    ) : MutationResult!
+
+    updateLesson(
+    id: ID!
+    title:String
+    description:String
+    dateStart: Date
+    dateEnd: Date
+    type: String
+    maxMark: Int): Lesson!
 
     deletePerson(
         id: ID!
@@ -169,7 +180,28 @@ type Mutation {
     addLesson(
         idCourse: ID!,
         title: String
+        type: String
     ) : Lesson!
+
+    addCourseLink(
+        idCourse: ID!,
+        link: String!,
+        description: String
+      ) : Link!
+    deleteCourseLink(id: ID!) : MutationResult
+    updateLink(
+        id: ID!,
+        link: String,
+        description: String
+        ) : Link!
+    addLessonLink(
+        idLesson: ID!,
+        link: String!,
+        description: String
+      ) : Link!
+    deleteLessonLink(id: ID!) : MutationResult
+
+
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!
     login(email: String!, password: String!): Person

@@ -1,7 +1,5 @@
 const mongoose = require("mongoose")
 
-const {Course} = require("./course")
-
 const personSchema = new mongoose.Schema(
     {
         email: {
@@ -37,7 +35,7 @@ const personSchema = new mongoose.Schema(
             required: false,
         },
         photo: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
             required: false,
         },
         accountType: {

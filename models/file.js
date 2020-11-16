@@ -6,8 +6,32 @@ const fileSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        hash: {
+        searchTitle: {
             type: String,
+            required: true,
+        },
+        bucket: {
+            type: String,
+            required: true,
+        },
+        fileId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        parentInstance: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: false
+        },
+        mimetype: {
+            type: String,
+            required: false
+        },
+        size: {
+            type: Number,
             required: false
         },
         description: {
