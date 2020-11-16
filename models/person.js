@@ -1,8 +1,5 @@
 const mongoose = require("mongoose")
 
-const {Course} = require("./course")
-const {File} = require("./file")
-
 const personSchema = new mongoose.Schema(
     {
         email: {

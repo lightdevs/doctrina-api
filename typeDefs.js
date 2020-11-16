@@ -26,8 +26,9 @@ type Course {
     dateEnd: Date
     maxMark: Int
     lessons: [ID!]
+    mark: String
     materials: [ID!]
-    links: [Link!]
+    links: [ID!]
     teacher: ID!
     students: [ID!]!
 }
@@ -38,7 +39,9 @@ type Lesson {
     title:String!
     description:String
     materials: [ID!]
-    links: [Link!]
+    mark: String
+    links: [ID!]
+    type: String
     dateStart: Date
     dateEnd: Date
     maxMark: Int
@@ -46,8 +49,10 @@ type Lesson {
 
 type Link {
     _id: ID!
-    title: String
+    description: String
     link: String!
+    parentInstance: ID
+    parentType: String
 }
 
 
@@ -93,6 +98,7 @@ type Query {
     downloadFile(id: String!): String
 
     filesByCourse(courseId: String!, mimetype: String): [File!]
+    filesByLesson(lessonId: String!, mimetype: String): [File!]
     lessonsByCourse(courseId: String!): [Lesson!]
 
     courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
@@ -102,6 +108,7 @@ type Query {
     courseById(id: String!, sort: String, page: Int!, count: Int!): ExtendedCourse
     personById(id: String!, sort: String, page: Int!, count: Int!): ExtendedPerson
     lessonById(id: String!): Lesson
+    linkById(id: String!): Link
 }
 
 type Mutation {
@@ -109,6 +116,9 @@ type Mutation {
     uploadCourseMaterial(file: Upload!, courseId: String!): Boolean
     uploadLessonMaterial(file: Upload!, lessonId: String!): Boolean
     uploadProfilePic(file: Upload!, personId: String!): Boolean
+
+    setCourseMark(id: String!, mark: String!) : Course
+    setLessonMark(id: String!, mark: String!) : Lesson
 
     deleteFile(id: String!): MutationResult
 
@@ -143,6 +153,7 @@ type Mutation {
     description:String
     dateStart: Date
     dateEnd: Date
+    type: String
     maxMark: Int): Lesson!
 
     deletePerson(
@@ -174,7 +185,26 @@ type Mutation {
     addLesson(
         idCourse: ID!,
         title: String
+        type: String
     ) : Lesson!
+
+    addCourseLink(
+        idCourse: ID!,
+        link: String!,
+        description: String
+      ) : Link!
+    deleteCourseLink(id: ID!) : MutationResult
+    updateLink(
+        id: ID!,
+        link: String,
+        description: String
+        ) : Link!
+    addLessonLink(
+        idLesson: ID!,
+        link: String!,
+        description: String
+      ) : Link!
+    deleteLessonLink(id: ID!) : MutationResult
 
 
 

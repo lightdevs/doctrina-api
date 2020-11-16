@@ -22,6 +22,14 @@ const lessonSchema = new mongoose.Schema(
             type: [mongoose.Schema.Types.ObjectId],
             required: false
         },
+        type: {
+            type: String,
+            required: false
+        },
+        mark: {
+            type: String,
+            required: false
+        },
         dateStart: {
             type: Date,
             required: false,
