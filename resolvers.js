@@ -76,7 +76,6 @@ function sortByFunc(sortString, array) {    //TODO: Strategy pattern
 
 module.exports = {
   Query: {
-    files: () => { return null },
     courses: async (parent, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
@@ -485,7 +484,7 @@ module.exports = {
           if (lesson) {
             const { createReadStream, filename, mimetype } = await file;
             const { lessonMaterialsBucket } = require("./buckets");
-            let hash = md5(filename.concat(teacher.email, course.title));
+            let hash = md5(filename.concat(teacher.email, lesson.title));
             const writeStream = lessonMaterialsBucket.openUploadStream(hash);
 
             await new Promise(res => {
@@ -543,7 +542,7 @@ module.exports = {
             if (!(mimetype.indexOf('image') + 1)) throw new Error("It must be an image 406");
 
             const { profilePicsBucket } = require("./buckets");
-            let hash = md5(filename.concat(teacher.email, course.title));
+            let hash = md5(filename.concat(person.email, person.name));
             const writeStream = profilePicsBucket.openUploadStream(hash);
 
             await new Promise(res => {
