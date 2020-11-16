@@ -167,7 +167,7 @@ module.exports = {
         let files = [];
         let course = await Course.findById(args.courseId);
         if (course) {
-          for(let fileId of course.materials) {
+          for (let fileId of course.materials) {
             files.push(await File.findById(fileId));
           }
           return files;
@@ -178,18 +178,28 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
-    downloadMaterial: async (_, args, context, info) => {
-      const { materialsBucket } = require("./buckets");
-      const readStream = materialsBucket.openDownloadStreamByName("pic.png");
+    lessonsByCourse: async (parent, args, context, info) => {
+      if (context.loggedIn) {
+        let course = await Course.findById(args.courseId);
+        if (course) {
+          return Lesson.find({ course: course._id });
+        } else {
+          throw new Error("Course not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
 
-      readStream.pipe(fs.createWriteStream('../pic.png')).
-        on('error', function (error) {
-          console.error(error);
-          throw new Error("Can't download file");
-        }).
-        on('finish', function () {
-          console.log('done!');
-        });
+    downloadFile: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let url = `http://localhost:${config.PORT}/download?id=${args.id}`;
+        return url;
+      }
+      else {
+        throw new Error("Unauthorized 401");
+      }
     },
     personsNotOnCourse: async (parent, args, context, info) => {
       passCheck(info);
@@ -299,24 +309,35 @@ module.exports = {
       } else {
         throw new Error("Unauthorized 401");
       }
+    },
+
+    lessonById: async (_, args, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        let lesson = Lesson.findById(args.id);
+        if (lesson) {
+          return lesson;
+        } else {
+          throw new Error("Not found 404");
+        }
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
     }
   },
   Mutation: {
     register: async (_, { email, name, surname, password, accountType }, __, info) => {
 
       const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, surname: surname, accountType: accountType };
-      // Get user document from 'user' collection.
       const person = await Person.find({ email: email });
       if (person.length != 0) {
         throw new Error("User Already Exists!");
       }
       try {
-        // Insert User Object to Database
         const regPerson = await Person.create(newPerson);
-        // Creating a Token from User Payload obtained.
-        const token = utils.getToken(regPerson);
+        const token = utils.getToken(regPerson);  // todo: minimize token({id})
         regPerson.token = token;
-        // Adding token to user object
         return regPerson;
       } catch (e) {
         throw e
@@ -346,7 +367,8 @@ module.exports = {
           if (course) {
             const { createReadStream, filename, mimetype } = await file;
             const { courseMaterialsBucket } = require("./buckets");
-            const writeStream = courseMaterialsBucket.openUploadStream(filename);
+            let hash = md5(filename.concat(teacher.email, course.title));
+            const writeStream = courseMaterialsBucket.openUploadStream(hash);
 
             await new Promise(res => {
               createReadStream()
@@ -359,7 +381,17 @@ module.exports = {
             }
             );
 
-            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
+            const newFile = new File(
+              {
+                title: filename,
+                searchTitle: hash,
+                bucket: "course",
+                userId: teacher._id,
+                parentInstance: courseId,
+                fileId: writeStream.id,
+                mimetype: mimetype,
+                size: writeStream.length
+              });
             newFile.save();
 
             let materials = course.materials;
@@ -392,7 +424,8 @@ module.exports = {
           if (lesson) {
             const { createReadStream, filename, mimetype } = await file;
             const { lessonMaterialsBucket } = require("./buckets");
-            const writeStream = lessonMaterialsBucket.openUploadStream(filename);
+            let hash = md5(filename.concat(teacher.email, course.title));
+            const writeStream = lessonMaterialsBucket.openUploadStream(hash);
 
             await new Promise(res => {
               createReadStream()
@@ -404,7 +437,17 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length  });
+            const newFile = new File(
+              {
+                title: filename,
+                searchTitle: hash,
+                bucket: "lesson",
+                userId: teacher._id,
+                parentInstance: lessonId,
+                fileId: writeStream.id,
+                mimetype: mimetype,
+                size: writeStream.length
+              });
             newFile.save();
 
             let materials = lesson.materials;
@@ -439,7 +482,8 @@ module.exports = {
             if (!(mimetype.indexOf('image') + 1)) throw new Error("It must be an image 406");
 
             const { profilePicsBucket } = require("./buckets");
-            const writeStream = profilePicsBucket.openUploadStream(filename);
+            let hash = md5(filename.concat(teacher.email, course.title));
+            const writeStream = profilePicsBucket.openUploadStream(hash);
 
             await new Promise(res => {
               createReadStream()
@@ -451,7 +495,17 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, userId: person._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length  });
+            const newFile = new File(
+              {
+                title: filename,
+                searchTitle: hash,
+                bucket: "pic",
+                userId: person._id,
+                parentInstance: person._id,
+                fileId: writeStream.id,
+                mimetype: mimetype,
+                size: writeStream.length
+              });
             newFile.save();
 
             let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {
@@ -468,6 +522,68 @@ module.exports = {
           }
         } else {
           throw new Error("Not your profile 403");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
+    deleteFile: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let file = File.findById(args.id);
+        if (file) {
+          if (file.userId == context.payload.payload._id) {
+
+            let bucket;
+            let updated;
+            let arr;
+            try {
+              switch (file.bucket) {
+                case "course":
+                  const { courseMaterialsBucket } = require("./buckets");
+                  bucket = courseMaterialsBucket;
+                  let course = await Course.findById(file.parentInstance);
+                  arr = course.materials;
+                  arr.remove(args.id);
+                  updated = await Course.findByIdAndUpdate({ _id: course._id }, { materials: arr }, {
+                    returnOriginal: false
+                  });
+                  break;
+                case "lesson":
+                  const { lessonMaterialsBucket } = require("./buckets");
+                  bucket = lessonMaterialsBucket;
+                  let lesson = await Lesson.findById(file.parentInstance);
+                  arr = lesson.materials;
+                  arr.remove(args.id);
+                  updated = await Course.findByIdAndUpdate({ _id: lesson._id }, { materials: arr }, {
+                    returnOriginal: false
+                  });
+                  break;
+                case "pic":
+                  const { profilePicsBucket } = require("./buckets");
+                  bucket = profilePicsBucket;
+                  updated = await Person.findByIdAndUpdate({ _id: file.parentInstance }, { photo: null }, {
+                    returnOriginal: false
+                  });
+                  break;
+
+              }
+            } catch (err) {
+              throw err;
+            }
+
+            bucket.delete(args.id, function (error) {
+              throw new Error(error);
+            });
+            return { affectedRows: 1 };
+
+          } else {
+            throw new Error("Not permitted to modify 403");
+          }
+        }
+        else {
+          throw new Error("File not found 404");
         }
       } else {
         throw new Error("Unauthorized 401");
@@ -658,6 +774,49 @@ module.exports = {
         lesson.save();
 
         return updatedCourse ? lesson : "Cant modify course";
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    deleteLesson: async (_, args, context, info) => {
+      passCheck(info);
+      const lesson = await Lesson.findById(args.id);
+      if (lesson == null) throw new Error("Lesson not found 404");
+      const course = await Course.findById(lesson.course);
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+
+        let lessons = course.lessons;
+        lessons.remove(args.id);
+
+        let updCourse = await Course.findOneAndUpdate({ _id: lesson.course }, { lessons: lessons }, {
+          returnOriginal: false
+        });
+
+        if (!updCourse) throw new Error("Course can`t be updated")
+
+        let res = await Lesson.remove({ _id: args.id });
+        if (!res) throw new Error("Lesson can't be deleted");
+        return { affectedRows: res.deletedCount };
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    updateLesson: async (_, args, context, info) => {
+      passCheck(info);
+      const lesson = await Lesson.findById(args.id);
+      if (lesson == null) throw new Error("Lesson not found 404");
+      const course = await Course.findById(lesson.course);
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+
+        let updLes = await Lesson.findOneAndUpdate({ _id: lesson._id }, args, {
+          returnOriginal: false
+        });
+
+        if (!updLes) throw new Error("Lesson can`t be updated")
+
+        return updLes;
 
       } else {
         throw new Error("Unauthorized 401");

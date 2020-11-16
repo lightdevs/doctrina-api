@@ -25,7 +25,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   @ViewChild(FormGroupDirective) formDirective: FormGroupDirective;
 
-  canEdit = false;
   currentUser: IUserInfo;
   message = Message;
   updateProfileForm: FormGroup;
@@ -39,16 +38,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private authService: AuthenticationService,
     private router: Router
-  ) {
-    authService.currentUser.subscribe( x => this.currentUser = x);
-  }
+  ) {}
 
   ngOnInit() {
-    this.createForm();
-    configureToastr(this.toastr);
     this.getMe();
-
-    // this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    configureToastr(this.toastr);
   }
 
   createForm(): void  {
@@ -77,6 +71,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }).subscribe(
         (res) => {
           this.currentUser = res.data.updatePerson;
+          this.createForm();
+          this.getMe();
           this.toastr.success(this.message.PROFILE_UPDATED, toastrTitle.Success);
         },
         () => {
@@ -105,8 +101,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       }`,
     }).subscribe(
       ({ data }) => {
-        console.log('user: ', data.me);
         this.currentUser = data.me;
+        this.createForm();
       }
     );
   }

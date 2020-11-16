@@ -45,6 +45,40 @@ export class CoursesService {
     });
   }
 
+  addLesson(title: string, idCourse: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation addLesson($title: String!, $idCourse: ID!) {
+        addLesson(title: $title, idCourse: $idCourse) {
+          _id
+        }
+      }
+    `,
+      variables: {
+        title,
+        idCourse
+      },
+    });
+  }
+
+  updateLesson(form): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation updateLesson($id: ID!, $title: String!, $description: String, $dateStart: Date!, $dateEnd: Date!) {
+        updateLesson(id: $id, title: $title, description: $description, dateStart: $dateStart, dateEnd: $dateEnd) {
+          _id
+          title
+          description
+          dateStart
+          dateEnd
+        }
+      }
+    `,
+      variables: {
+        ...form
+      },
+    });
+  }
 
   getCourseById(courseId: string): Observable<any> {
     return  this.apollo.query<any>({
@@ -191,6 +225,42 @@ export class CoursesService {
     });
   }
 
+  uploadFile(uploadFile , currentCourseId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation uploadCourseMaterial($courseId: String!, $file: Upload!) {
+        uploadCourseMaterial(courseId: $courseId, file: $file)
+      }
+    `,
+        variables: {
+          courseId: currentCourseId,
+          file: uploadFile
+        },
+        context: {
+          useMultipart: true
+       }
+    });
+  }
+
+  getCourseMaterial(courseId: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query filesByCourse($courseId: String!, $mimetype: String) {
+        filesByCourse(courseId: $courseId, mimetype: $mimetype) {
+          _id
+          title
+          hash
+          fileId
+          description
+          size
+          mimetype
+        }
+      }`,
+      variables: {
+        courseId,
+      },
+    });
+  }
+
   deleteCourse(courseId: string): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
@@ -202,6 +272,21 @@ export class CoursesService {
     `,
         variables: {
           id: courseId
+        },
+    });
+  }
+
+  deleteLesson(lessonId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation deleteLesson($id: ID!) {
+        deleteLesson(id: $id) {
+          affectedRows
+        }
+      }
+    `,
+        variables: {
+          id: lessonId
         },
     });
   }
@@ -226,22 +311,43 @@ export class CoursesService {
         page: 0,
         count: 1000
       },
-  });
+    });
+  }
+
+  getLessonsByCourse(id: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query lessonsByCourse($courseId: String!) {
+        lessonsByCourse(courseId: $courseId) {
+            _id
+            course
+            title
+            description
+            dateStart
+            dateEnd
+            maxMark
+          }
+        }`,
+      variables: {
+        courseId: id,
+      },
+    });
   }
 
   getCourses(filterValue: string = null, sort: string = null): Observable<any> {
-    console.log(filterValue);
     return  this.apollo.query<any>({
       query: gql `query courses($sort: String, $title: String, $page: Int!, $count: Int!) {
           courses(sort: $sort, title: $title, page: $page, count: $count) {
           courses {
-              _id,
-              title,
-              description,
-              dateStart,
-              dateEnd,
-              maxMark,
-              teacher
+            course{
+                _id
+                title
+                description
+                dateStart
+                dateEnd
+                maxMark
+                teacher
+            }
+            teacher { name surname email}
             }
           }
         }`,

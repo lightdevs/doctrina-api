@@ -3,7 +3,9 @@
 <div class="text-center" *ngIf="canEdit">
   <button mat-flat-button color="primary" (click)="viewStudentList()">View The List Of Students</button>
 </div>
+<app-lessons [canEdit]="canEdit" [courseId]="courseId"></app-lessons>
 <div class="text-center pt-1" *ngIf="canEdit">
   <button mat-flat-button color="warn" (click)="deleteCourse()">Delete Course</button>
 </div>
+
 

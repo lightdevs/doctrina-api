@@ -8,6 +8,8 @@ import { EditCourseComponent } from './edit-course/edit-course.component';
 import { FilterPipe } from './courses/filter.pipe';
 import { CourseInfoComponent } from './course-info/course-info.component';
 import { StudentListComponent } from './student-list/student-list.component';
+import { LessonsComponent } from './lessons/lessons.component';
+import { AddLessonsComponent } from './add-lessons/add-lessons.component';
 
 
 @NgModule({
@@ -17,7 +19,9 @@ import { StudentListComponent } from './student-list/student-list.component';
     EditCourseComponent,
     FilterPipe,
     CourseInfoComponent,
-    StudentListComponent
+    StudentListComponent,
+    LessonsComponent,
+    AddLessonsComponent
   ],
   imports: [
     CommonModule,

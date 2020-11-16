@@ -51,14 +51,19 @@ export class CoursesComponent implements OnInit, OnDestroy {
       .subscribe(res => {
 
         const data = JSON.parse(JSON.stringify(res.data.courses.courses));
-        console.log('result:' , data);
+
         const transformData = data.map(x => {
           return{
-            ...x,
-            dateStart: this.datepipe.transform(x.dateStart, 'dd.MM.yy'),
-            dateEnd: this.datepipe.transform(x.dateEnd, 'dd.MM.yy'),
+            teacher: x.teacher,
+            course: {
+              ...x.course,
+              dateStart: this.datepipe.transform(x.course.dateStart, 'dd.MM.yy'),
+              dateEnd: this.datepipe.transform(x.course.dateEnd, 'dd.MM.yy'),
+            },
           };
         });
+
+        console.log('transformData:' , transformData);
         this.courses = transformData && transformData.length > 0 ? transformData : [];
       });
   }
