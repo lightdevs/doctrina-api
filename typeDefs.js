@@ -27,7 +27,7 @@ type Course {
     maxMark: Int
     lessons: [ID!]
     materials: [ID!]
-    links: [Link!]
+    links: [ID!]
     teacher: ID!
     students: [ID!]!
 }
@@ -39,6 +39,7 @@ type Lesson {
     description:String
     materials: [ID!]
     links: [Link!]
+    type: String
     dateStart: Date
     dateEnd: Date
     maxMark: Int
@@ -147,6 +148,7 @@ type Mutation {
     description:String
     dateStart: Date
     dateEnd: Date
+    type: String
     maxMark: Int): Lesson!
 
     deletePerson(
@@ -178,6 +180,7 @@ type Mutation {
     addLesson(
         idCourse: ID!,
         title: String
+        type: String
     ) : Lesson!
 
     addCourseLink(
