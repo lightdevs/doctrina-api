@@ -11,6 +11,7 @@ type File {
     bucket: String
     fileId: ID!
     userId: ID!
+    parentInstance: ID
     description: String
     size: Int
     mimetype: String
@@ -108,6 +109,8 @@ type Mutation {
     uploadCourseMaterial(file: Upload!, courseId: String!): Boolean
     uploadLessonMaterial(file: Upload!, lessonId: String!): Boolean
     uploadProfilePic(file: Upload!, personId: String!): Boolean
+
+    deleteFile(id: String!): MutationResult
 
     createCourse(
     title:String!,

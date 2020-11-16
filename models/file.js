@@ -22,6 +22,10 @@ const fileSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             required: true
         },
+        parentInstance: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: false
+        },
         mimetype: {
             type: String,
             required: false

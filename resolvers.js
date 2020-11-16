@@ -330,18 +330,14 @@ module.exports = {
     register: async (_, { email, name, surname, password, accountType }, __, info) => {
 
       const newPerson = { email: email, password: await utils.encryptPassword(password), name: name, surname: surname, accountType: accountType };
-      // Get user document from 'user' collection.
       const person = await Person.find({ email: email });
       if (person.length != 0) {
         throw new Error("User Already Exists!");
       }
       try {
-        // Insert User Object to Database
         const regPerson = await Person.create(newPerson);
-        // Creating a Token from User Payload obtained.
-        const token = utils.getToken(regPerson);
+        const token = utils.getToken(regPerson);  // todo: minimize token({id})
         regPerson.token = token;
-        // Adding token to user object
         return regPerson;
       } catch (e) {
         throw e
@@ -385,7 +381,17 @@ module.exports = {
             }
             );
 
-            const newFile = new File({ title: filename, searchTitle: hash, bucket: "course", userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
+            const newFile = new File(
+              {
+                title: filename,
+                searchTitle: hash,
+                bucket: "course",
+                userId: teacher._id,
+                parentInstance: courseId,
+                fileId: writeStream.id,
+                mimetype: mimetype,
+                size: writeStream.length
+              });
             newFile.save();
 
             let materials = course.materials;
@@ -431,7 +437,17 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, searchTitle: hash, bucket: "lesson", userId: teacher._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
+            const newFile = new File(
+              {
+                title: filename,
+                searchTitle: hash,
+                bucket: "lesson",
+                userId: teacher._id,
+                parentInstance: lessonId,
+                fileId: writeStream.id,
+                mimetype: mimetype,
+                size: writeStream.length
+              });
             newFile.save();
 
             let materials = lesson.materials;
@@ -479,7 +495,17 @@ module.exports = {
                 .on('finish', res);
             }
             );
-            const newFile = new File({ title: filename, searchTitle: hash, bucket: "pic", userId: person._id, fileId: writeStream.id, mimetype: mimetype, size: writeStream.length });
+            const newFile = new File(
+              {
+                title: filename,
+                searchTitle: hash,
+                bucket: "pic",
+                userId: person._id,
+                parentInstance: person._id,
+                fileId: writeStream.id,
+                mimetype: mimetype,
+                size: writeStream.length
+              });
             newFile.save();
 
             let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {
@@ -496,6 +522,68 @@ module.exports = {
           }
         } else {
           throw new Error("Not your profile 403");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
+    deleteFile: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let file = File.findById(args.id);
+        if (file) {
+          if (file.userId == context.payload.payload._id) {
+
+            let bucket;
+            let updated;
+            let arr;
+            try {
+              switch (file.bucket) {
+                case "course":
+                  const { courseMaterialsBucket } = require("./buckets");
+                  bucket = courseMaterialsBucket;
+                  let course = await Course.findById(file.parentInstance);
+                  arr = course.materials;
+                  arr.remove(args.id);
+                  updated = await Course.findByIdAndUpdate({ _id: course._id }, { materials: arr }, {
+                    returnOriginal: false
+                  });
+                  break;
+                case "lesson":
+                  const { lessonMaterialsBucket } = require("./buckets");
+                  bucket = lessonMaterialsBucket;
+                  let lesson = await Lesson.findById(file.parentInstance);
+                  arr = lesson.materials;
+                  arr.remove(args.id);
+                  updated = await Course.findByIdAndUpdate({ _id: lesson._id }, { materials: arr }, {
+                    returnOriginal: false
+                  });
+                  break;
+                case "pic":
+                  const { profilePicsBucket } = require("./buckets");
+                  bucket = profilePicsBucket;
+                  updated = await Person.findByIdAndUpdate({ _id: file.parentInstance }, { photo: null }, {
+                    returnOriginal: false
+                  });
+                  break;
+
+              }
+            } catch (err) {
+              throw err;
+            }
+
+            bucket.delete(args.id, function (error) {
+              throw new Error(error);
+            });
+            return { affectedRows: 1 };
+
+          } else {
+            throw new Error("Not permitted to modify 403");
+          }
+        }
+        else {
+          throw new Error("File not found 404");
         }
       } else {
         throw new Error("Unauthorized 401");
