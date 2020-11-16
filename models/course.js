@@ -33,7 +33,6 @@ const courseSchema = new mongoose.Schema(
         },
         links: {
             type: [mongoose.Schema.Types.ObjectId],
-            ref: "Link",
             required: false,
         },
         teacher: {

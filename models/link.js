@@ -2,13 +2,21 @@ const mongoose = require("mongoose")
 
 const linkSchema = new mongoose.Schema(
     {
-        title: {
+        description: {
             type: String,
             required: false,
         },
         link: {
             type: String,
             required: true
+        },
+        parentInstance: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: false
+        },
+        parentType: {
+            type: String,
+            required: false
         }
     },
     { timestamps: true }
