@@ -94,7 +94,6 @@ type ExtendedPerson {
 
 
 type Query {
-    files: [File]
     downloadFile(id: String!): String
 
     filesByCourse(courseId: String!, mimetype: String): [File!]
