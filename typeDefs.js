@@ -46,8 +46,10 @@ type Lesson {
 
 type Link {
     _id: ID!
-    title: String
+    description: String
     link: String!
+    parentInstance: ID
+    parentType: String
 }
 
 
@@ -93,6 +95,7 @@ type Query {
     downloadFile(id: String!): String
 
     filesByCourse(courseId: String!, mimetype: String): [File!]
+    filesByLesson(lessonId: String!, mimetype: String): [File!]
     lessonsByCourse(courseId: String!): [Lesson!]
 
     courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
@@ -102,6 +105,7 @@ type Query {
     courseById(id: String!, sort: String, page: Int!, count: Int!): ExtendedCourse
     personById(id: String!, sort: String, page: Int!, count: Int!): ExtendedPerson
     lessonById(id: String!): Lesson
+    linkById(id: String!): Link
 }
 
 type Mutation {
@@ -175,6 +179,24 @@ type Mutation {
         idCourse: ID!,
         title: String
     ) : Lesson!
+
+    addCourseLink(
+        idCourse: ID!,
+        link: String!,
+        description: String
+      ) : Link!
+    deleteCourseLink(id: ID!) : MutationResult
+    updateLink(
+        id: ID!,
+        link: String,
+        description: String
+        ) : Link!
+    addLessonLink(
+        idLesson: ID!,
+        link: String!,
+        description: String
+      ) : Link!
+    deleteLessonLink(id: ID!) : MutationResult
 
 
 

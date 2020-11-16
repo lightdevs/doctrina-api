@@ -7,6 +7,7 @@ const Course = require('./models/course');
 const Person = require('./models/person');
 const Lesson = require('./models/lesson');
 const File = require('./models/file');
+const Link = require('./models/link');
 const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -178,6 +179,22 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
+    filesByLesson: async (parent, args, context, info) => {
+      if (context.loggedIn) {
+        let files = [];
+        let lesson = await lesson.findById(args.lessonId);
+        if (lesson) {
+          for (let fileId of lesson.materials) {
+            files.push(await File.findById(fileId));
+          }
+          return files;
+        } else {
+          throw new Error("Course not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
     lessonsByCourse: async (parent, args, context, info) => {
       if (context.loggedIn) {
         let course = await Course.findById(args.courseId);
@@ -201,6 +218,7 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
+
     personsNotOnCourse: async (parent, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
@@ -317,6 +335,20 @@ module.exports = {
         let lesson = Lesson.findById(args.id);
         if (lesson) {
           return lesson;
+        } else {
+          throw new Error("Not found 404");
+        }
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    linkById: async (_, args, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        let link = Link.findById(args.id);
+        if (link) {
+          return link;
         } else {
           throw new Error("Not found 404");
         }
@@ -818,6 +850,135 @@ module.exports = {
 
         return updLes;
 
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
+    addCourseLink: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let course = await Course.findById(args.idCourse);
+        if (course) {
+          let link = new Link(
+            {
+              link: args.link,
+              description: args.description,
+              parentInstance: args.idCourse,
+              parentType: "course"
+            }
+          );
+
+          let links = course.links;
+          links.push(link._id);
+          let updatedCourse = await Course.findOneAndUpdate({ _id: args.idCourse }, { links: links }, {
+            returnOriginal: false
+          });
+
+          await link.save();
+          return updatedCourse ? link : "Can't modify course 520";;
+        } else {
+          throw new Error("Course not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    deleteCourseLink: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let link = await Link.findById(args.id);
+        if (link) {
+          let course = await Course.findById(link.parentInstance);
+          if (course) {
+            let links = course.links;
+            links.remove(link._id);
+            let updatedCourse = await Course.findOneAndUpdate({ _id: course._id }, { links: links }, {
+              returnOriginal: false
+            });
+
+            let delLinkResult = await Link.remove({ _id: args.id });
+
+            return { affectedRows: delLinkResult.deletedCount };
+          } else {
+            throw new Error("Course not found 404");
+          }
+        } else {
+          throw new Error("Link not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    updateLink: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let link = await Link.findById(args.id);
+        if (link) {
+          let updatedLink = await Link.findOneAndUpdate({ _id: link._id }, args, {
+            new: true
+          });
+          if (!updatedLink) throw new Error("Can't update link");
+
+          return updatedLink;
+        } else {
+          throw new Error("Link not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    addLessonLink: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let lesson = await Lesson.findById(args.idLesson);
+        if (lesson) {
+          let link = new Link(
+            {
+              link: args.link,
+              description: args.description,
+              parentInstance: args.idLesson,
+              parentType: "lesson"
+            }
+          );
+
+          let links = lesson.links;
+          links.push(link._id);
+          let updatedLesson = await Lesson.findOneAndUpdate({ _id: args.idLesson }, { links: links }, {
+            returnOriginal: false
+          });
+
+          await link.save();
+          return updatedLesson ? link : "Can't modify lesson 520";;
+        } else {
+          throw new Error("Lesson not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    deleteLessonLink: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let link = await Link.findById(args.id);
+        if (link) {
+          let lesson = await Lesson.findById(link.parentInstance);
+          if (lesson) {
+            let links = lesson.links;
+            links.remove(link._id);
+            let updatedLesson = await Lesson.findOneAndUpdate({ _id: lesson._id }, { links: links }, {
+              returnOriginal: false
+            });
+
+            let delLinkResult = await Link.remove({ _id: args.id });
+
+            return { affectedRows: delLinkResult.deletedCount };
+          } else {
+            throw new Error("Lesson not found 404");
+          }
+        } else {
+          throw new Error("Link not found 404");
+        }
       } else {
         throw new Error("Unauthorized 401");
       }
