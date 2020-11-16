@@ -81,7 +81,20 @@ export class LessonsComponent implements OnInit, OnDestroy {
   }
 
   openLesson(id: string): void {
+    console.log(id);
+  }
 
+  lessonEnded(lesson: ILesson): boolean {
+    return lesson?.dateEnd < new Date();
+  }
+
+  lessonWill(lesson: ILesson): boolean {
+    return lesson?.dateStart > new Date();
+  }
+
+  lessonNow(lesson: ILesson): boolean {
+    const today = new Date();
+    return lesson.dateEnd >= today && lesson.dateStart <= today;
   }
 
   ngOnDestroy(): void {

@@ -57,7 +57,8 @@ export class AddLessonsComponent implements OnInit, OnDestroy {
       dateStart: [null, Validators.required],
       dateEnd: [null, Validators.required],
       description: null,
-      maxMark: [null, Validators.required],
+      maxMark: null,
+      type: null
     });
   }
 

@@ -10,4 +10,5 @@ export interface ILesson {
   dateStart: Date;
   dateEnd: Date;
   maxMark: number;
+  type: string;
 }
