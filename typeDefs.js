@@ -38,7 +38,7 @@ type Lesson {
     title:String!
     description:String
     materials: [ID!]
-    links: [Link!]
+    links: [ID!]
     type: String
     dateStart: Date
     dateEnd: Date
