@@ -795,7 +795,7 @@ module.exports = {
       const teacher = await Person.findById(context.payload.payload._id);
       if (course == null) throw new Error("Course not found 404");
       if (context.loggedIn && course.teacher == context.payload.payload._id) {
-        const lesson = new Lesson({ course: course._id, title: args.title });
+        const lesson = new Lesson({ course: course._id, title: args.title, type: args.type });
         let lessons = course.lessons;
         lessons.push(lesson._id);
         let updatedCourse = await Course.findOneAndUpdate({ _id: args.idCourse }, { lessons: lessons }, {
