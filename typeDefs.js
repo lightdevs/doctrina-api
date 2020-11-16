@@ -26,6 +26,7 @@ type Course {
     dateEnd: Date
     maxMark: Int
     lessons: [ID!]
+    mark: String
     materials: [ID!]
     links: [ID!]
     teacher: ID!
@@ -38,6 +39,7 @@ type Lesson {
     title:String!
     description:String
     materials: [ID!]
+    mark: String
     links: [ID!]
     type: String
     dateStart: Date
@@ -114,6 +116,9 @@ type Mutation {
     uploadCourseMaterial(file: Upload!, courseId: String!): Boolean
     uploadLessonMaterial(file: Upload!, lessonId: String!): Boolean
     uploadProfilePic(file: Upload!, personId: String!): Boolean
+
+    setCourseMark(id: String!, mark: String!) : Course
+    setLessonMark(id: String!, mark: String!) : Lesson
 
     deleteFile(id: String!): MutationResult
 

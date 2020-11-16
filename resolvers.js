@@ -982,7 +982,54 @@ module.exports = {
       } else {
         throw new Error("Unauthorized 401");
       }
+    },
+
+    setLessonMark: async (_, args, context, info) => {
+      passCheck(info);
+      let lesson = await Lesson.findById(args.id);
+      if (lesson) {
+        let course = await Course.findById(lesson.course);
+        if (course) {
+          if (context.loggedIn && course.teacher == context.payload.payload._id) {
+            let updatedLesson = await Lesson.findOneAndUpdate({ _id: lesson._id }, { mark: args.mark }, {
+              new: true
+            });
+            if (updatedLesson) {
+              return updatedLesson;
+            } else {
+              throw new Error("Cant't update course")
+            }
+          } else {
+            throw new Error("Unauthorized 401");
+          }
+        } else {
+          throw new Error("Course not found 404");
+        }
+      } else {
+        throw new Error("Lesson not found 404");
+      }
+    },
+    setCourseMark: async (_, args, context, info) => {
+      passCheck(info);
+      let course = await Course.findById(args.id);
+      if (course) {
+        if (context.loggedIn && course.teacher == context.payload.payload._id) {
+          let updatedCourse = await Course.findOneAndUpdate({ _id: course._id }, { mark: args.mark }, {
+            new: true
+          });
+          if (updatedCourse) {
+            return updatedCourse;
+          } else {
+            throw new Error("Cant't update course")
+          }
+        } else {
+          throw new Error("Unauthorized 401");
+        }
+      } else {
+        throw new Error("Course not found 404");
+      }
     }
+
   },
 
   Date: new GraphQLScalarType({
