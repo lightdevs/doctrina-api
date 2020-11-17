@@ -103,7 +103,7 @@ export class EditLessonComponent implements OnInit, OnDestroy {
       .subscribe(result => {
         if (result != null) {
           if (result === true ) {
-            this.courseService.deleteCourse(this.courseId)
+            this.courseService.deleteLesson(this.lessonId)
               .subscribe(() => {
                 this.toastr.success(`Lesson Deleted`, toastrTitle.Success);
                 this.router.navigate(['/courses/course/', this.courseId]);
