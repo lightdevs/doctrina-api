@@ -397,7 +397,18 @@ module.exports = {
           if (student.accountType != "teacher") {
             if (course.students.includes(studentId)) {
               let res = [];
-
+              for(let lessonId of course.lessons) {
+                let lesson = await Lesson.findById(lessonId);
+                let stMark = lesson.marks.filter(el => el.student == studentId);
+                res.push({
+                  lesson: lesson._id,
+                  mark : [{
+                    student: stMark[0].student,
+                    mark: stMark[0].mark
+                  }]
+                });
+              }
+              return res;
             } else {
               throw new Error("Course does not contains this student");
             }
