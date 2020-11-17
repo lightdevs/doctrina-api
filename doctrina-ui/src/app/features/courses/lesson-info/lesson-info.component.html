@@ -51,7 +51,7 @@
               </div>
               <div class="form-group">
                 <mat-form-field appearance="outline">
-                  <mat-label>Course description</mat-label>
+                  <mat-label>Lesson description</mat-label>
                   <textarea matInput value="{{lesson.value?.description}}" readonly></textarea>
                 </mat-form-field>
               </div>
@@ -192,7 +192,7 @@
           <mat-card class="w-100">
             <div class="card-header-container p-2">
               <h1 class="bold">
-                Matherials
+                Materials
               </h1>
               <mat-label>
                 <button mat-icon-button type="button" tabindex="-1" *ngIf="canEdit" color="primary" [disabled]="isUploading" (click)="inputFile.click()">
@@ -228,7 +228,7 @@
                         </button>
                       </td>
                       <td>
-                        <button *ngIf="canEdit" mat-icon-button type="button" tabindex="-1" color="warn" (click)="deleteFile(file.fileId)">
+                        <button *ngIf="canEdit" mat-icon-button type="button" tabindex="-1" color="warn" (click)="deleteFile(file._id)">
                           <mat-icon> close </mat-icon>
                         </button>
                       </td>
