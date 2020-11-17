@@ -26,6 +26,7 @@ type Course {
     dateEnd: Date
     maxMark: Int
     lessons: [ID!]
+    mark: String
     materials: [ID!]
     links: [ID!]
     teacher: ID!
@@ -38,6 +39,7 @@ type Lesson {
     title:String!
     description:String
     materials: [ID!]
+    mark: String
     links: [ID!]
     type: String
     dateStart: Date
@@ -92,12 +94,14 @@ type ExtendedPerson {
 
 
 type Query {
-    files: [File]
     downloadFile(id: String!): String
 
     filesByCourse(courseId: String!, mimetype: String): [File!]
     filesByLesson(lessonId: String!, mimetype: String): [File!]
     lessonsByCourse(courseId: String!): [Lesson!]
+
+    linksByCourse(id: String!) : [Link!]
+    linksByLesson(id: String!) : [Link!]
 
     courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
@@ -114,6 +118,9 @@ type Mutation {
     uploadCourseMaterial(file: Upload!, courseId: String!): Boolean
     uploadLessonMaterial(file: Upload!, lessonId: String!): Boolean
     uploadProfilePic(file: Upload!, personId: String!): Boolean
+
+    setCourseMark(id: String!, mark: String!) : Course
+    setLessonMark(id: String!, mark: String!) : Lesson
 
     deleteFile(id: String!): MutationResult
 

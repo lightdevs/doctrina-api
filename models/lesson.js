@@ -22,7 +22,11 @@ const lessonSchema = new mongoose.Schema(
             type: [mongoose.Schema.Types.ObjectId],
             required: false
         },
-        links: {
+        type: {
+            type: String,
+            required: false
+        },
+        mark: {
             type: String,
             required: false
         },
