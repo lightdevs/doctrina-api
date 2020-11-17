@@ -702,10 +702,10 @@ module.exports = {
               throw err;
             }
 
-            bucket.delete(args.id, function (error) {
+            bucket.delete(file.fileId, function (error) {
               throw new Error(error);
             });
-            const res = await File.remove({ _id: args.id });
+            const res = await File.remove({ _id: file_id });
             return { affectedRows: 1 };
 
           } else {
