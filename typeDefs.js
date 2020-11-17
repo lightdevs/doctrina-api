@@ -121,8 +121,8 @@ type Query {
     lessonById(id: String!): Lesson
     linkById(id: String!): Link
 
-    studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat]
-    statisticsByCourse(studentId: String!, courseId: String!): Boolean
+    studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
+    statisticsByCourse(courseId: String!): [Stat!]
 }
 
 type Mutation {

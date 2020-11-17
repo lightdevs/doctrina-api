@@ -392,39 +392,60 @@ module.exports = {
       let courseId = args.courseId;
       let course = await Course.findById(courseId);
       if (course) {
-        let student = await Person.findById(studentId);
-        if (student) {
-          if (student.accountType != "teacher") {
-            if (course.students.includes(studentId)) {
-              let res = [];
-              for(let lessonId of course.lessons) {
-                let lesson = await Lesson.findById(lessonId);
-                let stMark = lesson.marks.filter(el => el.student == studentId);
-                res.push({
-                  lesson: lesson._id,
-                  mark : [{
-                    student: stMark[0].student,
-                    mark: stMark[0].mark
-                  }]
-                });
+        if (course.teacher == context.payload.payload._id && context.loggedIn) {
+          let student = await Person.findById(studentId);
+          if (student) {
+            if (student.accountType != "teacher") {
+              if (course.students.includes(studentId)) {
+                let res = [];
+                for (let lessonId of course.lessons) {
+                  let lesson = await Lesson.findById(lessonId);
+                  let stMark = lesson.marks.filter(el => el.student == studentId);
+                  res.push({
+                    lesson: lesson._id,
+                    mark: [{
+                      student: stMark[0].student,
+                      mark: stMark[0].mark
+                    }]
+                  });
+                }
+                return res;
+              } else {
+                throw new Error("Course does not contains this student");
               }
-              return res;
             } else {
-              throw new Error("Course does not contains this student");
+              throw new Error("Not a student ");
             }
           } else {
-            throw new Error("Not a student ");
+            throw new Error("Person not found 404");
           }
-        } else {
-          throw new Error("Person not found 404");
         }
-
       } else {
         throw new Error("Course not found 404");
       }
     },
     statisticsByCourse: async (_, args, context, info) => {
       passCheck(info);
+      let courseId = args.courseId;
+      let course = await Course.findById(courseId);
+      if (course) {
+        if (course.teacher == context.payload.payload._id && context.loggedIn) {
+          let res = [];
+          for (let lessonId of course.lessons) {
+            let lesson = await Lesson.findById(lessonId);
+            res.push({
+              lesson: lesson._id,
+              mark: lesson.marks
+            });
+          }
+          return res;
+        } else {
+          throw new Error("Unauthorized 401");
+        }
+
+      } else {
+        throw new Error("Course not found 404");
+      }
     }
   },
   Mutation: {
