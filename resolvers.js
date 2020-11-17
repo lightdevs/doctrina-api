@@ -568,6 +568,13 @@ module.exports = {
               });
             newFile.save();
 
+            if(person.photo != null) {
+              profilePicsBucket.delete(person.photo, function (error) {
+                throw new Error(error);
+              });
+              const res = await File.remove({ _id: person.photo })
+            }
+
             let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {
               returnOriginal: false
             });
@@ -616,7 +623,7 @@ module.exports = {
                   let lesson = await Lesson.findById(file.parentInstance);
                   arr = lesson.materials;
                   arr.remove(args.id);
-                  updated = await Course.findByIdAndUpdate({ _id: lesson._id }, { materials: arr }, {
+                  updated = await Lesson.findByIdAndUpdate({ _id: lesson._id }, { materials: arr }, {
                     returnOriginal: false
                   });
                   break;
@@ -636,6 +643,7 @@ module.exports = {
             bucket.delete(args.id, function (error) {
               throw new Error(error);
             });
+            const res = await File.remove({ _id: args.id });
             return { affectedRows: 1 };
 
           } else {
