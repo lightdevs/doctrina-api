@@ -136,7 +136,7 @@ export class LessonInfoComponent implements OnInit, OnDestroy {
   }
 
   getDate(date: string): string {
-    return new Date(date).toLocaleDateString();
+    return new Date(date).toLocaleDateString() + ' ' + new Date(date).toLocaleTimeString();
   }
 
   startEdit(): void {
