@@ -1,4 +1,4 @@
-export interface ICourseMaterials {
+export interface IMaterials {
   _id: string;
   title: string;
   hash: string;

@@ -1,3 +1,4 @@
+import { EditLessonComponent } from './edit-lesson/edit-lesson.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { CoursesComponent } from './courses/courses.component';
@@ -7,6 +8,7 @@ const routes: Routes = [
   { path: '', redirectTo: 'main'},
   { path: 'main', component: CoursesComponent },
   { path: 'course/:id', component: EditCourseComponent },
+  { path: 'lesson/:id/:lessonId', component: EditLessonComponent },
 ];
 
 @NgModule({

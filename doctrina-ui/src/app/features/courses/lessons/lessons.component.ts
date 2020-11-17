@@ -2,7 +2,7 @@ import { AddLessonsComponent } from './../add-lessons/add-lessons.component';
 import { map, takeUntil } from 'rxjs/operators';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ILesson } from 'src/app/core/interfaces/lesson.interface';
 import { IUserInfo } from 'src/app/core/interfaces/user.interface';
@@ -23,7 +23,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
 
   lessons: ILesson[] = [];
   private destroy$ = new Subject<void>();
-  constructor(private route: ActivatedRoute,
+  constructor(private router: Router,
               private courseService: CoursesService,
               private toastr: ToastrService,
               public dialog: MatDialog) { }
@@ -81,7 +81,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
   }
 
   openLesson(id: string): void {
-    console.log(id);
+    this.router.navigate(['/courses/lesson/', this.courseId, id, ]);
   }
 
   lessonEnded(lesson: ILesson): boolean {

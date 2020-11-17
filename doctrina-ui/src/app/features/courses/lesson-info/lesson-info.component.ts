@@ -1,36 +1,36 @@
-import { ILink } from './../../../core/interfaces/link.interface';
-import { AddLinkComponent } from './../../../shared/components/add-link/add-link.component';
-import { IMaterials } from './../../../core/interfaces/filte.interface';
-import { toastrTitle } from 'src/app/core/helpers';
-import { ToastrService } from 'ngx-toastr';
-import { HostListener, Input, OnDestroy } from '@angular/core';
-import { Component, OnInit } from '@angular/core';
+import { ILesson } from 'src/app/core/interfaces/lesson.interface';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { takeUntil, startWith, map } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
+import { BehaviorSubject, Subject, Observable } from 'rxjs';
+import { map, startWith, takeUntil } from 'rxjs/operators';
+import { toastrTitle } from 'src/app/core/helpers';
 import { ICourses } from 'src/app/core/interfaces/course.interface';
+import { IMaterials } from 'src/app/core/interfaces/filte.interface';
+import { ILink } from 'src/app/core/interfaces/link.interface';
 import { IUserInfo } from 'src/app/core/interfaces/user.interface';
+import { AddLinkComponent } from 'src/app/shared/components/add-link/add-link.component';
 import { CancelPopUpComponent } from 'src/app/shared/components/cancel-pop-up/cancel-pop-up.component';
-import { CoursesService } from '../courses.service';
-import { HttpHeaders, HttpResponse, HttpClient } from '@angular/common/http';
 import { AuthenticationService } from '../../authentication/authentication.service';
+import { CoursesService } from '../courses.service';
 
 @Component({
-  selector: 'app-course-info',
-  templateUrl: './course-info.component.html',
-  styleUrls: ['./course-info.component.scss']
+  selector: 'app-lesson-info',
+  templateUrl: './lesson-info.component.html',
+  styleUrls: ['./lesson-info.component.scss']
 })
-export class CourseInfoComponent implements OnInit, OnDestroy {
+export class LessonInfoComponent implements OnInit, OnDestroy {
 
   @Input() course: BehaviorSubject<ICourses>;
+  @Input() lesson: BehaviorSubject<ILesson>;
   @Input() teacherInfo: IUserInfo;
   @Input() canEdit: boolean;
   options: number[] = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
   filteredOptions: Observable<number[]>;
-  editCourseForm: FormGroup;
-  editCourse = false;
+  editLessoForm: FormGroup;
+  editLesson = false;
   isUploading: boolean;
   materials: IMaterials[] = [];
   links: ILink[] = [];
@@ -45,23 +45,23 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
 
       // tslint:disable-next-line:typedef
   @HostListener('window:beforeunload', ['$event']) unloadNotification($event: any) {
-    if (this.editCourseForm.dirty) {
+    if (this.editLessoForm.dirty) {
         $event.returnValue = false;
     }
   }
 
   ngOnInit(): void {
     this.createForm();
-    this.course
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        if(this.course.value) {
-          this.initForm(this.course.value);
-          this.getCourseLinks();
-          this.getCourseMaterial();
-        }
-      })
-    this.filteredOptions = (this.editCourseForm.get('maxMark') as FormControl).valueChanges
+    this.lesson
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      if(this.lesson.value) {
+        this.initForm(this.lesson.value);
+        this.getLessonLinks();
+        this.getLessonMaterial();
+      }
+    })
+    this.filteredOptions = (this.editLessoForm.get('maxMark') as FormControl).valueChanges
     .pipe(
       takeUntil(this.destroy$),
       startWith(''),
@@ -70,41 +70,40 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
   }
 
   createForm(): void  {
-    this.editCourseForm = this.formBuilder.group({
+    this.editLessoForm = this.formBuilder.group({
       id: [null, Validators.required],
       title: [null, Validators.required],
+      type: [null, Validators.required],
       description: [null, Validators.required],
       dateStart: [null, Validators.required],
       dateEnd: [null, Validators.required],
       maxMark: [null, Validators.required],
-      teacher: [null,  Validators.required],
-      identifier: { value: null, disabled: true }
     });
   }
 
-  initForm(course: ICourses): void {
-    this.editCourseForm.reset();
-    this.editCourseForm.patchValue(course);
-    this.editCourseForm.get('dateStart').setValue(new Date(course.dateStart));
-    this.editCourseForm.get('dateEnd').setValue(new Date(course.dateEnd));
-    this.editCourseForm.get('id').setValue(course._id);
+  initForm(lesson: ILesson): void {
+    this.editLessoForm.reset();
+    this.editLessoForm.patchValue(lesson);
+    this.editLessoForm.get('dateStart').setValue(new Date(lesson.dateStart));
+    this.editLessoForm.get('dateEnd').setValue(new Date(lesson.dateEnd));
+    this.editLessoForm.get('id').setValue(lesson._id);
   }
 
 
-  updateCourseInfo(): void {
-    if (this.editCourseForm.valid) {
+  updateLessonInfo(): void {
+    if (this.editLessoForm.valid) {
 
-      this.courseService.updateCourse(
+      this.courseService.updateLesson(
         {
-          ...this.editCourseForm.value
+          ...this.editLessoForm.value
         })
         .subscribe(res => {
           console.log(res);
-          this.editCourse = false;
-          this.course.next(res.data.updateCourse);
+          this.editLesson = false;
+          this.lesson.next(res.data.updateLesson);
         });
     } else {
-      this.editCourseForm.markAllAsTouched();
+      this.editLessoForm.markAllAsTouched();
     }
   }
 
@@ -114,10 +113,10 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
     }
 
     this.isUploading = true;
-    this.courseService.uploadFile(event.target.files[0], this.course.value._id)
+    this.courseService.uploadLessonFile(event.target.files[0], this.lesson.value._id)
       .subscribe(() => {
           this.isUploading = false;
-          this.getCourseMaterial();
+          this.getLessonMaterial();
           this.toastr.success('Document has been uploaded!', toastrTitle.Success);
         },
         () => {
@@ -128,11 +127,11 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
     event.target.value = '';
   }
 
-  getCourseMaterial(): void {
-    this.courseService.getCourseMaterial(this.course.value._id)
+  getLessonMaterial(): void {
+    this.courseService.getLessonMaterial(this.lesson.value._id)
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
-        this.materials = res.data.filesByCourse;
+        this.materials = res.data.filesByLesson;
       });
   }
 
@@ -141,12 +140,12 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
   }
 
   startEdit(): void {
-    this.editCourse = !this.editCourse;
+    this.editLesson = !this.editLesson;
   }
 
 
   cancelEdit(): void {
-    if (this.editCourseForm.dirty) {
+    if (this.editLessoForm.dirty) {
       const config = new MatDialogConfig();
       config.panelClass = `modal-setting`;
       config.width = '500px';
@@ -158,14 +157,14 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
         .subscribe(result => {
           if (result != null) {
             if (result) {
-              this.editCourseForm.reset();
-              this.editCourse = !this.editCourse;
-              this.initForm(this.course.value);
+              this.editLessoForm.reset();
+              this.editLesson = !this.editLesson;
+              this.initForm(this.lesson.value);
             }
           }
         });
     } else {
-      this.editCourse = !this.editCourse;
+      this.editLesson = !this.editLesson;
     }
   }
 
@@ -218,25 +217,25 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe(result => {
             if (result) {
-              this.courseService.addCourseLink(this.course.value._id, result)
-              .subscribe(() => this.getCourseLinks());
+              this.courseService.addLessonLink(this.lesson.value._id, result)
+              .subscribe(() => this.getLessonLinks());
             }
         });
   }
 
-  getCourseLinks(): void {
-    this.courseService.getCourseLinks(this.course.value._id)
-      .subscribe(res => this.links = res.data.linksByCourse);
+  getLessonLinks(): void {
+    this.courseService.getLessonLinks(this.lesson.value._id)
+      .subscribe(res => this.links = res.data.linksByLesson);
   }
 
-  deleteCourseLinks(id): void {
-    this.courseService.deleteCourseLink(id)
-      .subscribe(() => this.getCourseLinks());
+  deleteLessonLink(id): void {
+    this.courseService.deleteLessonLink(id)
+      .subscribe(() => this.getLessonLinks());
   }
 
   deleteFile(id): void {
     this.courseService.deleteFile(id)
-      .subscribe(() => this.getCourseMaterial());
+      .subscribe(() => this.getLessonMaterial());
   }
 
   protected getFileName(response: HttpResponse<Blob>): string {
@@ -245,7 +244,7 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
   }
 
   formatSize(bytes): string {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) { return '0 Bytes'; }
 
     const k = 1024;
     const dm = 1 < 0 ? 0 : 1;
