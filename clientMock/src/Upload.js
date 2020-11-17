@@ -6,7 +6,7 @@ import { filesQuery } from "./Files";
 
 const uploadFileMutation = gql`
   mutation UploadFile($file: Upload!) {
-    uploadProfilePic(file: $file, personId: "5fb2b1637f68d53e3457e35e")
+    uploadCourseMaterial(file: $file, courseId: "5fb3f71e9a81c52e54e9cf67")
   }
 `;
 
