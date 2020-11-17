@@ -158,10 +158,27 @@
                 Links
               </h1>
               <mat-label>
-                <button *ngIf="canEdit" color="primary" mat-icon-button type="button" tabindex="-1">
+                <button *ngIf="canEdit" color="primary" mat-icon-button type="button" tabindex="-1" (click)="addLink()">
                     <mat-icon>add</mat-icon>
                 </button>
               </mat-label>
+            </div>
+            <div class="container span3">
+              <ul style="list-style-type: none;">
+                <ng-container *ngFor="let link of links">
+                  <li>
+                    <div class="card-header-container">
+                      <h2 class="bold text-truncate" style="max-width: 150px;"> {{link.description}}</h2>
+                      <mat-label>
+                        <a mat-stroked-button href="{{link.link}}" target="_blank">Link</a>
+                        <button *ngIf="canEdit" mat-icon-button type="button" tabindex="-1" color="warn" (click)="deleteCourseLinks(link._id)">
+                          <mat-icon> close </mat-icon>
+                        </button>
+                      </mat-label>
+                    </div>
+                  </li>
+                </ng-container>
+              </ul>
             </div>
           </mat-card>
         </div>
@@ -189,6 +206,7 @@
                     <th scope="col">Type</th>
                     <th scope="col">Size</th>
                     <th scope="col"></th>
+                    <th scope="col"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -201,6 +219,11 @@
                       <td>
                         <button mat-icon-button type="button" tabindex="-1" color="primary" (click)="downloadFile(file.fileId)">
                           <mat-icon> get_app </mat-icon>
+                        </button>
+                      </td>
+                      <td>
+                        <button *ngIf="canEdit" mat-icon-button type="button" tabindex="-1" color="warn" (click)="deleteFile(file.fileId)">
+                          <mat-icon> close </mat-icon>
                         </button>
                       </td>
                     </tr>

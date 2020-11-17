@@ -1,0 +1,39 @@
+<mat-toolbar>
+    <h1>STUDENT LIST</h1>
+    <span class="spacer"></span>
+    <button mat-icon-button type="button" [mat-dialog-close]="null">
+        <mat-icon color="warn">close</mat-icon>
+    </button>
+</mat-toolbar>
+<div class="mx-3">
+  <form [formGroup]="linkForm">
+  <div class="row pt-3 px-3">
+    <div class="col-md-6">
+      <div class="form-group pt-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Title</mat-label>
+          <input matInput formControlName="description"/>
+          <mat-error *ngIf="linkForm.get('description').hasError('required')">
+            Title is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group pt-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Link</mat-label>
+          <input matInput formControlName="link"/>
+          <mat-error *ngIf="linkForm.get('link').hasError('required')">
+            Link is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    </div>
+  </form>
+  <mat-dialog-actions class="spacer-beetwen align-bottom  mx-2 p-4 pb-5">
+    <button mat-flat-button color="warn" [mat-dialog-close]>NO THANKS</button>
+    <button mat-flat-button color="primary" (click)="onSubmit()" >CREATE</button>
+  </mat-dialog-actions>
+</div>

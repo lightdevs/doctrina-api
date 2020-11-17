@@ -1,3 +1,5 @@
+import { ILink } from './../../../core/interfaces/link.interface';
+import { AddLinkComponent } from './../../../shared/components/add-link/add-link.component';
 import { ICourseMaterials } from './../../../core/interfaces/filte.interface';
 import { toastrTitle } from 'src/app/core/helpers';
 import { ToastrService } from 'ngx-toastr';
@@ -12,6 +14,8 @@ import { ICourses } from 'src/app/core/interfaces/course.interface';
 import { IUserInfo } from 'src/app/core/interfaces/user.interface';
 import { CancelPopUpComponent } from 'src/app/shared/components/cancel-pop-up/cancel-pop-up.component';
 import { CoursesService } from '../courses.service';
+import { HttpHeaders, HttpResponse, HttpClient } from '@angular/common/http';
+import { AuthenticationService } from '../../authentication/authentication.service';
 
 @Component({
   selector: 'app-course-info',
@@ -29,9 +33,12 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
   editCourse = false;
   isUploading: boolean;
   materials: ICourseMaterials[] = [];
+  links: ILink[] = [];
 
   private destroy$ = new Subject<void>();
   constructor(private formBuilder: FormBuilder,
+              private authenticationService: AuthenticationService,
+              private http: HttpClient,
               private courseService: CoursesService,
               private toastr: ToastrService,
               public dialog: MatDialog) { }
@@ -50,6 +57,7 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         if(this.course.value) {
           this.initForm(this.course.value);
+          this.getCourseLinks();
           this.getCourseMaterial();
         }
       })
@@ -81,6 +89,7 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
     this.editCourseForm.get('dateEnd').setValue(new Date(course.dateEnd));
     this.editCourseForm.get('id').setValue(course._id);
   }
+
 
   updateCourseInfo(): void {
     if (this.editCourseForm.valid) {
@@ -123,7 +132,6 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
     this.courseService.getCourseMaterial(this.course.value._id)
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
-        console.log(res);
         this.materials = res.data.filesByCourse;
       });
   }
@@ -162,7 +170,78 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
   }
 
   downloadFile(fileId: string): void {
+    this.courseService.downloadFile(fileId)
+    .subscribe(response => {
+      this.getfile(response.downloadFile).subscribe(res => {
 
+        /*const fileName = this.getFileName(response.downloadFile);
+        const blob = new Blob([response.downloadFile]);
+        const downloadURL = window.URL.createObjectURL(response.downloadFile);
+        const link = document.createElement('a');
+        link.href = downloadURL;
+        link.download = fileName;
+        link.click();*/
+      });
+    });
+  }
+
+  protected saveFile(blob: Blob, fileName: string): void {
+    const a = document.createElement('a');
+    const url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = fileName;
+
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  }
+
+  getfile(link: string): Observable<any> {
+    const httpOptions = {
+      responseType: 'blob' as 'json',
+      headers: new HttpHeaders({
+        Authorization: this.authenticationService.currentUserValue.token,
+      })
+    };
+
+
+    return this.http.get<Blob>(link, httpOptions);
+  }
+
+  addLink(): void {
+      const config = new MatDialogConfig();
+      config.panelClass = `modal-setting`;
+      config.width = '500px';
+      config.height = '300px';
+      const dialogRef = this.dialog.open(AddLinkComponent, config);
+      dialogRef.afterClosed()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(result => {
+            if (result) {
+              this.courseService.addCourseLink(this.course.value._id, result)
+              .subscribe(() => this.getCourseLinks());
+            }
+        });
+  }
+
+  getCourseLinks(): void {
+    this.courseService.getCourseLinks(this.course.value._id)
+      .subscribe(res => this.links = res.data.linksByCourse);
+  }
+
+  deleteCourseLinks(id): void {
+    this.courseService.deleteCourseLink(id)
+      .subscribe(() => this.getCourseLinks());
+  }
+
+  deleteFile(id): void {
+    this.courseService.deleteFile(id)
+      .subscribe(() => this.getCourseMaterial());
+  }
+
+  protected getFileName(response: HttpResponse<Blob>): string {
+    const disposition = response.headers.get('content-disposition');
+    return disposition?.split(';')[1]?.split('=')[1]?.replace(/"/g, '') ?? 'document1';
   }
 
   formatSize(bytes): string {

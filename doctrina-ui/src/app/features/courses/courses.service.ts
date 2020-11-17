@@ -64,8 +64,8 @@ export class CoursesService {
   updateLesson(form): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
-      mutation updateLesson($id: ID!, $title: String!, $description: String, $dateStart: Date!, $dateEnd: Date!) {
-        updateLesson(id: $id, title: $title, description: $description, dateStart: $dateStart, dateEnd: $dateEnd) {
+      mutation updateLesson($id: ID!, $title: String!, $description: String, $dateStart: Date!, $dateEnd: Date!, $type: String, $maxMark: Int) {
+        updateLesson(id: $id, title: $title, description: $description, dateStart: $dateStart, dateEnd: $dateEnd, type: $type, maxMark: $maxMark) {
           _id
           title
           description
@@ -248,7 +248,6 @@ export class CoursesService {
         filesByCourse(courseId: $courseId, mimetype: $mimetype) {
           _id
           title
-          hash
           fileId
           description
           size
@@ -321,6 +320,7 @@ export class CoursesService {
             _id
             course
             title
+            type
             description
             dateStart
             dateEnd
@@ -356,6 +356,111 @@ export class CoursesService {
         title: filterValue,
         page: 0,
         count: 1000
+      },
+    });
+  }
+
+  downloadFile(id: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query downloadFile($id: String!) {
+        downloadFile(id: $id)
+        }`,
+      variables: {
+        id,
+      },
+    });
+  }
+
+  addCourseLink(idCourse: string , form): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation addCourseLink($idCourse: ID!, $description: String!, $link: String!) {
+        addCourseLink(idCourse: $idCourse, description: $description, link: $link) {
+          _id
+        }
+      }
+    `,
+        variables: {
+          idCourse,
+          ...form
+        },
+        context: {
+          useMultipart: true
+       }
+    });
+  }
+
+  deleteCourseLink(linkId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation deleteCourseLink($id: ID!) {
+        deleteCourseLink(id: $id) {
+          affectedRows
+        }
+      }
+    `,
+        variables: {
+          id: linkId
+        },
+    });
+  }
+
+  deleteLessonLink(linkId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation deleteLessonLink($id: ID!) {
+        deleteLessonLink(id: $id) {
+          affectedRows
+        }
+      }
+    `,
+        variables: {
+          id: linkId
+        },
+    });
+  }
+
+  deleteFile(id: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation deleteFile($id: String!) {
+        deleteFile(id: $id) {
+          affectedRows
+        }
+      }
+    `,
+        variables: {
+          id
+        },
+    });
+  }
+
+  getCourseLinks(courseId: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query linksByCourse($id: String!) {
+        linksByCourse(id: $id) {
+          _id
+          description
+          link
+        }
+      }`,
+      variables: {
+        id: courseId,
+      },
+    });
+  }
+
+  getLessonLinks(lessonId: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query linksByLesson($id: String!) {
+        linksByLesson(id: $id) {
+          _id
+          description
+          link
+        }
+      }`,
+      variables: {
+        id: lessonId,
       },
     });
   }
