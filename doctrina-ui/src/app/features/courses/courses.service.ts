@@ -71,6 +71,8 @@ export class CoursesService {
           description
           dateStart
           dateEnd
+          maxMark
+          type
         }
       }
     `,
@@ -99,6 +101,26 @@ export class CoursesService {
         id: courseId,
         page: 0,
         count: 0
+      },
+    });
+  }
+
+  getLessonById(lessonId: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query lessonById($id: String!) {
+        lessonById(id: $id) {
+          _id
+          course
+          title
+          description
+          type
+          dateStart
+          dateEnd
+          maxMark
+        }
+      }`,
+      variables: {
+        id: lessonId,
       },
     });
   }
@@ -242,6 +264,23 @@ export class CoursesService {
     });
   }
 
+  uploadLessonFile(uploadFile , lessonId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation uploadLessonMaterial($lessonId: String!, $file: Upload!) {
+        uploadLessonMaterial(lessonId: $lessonId, file: $file)
+      }
+    `,
+        variables: {
+          lessonId,
+          file: uploadFile
+        },
+        context: {
+          useMultipart: true
+       }
+    });
+  }
+
   getCourseMaterial(courseId: string): Observable<any> {
     return  this.apollo.query<any>({
       query: gql `query filesByCourse($courseId: String!, $mimetype: String) {
@@ -256,6 +295,24 @@ export class CoursesService {
       }`,
       variables: {
         courseId,
+      },
+    });
+  }
+
+  getLessonMaterial(lessonId: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query filesByLesson($lessonId: String!, $mimetype: String) {
+        filesByLesson(lessonId: $lessonId, mimetype: $mimetype) {
+          _id
+          title
+          fileId
+          description
+          size
+          mimetype
+        }
+      }`,
+      variables: {
+        lessonId,
       },
     });
   }
@@ -382,6 +439,25 @@ export class CoursesService {
     `,
         variables: {
           idCourse,
+          ...form
+        },
+        context: {
+          useMultipart: true
+       }
+    });
+  }
+
+  addLessonLink(idLesson: string , form): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation addLessonLink($idLesson: ID!, $description: String!, $link: String!) {
+        addLessonLink(idLesson: $idLesson, description: $description, link: $link) {
+          _id
+        }
+      }
+    `,
+        variables: {
+          idLesson,
           ...form
         },
         context: {
