@@ -183,14 +183,14 @@ module.exports = {
       passCheck(info);
       if (context.loggedIn) {
         let files = [];
-        let lesson = await lesson.findById(args.lessonId);
+        let lesson = await Lesson.findById(args.lessonId);
         if (lesson) {
           for (let fileId of lesson.materials) {
             files.push(await File.findById(fileId));
           }
           return files;
         } else {
-          throw new Error("Course not found 404");
+          throw new Error("Lesson not found 404");
         }
       } else {
         throw new Error("Unauthorized 401");
