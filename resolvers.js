@@ -360,7 +360,7 @@ module.exports = {
     lessonById: async (_, args, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
-        let lesson = Lesson.findById(args.id);
+        let lesson = await Lesson.findById(args.id);
         if (lesson) {
           return lesson;
         } else {
@@ -660,7 +660,7 @@ module.exports = {
     deleteFile: async (_, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
-        let file = File.findById(args.id);
+        let file = await File.findById(args.id);
         if (file) {
           if (file.userId == context.payload.payload._id) {
 
