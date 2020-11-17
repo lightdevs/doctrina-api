@@ -94,12 +94,14 @@ type ExtendedPerson {
 
 
 type Query {
-    files: [File]
     downloadFile(id: String!): String
 
     filesByCourse(courseId: String!, mimetype: String): [File!]
     filesByLesson(lessonId: String!, mimetype: String): [File!]
     lessonsByCourse(courseId: String!): [Lesson!]
+
+    linksByCourse(id: String!) : [Link!]
+    linksByLesson(id: String!) : [Link!]
 
     courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse

@@ -7,6 +7,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { ControlsTestComponent } from './components/controls-test/controls-test.component';
 import { CancelPopUpComponent } from './components/cancel-pop-up/cancel-pop-up.component';
 import { DeletePopUpComponent } from './components/delete-pop-up/delete-pop-up.component';
+import { AddLinkComponent } from './components/add-link/add-link.component';
 
 
 @NgModule({
@@ -14,6 +15,7 @@ import { DeletePopUpComponent } from './components/delete-pop-up/delete-pop-up.c
     ControlsTestComponent,
     CancelPopUpComponent,
     DeletePopUpComponent,
+    AddLinkComponent,
   ],
   imports: [
     CommonModule,

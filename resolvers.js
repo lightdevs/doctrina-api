@@ -76,7 +76,6 @@ function sortByFunc(sortString, array) {    //TODO: Strategy pattern
 
 module.exports = {
   Query: {
-    files: () => { return null },
     courses: async (parent, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
@@ -164,6 +163,7 @@ module.exports = {
       }
     },
     filesByCourse: async (parent, args, context, info) => {
+      passCheck(info);
       if (context.loggedIn) {
         let files = [];
         let course = await Course.findById(args.courseId);
@@ -180,6 +180,7 @@ module.exports = {
       }
     },
     filesByLesson: async (parent, args, context, info) => {
+      passCheck(info);
       if (context.loggedIn) {
         let files = [];
         let lesson = await lesson.findById(args.lessonId);
@@ -196,6 +197,7 @@ module.exports = {
       }
     },
     lessonsByCourse: async (parent, args, context, info) => {
+      passCheck(info);
       if (context.loggedIn) {
         let course = await Course.findById(args.courseId);
         if (course) {
@@ -205,6 +207,32 @@ module.exports = {
         }
       } else {
         throw new Error("Unauthorized 401");
+      }
+    },
+    linksByCourse: async (_, args, context, info) => {
+      passCheck(info);
+      let course = await Course.findById(args.id);
+      if(course) {
+        let links = [];
+        for(let linkId of course.links) {
+          links.push(await Link.findById(linkId));
+        }
+        return links;
+      } else {
+        throw new Error("Course not found");
+      }
+    },
+    linksByLesson: async (_, args, context, info) => {
+      passCheck(info);
+      let lesson = await Lesson.findById(args.id);
+      if(lesson) {
+        let links = [];
+        for(let linkId of lesson.links) {
+          links.push(await Link.findById(linkId));
+        }
+        return links;
+      } else {
+        throw new Error("Lesson not found");
       }
     },
 
@@ -456,7 +484,7 @@ module.exports = {
           if (lesson) {
             const { createReadStream, filename, mimetype } = await file;
             const { lessonMaterialsBucket } = require("./buckets");
-            let hash = md5(filename.concat(teacher.email, course.title));
+            let hash = md5(filename.concat(teacher.email, lesson.title));
             const writeStream = lessonMaterialsBucket.openUploadStream(hash);
 
             await new Promise(res => {
@@ -514,7 +542,7 @@ module.exports = {
             if (!(mimetype.indexOf('image') + 1)) throw new Error("It must be an image 406");
 
             const { profilePicsBucket } = require("./buckets");
-            let hash = md5(filename.concat(teacher.email, course.title));
+            let hash = md5(filename.concat(person.email, person.name));
             const writeStream = profilePicsBucket.openUploadStream(hash);
 
             await new Promise(res => {
