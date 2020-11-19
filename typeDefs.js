@@ -47,6 +47,35 @@ type Lesson {
     maxMark: Int
 }
 
+type Task {
+    _id: ID!
+    title:String!
+    description:String
+    dateStart: Date
+    dateEnd: Date
+    maxMark: Int
+    parentInstance: ID!
+}
+
+type Answer {
+    _id: ID!
+    title: String
+    person: ID!
+    task: ID!
+    timeAdded: Date
+    mark: Int
+    comments: [ID!]
+    materials: [ID!]
+}
+
+type Comment {
+    _id:ID!
+    text: String
+    person: ID!
+    parentInstance: ID!
+    timeAdded: Date
+}
+
 type Link {
     _id: ID!
     description: String

@@ -703,7 +703,6 @@ module.exports = {
             }
 
             bucket.delete(file.fileId, function (error) {
-              //console.log(error);
             });
             const res = await File.remove({ _id: file._id });
             return { affectedRows: 1 };
