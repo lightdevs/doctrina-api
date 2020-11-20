@@ -251,6 +251,47 @@ type Mutation {
       ) : Link!
     deleteLessonLink(id: ID!) : MutationResult
 
+    addTask(
+        title:String!,
+        description:String,
+        dateStart: Date,
+        dateEnd: Date,
+        maxMark: Int,
+        parentInstance: String!
+    ): Task!
+    updateTask(
+        id: String!
+        title:String,
+        description:String,
+        dateStart: Date,
+        dateEnd: Date,
+        maxMark: Int,
+    ): Task!
+    deleteTask(id: String!): MutationResult!
+
+    addAnswer(
+        title: String,
+        personId: ID!,
+        taskId: ID!
+    ): Answer!
+    updateAnswer(
+        id: String!,
+        title: String
+    ): Answer!
+    deleteAnswer(id: String!): MutationResult!
+    uploadAnswerMaterial(file: Upload!, answerId: String!): Boolean
+    setAnswerMark(answerId: String!, mark: Int): Answer!
+    
+
+
+    addComment(
+        text: String
+        parentInstance: String!
+    ): Comment!
+    updateComment(
+        text: String
+    ): Comment!
+    deleteComment(id: String!): MutationResult!
 
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!

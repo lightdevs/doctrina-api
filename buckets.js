@@ -18,9 +18,16 @@ const profilePicsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db
         bucketName: 'profilePics'
     }
 );
+const answerMaterialsBucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,
+    {
+        chunkSizeBytes: 1024 * 1024,
+        bucketName: 'answerMaterials'
+    }
+);
 
 module.exports = {
     courseMaterialsBucket,
     lessonMaterialsBucket,
-    profilePicsBucket
+    profilePicsBucket,
+    answerMaterialsBucket
 }
