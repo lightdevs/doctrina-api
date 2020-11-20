@@ -150,6 +150,13 @@ type Query {
     lessonById(id: String!): Lesson
     linkById(id: String!): Link
 
+    taskById(id: String!): Task!
+    answerById(id: String!): Answer!
+    commentById(id: String!): Comment!
+
+    tasksOfLesson(id: String!): [Task!]
+    commentsOfAnswer(id: String!): [Comment!]
+
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
     statisticsByCourse(courseId: String!): [Stat!]
 }
