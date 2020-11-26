@@ -41,6 +41,7 @@ type Lesson {
     materials: [ID!]
     marks: [Tuple]
     links: [ID!]
+    tasks: [ID!]
     type: String
     dateStart: Date
     dateEnd: Date
@@ -54,6 +55,7 @@ type Task {
     dateStart: Date
     dateEnd: Date
     maxMark: Int
+    answers: [ID!]
     parentInstance: ID!
 }
 

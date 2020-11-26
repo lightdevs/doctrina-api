@@ -25,6 +25,10 @@ const taskSchema = new mongoose.Schema(
         parentInstance: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
+        },
+        answers: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false,
         }
     },
     { timestamps: true }

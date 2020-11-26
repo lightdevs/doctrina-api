@@ -29,6 +29,10 @@ const answerSchema = new mongoose.Schema(
         materials: {
             type: [mongoose.Schema.Types.ObjectId],
             required: false,
+        },
+        parentInstance: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
         }
     },
     { timestamps: true }
