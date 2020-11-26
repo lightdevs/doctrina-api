@@ -630,11 +630,12 @@ module.exports = {
               });
             newFile.save();
 
-            if (person.photo != null) {
-              profilePicsBucket.delete(person.photo, function (error) {
-                throw new Error(error);
+            if (person.photo != null) {ы
+              let file = await File.findById(person.photo);
+              profilePicsBucket.delete(file.fileId, function (error) {
+                console.log(error);
               });
-              const res = await File.remove({ _id: person.photo })
+              const res = await File.deleteOne({_id: person.photo})
             }
 
             let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {
