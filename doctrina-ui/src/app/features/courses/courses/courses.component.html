@@ -50,11 +50,17 @@
           <div class="grade padding-between">0/{{ course.course.maxMark }}</div>
           <span class="spacer"></span>
 
-          <div *ngIf="currentUser.accountType == 'student'; else elseBlock"></div>
+          <div *ngIf="currentUser.accountType == 'student'; else elseBlock">
+            <div class="pr-3">
+              <button mat-raised-button color="primary" (click)="editCourse(course.course._id)">
+                Open
+              </button>
+            </div>
+          </div>
           <ng-template #elseBlock>
             <div class="pr-3">
               <button mat-icon-button color="primary" (click)="editCourse(course.course._id)">
-                <mat-icon color="primary">settings</mat-icon>
+                  <mat-icon color="primary">settings</mat-icon>
               </button>
             </div>
           </ng-template>
