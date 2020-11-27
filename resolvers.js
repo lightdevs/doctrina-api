@@ -8,9 +8,9 @@ const Person = require('./models/person');
 const Lesson = require('./models/lesson');
 const File = require('./models/file');
 const Link = require('./models/link');
-const fs = require('fs');
-const path = require('path');
-const mongoose = require('mongoose');
+const Task = require('./models/task');
+const Answer = require('./models/answer');
+const Comment = require('./models/comment');
 
 
 function passCheck(info) {
@@ -236,6 +236,20 @@ module.exports = {
       }
     },
 
+    tasksByLesson: async (_, args, context, info) => {
+      passCheck(info);
+      let lesson = await Lesson.findById(args.id);
+      if (lesson) {
+        let tasks = [];
+        for (let taskId of lesson.tasks) {
+          tasks.push(await Task.findById(taskId));
+        }
+        return tasks;
+      } else {
+        throw new Error("Lesson not found");
+      }
+    },
+
     downloadFile: async (_, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
@@ -374,9 +388,23 @@ module.exports = {
     linkById: async (_, args, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
-        let link = Link.findById(args.id);
+        let link = await Link.findById(args.id);
         if (link) {
           return link;
+        } else {
+          throw new Error("Not found 404");
+        }
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    taskById: async (_, args, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        let task = await Task.findById(args.id);
+        if (task) {
+          return task;
         } else {
           throw new Error("Not found 404");
         }
@@ -631,10 +659,12 @@ module.exports = {
             newFile.save();
 
             if (person.photo != null) {
-              profilePicsBucket.delete(person.photo, function (error) {
-                throw new Error(error);
+              ы
+              let file = await File.findById(person.photo);
+              profilePicsBucket.delete(file.fileId, function (error) {
+                console.log(error);
               });
-              const res = await File.remove({ _id: person.photo })
+              const res = await File.deleteOne({ _id: person.photo })
             }
 
             let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {
@@ -651,6 +681,61 @@ module.exports = {
           }
         } else {
           throw new Error("Not your profile 403");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    uploadAnswerMaterial: async (_, { answerId, file }, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let person = await Person.findById(context.payload.payload._id);
+        let answer = await Answer.findById(answerId);
+        if (answer) {
+          if (answer.person.toString() !== person._id.toString()) {
+            throw new Error("Unauthorized 401");
+          }
+          const { createReadStream, filename, mimetype } = await file;
+          const { answerMaterialsBucket } = require("./buckets");
+          let hash = md5(filename.concat(person.email, answer.title));
+          const writeStream = answerMaterialsBucket.openUploadStream(hash);
+
+          await new Promise(res => {
+            createReadStream()
+              .pipe(writeStream)
+              .on('error', function (error) {
+                console.error(error);
+                throw new Error("Can't upload file ");
+              })
+              .on('finish', res);
+          }
+          );
+          const newFile = new File(
+            {
+              title: filename,
+              searchTitle: hash,
+              bucket: "answer",
+              userId: person._id,
+              parentInstance: answerId,
+              fileId: writeStream.id,
+              mimetype: mimetype,
+              size: writeStream.length
+            });
+          newFile.save();
+
+          let materials = answer.materials;
+          materials.push(newFile._id);
+          let updatedAnswer = await Answer.findByIdAndUpdate({ _id: answerId }, { materials: materials }, {
+            returnOriginal: false
+          });
+
+          if (newFile && updatedAnswer) {
+            return !!updatedAnswer;
+          } else {
+            throw new Error("File or answer ain`t saved 500")
+          }
+        } else {
+          throw new Error("Answer not found 404");
         }
       } else {
         throw new Error("Unauthorized 401");
@@ -696,6 +781,9 @@ module.exports = {
                     returnOriginal: false
                   });
                   break;
+                case "answer":
+                  //TODO
+                  break;
 
               }
             } catch (err) {
@@ -703,7 +791,6 @@ module.exports = {
             }
 
             bucket.delete(file.fileId, function (error) {
-              //console.log(error);
             });
             const res = await File.remove({ _id: file._id });
             return { affectedRows: 1 };
@@ -938,6 +1025,7 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
+
     updateLesson: async (_, args, context, info) => {
       passCheck(info);
       const lesson = await Lesson.findById(args.id);
@@ -1085,6 +1173,218 @@ module.exports = {
       } else {
         throw new Error("Unauthorized 401");
       }
+    },
+    addTaskLink: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let task = await Task.findById(args.idTask);
+        if (task) {
+          let link = new Link(
+            {
+              link: args.link,
+              description: args.description,
+              parentInstance: args.idTask,
+              parentType: "task"
+            }
+          );
+
+          let links = task.links;
+          links.push(link._id);
+          let updatedTask = await Task.findOneAndUpdate({ _id: args.idTask }, { links: links }, {
+            returnOriginal: false
+          });
+
+          await link.save();
+          return updatedTask ? link : "Can't modify task 520";;
+        } else {
+          throw new Error("Task not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    deleteTaskLink: async (_, args, context, info) => {
+      passCheck(info);
+      if (context.loggedIn) {
+        let link = await Link.findById(args.id);
+        if (link) {
+          let task = await Task.findById(link.parentInstance);
+          if (task) {
+            let links = task.links;
+            links.remove(link._id);
+            let updatedTask = await Task.findOneAndUpdate({ _id: task._id }, { links: links }, {
+              returnOriginal: false
+            });
+
+            let delLinkResult = await Link.remove({ _id: args.id });
+
+            return { affectedRows: delLinkResult.deletedCount };
+          } else {
+            throw new Error("Task not found 404");
+          }
+        } else {
+          throw new Error("Link not found 404");
+        }
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
+    addTask: async (_, args, context, info) => {
+      passCheck(info);
+      const lesson = await Lesson.findById(args.parentInstance);
+      if (!lesson) throw new Error("Lesson not found 404");
+      const teacher = await Person.findById(context.payload.payload._id);
+      if (!teacher) throw new Error("Person not found 404");
+      const course = await Course.findById(lesson.course);
+      if (!course) throw new Error("Course not found 404");
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+        const task = new Task({
+          title: args.title,
+          description: args.description,
+          dateStart: args.dateStart,
+          dateEnd: args.dateEnd,
+          maxMark: args.maxMark,
+          parentInstance: args.parentInstance
+        });
+        task.save();
+
+        let tasks = lesson.tasks;
+        tasks.push(task._id);
+        let updatedLesson = await Lesson.findOneAndUpdate({ _id: args.parentInstance }, { tasks: tasks }, {
+          returnOriginal: false
+        });
+
+        return updatedLesson ? task : "Cant modify lesson";
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    updateTask: async (_, args, context, info) => {
+      passCheck(info);
+      const task = await Task.findById(args.id);
+      if (task == null) throw new Error("Task not found 404");
+      const lesson = await Lesson.findById(task.parentInstance);
+      if (!lesson) throw new Error("Lesson not found 404");
+      const course = await Course.findById(lesson.course);
+      if (!course) throw new Error("Course not found 404");
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+
+        let updTask = await Task.findOneAndUpdate({ _id: task._id }, args, {
+          returnOriginal: false
+        });
+
+        if (!updTask) throw new Error("Task can`t be updated")
+
+        return updTask;
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    deleteTask: async (_, args, context, info) => {
+      passCheck(info);
+      const task = await Task.findById(args.id);
+      if (task == null) throw new Error("Task not found 404");
+      const lesson = await Lesson.findById(task.parentInstance);
+      if (!lesson) throw new Error("Lesson not found 404");
+      const course = await Course.findById(lesson.course);
+      if (!course) throw new Error("Course not found 404");
+      if (context.loggedIn && course.teacher == context.payload.payload._id) {
+
+        let tasks = lesson.tasks;
+        tasks.remove(args.id);
+
+        let updLesson = await Lesson.findOneAndUpdate({ _id: task.parentInstance }, { tasks: tasks }, {
+          returnOriginal: false
+        });
+
+        if (!updLesson) throw new Error("Lesson can`t be updated")
+
+        let res = await Task.remove({ _id: args.id });
+        if (!res) throw new Error("Task can't be deleted");
+        return { affectedRows: res.deletedCount };
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+
+    addAnswer: async (_, args, context, info) => {
+      passCheck(info);
+      const person = await Person.findById(context.payload.payload._id);
+      if (!person) throw new Error("Person not found 404");
+      const task = await Task.findById(args.taskId);
+      if (!task) throw new Error("Task not found 404");
+      if (context.loggedIn) {
+        let today = new Date();
+        let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+        let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        let dateTime = date + ' ' + time;
+        const answer = new Answer({
+          title: args.title,
+          timeAdded: dateTime,
+          parentInstance: task._id,
+          person: person._id
+        });
+        answer.save();
+
+        let taskAnswers = task.answers;
+        taskAnswers.push(answer._id);
+        let updatedTask = await Task.findOneAndUpdate({ _id: task._id }, { answers: taskAnswers }, {
+          returnOriginal: false
+        });
+
+        let personAnswers = person.answers;
+        personAnswers.push(answer._id);
+        let updatedPerson = await Person.findOneAndUpdate({ _id: person._id }, { answers: personAnswers }, {
+          returnOriginal: false
+        });
+        return (updatedTask && updatedPerson) ? answer : "Cant modify task or person";
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    updateAnswer: async (_, args, context, info) => {
+      passCheck(info);
+      const answer = await Answer.findById(args.id);
+      if (!answer) throw new Error("Answer not found 404");
+      if (!context.loggedIn || answer.person != context.payload.payload._id) throw new Error("Unauthorized 401");
+      const updAnswer = await Answer.findByIdAndUpdate({ _id: answer._id }, args, { new: true });
+      if (!updAnswer) throw new Error("Can`t update answer");
+      return updAnswer;
+    },
+    deleteAnswer: async (_, args, context, info) => {
+      passCheck(info);
+      const answer = await Answer.findById(args.id);
+      if (!answer) throw new Error("Answer not found 404");
+      if (!context.loggedIn || context.payload.payload._id != answer.person) throw new Error("Unauthorized found 401");
+      const person = await Person.findById(answer.person);
+      if (!person) throw new Error("Person not found 404");
+      const task = await Task.findById(answer.parentInstance);
+      if (!task) throw new Error("Task not found 404");
+
+      let answersPerson = person.answers;
+      answersPerson.remove(answer._id);
+      let updPerson = await Person.findOneAndUpdate({ _id: person._id }, { answers: answersPerson }, {
+        returnOriginal: false
+      });
+      let answersTask = task.answers;
+      answersTask.remove(answer._id);
+      let updTask = await Task.findOneAndUpdate({ _id: task._id }, { answers: answersTask }, {
+        returnOriginal: false
+      });
+
+      if (!updPerson || !updTask) throw new Error("Person or task can`t be updated")
+
+      let res = await Answer.remove({ _id: answer._id });
+      if (!res) throw new Error("Answer can't be deleted");
+      return { affectedRows: res.deletedCount };
+    },
+    setAnswerMark: async (_, args, context, info) => {
+      passCheck(info);
     },
 
     setLessonMark: async (_, args, context, info) => {
