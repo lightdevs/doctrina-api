@@ -41,10 +41,42 @@ type Lesson {
     materials: [ID!]
     marks: [Tuple]
     links: [ID!]
+    tasks: [ID!]
     type: String
     dateStart: Date
     dateEnd: Date
     maxMark: Int
+}
+
+type Task {
+    _id: ID!
+    title:String!
+    description:String
+    dateStart: Date
+    dateEnd: Date
+    maxMark: Int
+    answers: [ID!]
+    links: [ID!]
+    parentInstance: ID!
+}
+
+type Answer {
+    _id: ID!
+    title: String
+    person: ID!
+    parentInstance: ID!
+    timeAdded: Date
+    mark: Int
+    comments: [ID!]
+    materials: [ID!]
+}
+
+type Comment {
+    _id:ID!
+    text: String
+    person: ID!
+    parentInstance: ID!
+    timeAdded: Date
 }
 
 type Link {
@@ -66,6 +98,7 @@ type Person {
     city: String
     institution: String
     description: String
+    answers: [ID!]
     photo: File
     accountType: String!
     coursesTakesPart: [ID!]!
@@ -121,12 +154,18 @@ type Query {
     lessonById(id: String!): Lesson
     linkById(id: String!): Link
 
+    taskById(id: String!): Task!
+    answerById(id: String!): Answer!
+    commentById(id: String!): Comment!
+
+    tasksByLesson(id: String!): [Task!]
+    commentsOfAnswer(id: String!): [Comment!]
+
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
     statisticsByCourse(courseId: String!): [Stat!]
 }
 
 type Mutation {
-
     dropCourses: Boolean
 
     uploadCourseMaterial(file: Upload!, courseId: String!): Boolean
@@ -221,7 +260,53 @@ type Mutation {
         description: String
       ) : Link!
     deleteLessonLink(id: ID!) : MutationResult
+    addTaskLink(
+        idTask: ID!,
+        link: String!,
+        description: String
+      ) : Link!
+    deleteTaskLink(id: ID!) : MutationResult
 
+    addTask(
+        title:String!,
+        description:String,
+        dateStart: Date,
+        dateEnd: Date,
+        maxMark: Int,
+        parentInstance: String!
+    ): Task!
+    updateTask(
+        id: String!
+        title:String,
+        description:String,
+        dateStart: Date,
+        dateEnd: Date,
+        maxMark: Int,
+    ): Task!
+    deleteTask(id: String!): MutationResult!
+
+    addAnswer(
+        title: String,
+        taskId: ID!
+    ): Answer!
+    updateAnswer(
+        id: String!,
+        title: String
+    ): Answer!
+    deleteAnswer(id: String!): MutationResult!
+    uploadAnswerMaterial(file: Upload!, answerId: String!): Boolean
+    setAnswerMark(answerId: String!, mark: Int): Answer!
+    
+
+
+    addComment(
+        text: String
+        parentInstance: String!
+    ): Comment!
+    updateComment(
+        text: String
+    ): Comment!
+    deleteComment(id: String!): MutationResult!
 
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!

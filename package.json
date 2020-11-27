@@ -5,8 +5,10 @@
   "main": "app.js",
   "scripts": {
     "start": "node --exec babel-node app.js",
-    "server": "nodemon --exec babel-node app.js",
+    "server": "nodemon --exec \"npm run babel\" ",
     "client": "npm run start --prefix doctrina-ui",
+    "plain": "node app.js",
+    "babel": "babel-node app.js",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "repository": {
@@ -25,12 +27,10 @@
   },
   "homepage": "https://github.com/lightdevs/doctrina-api#readme",
   "dependencies": {
-    "@babel/cli": "^7.12.1",
-    "@babel/core": "^7.12.1",
-    "@babel/node": "^7.12.1",
-    "@babel/preset-env": "^7.12.1",
+    "@babel/core": "^7.12.9",
     "apollo-server": "^2.18.2",
     "apollo-server-express": "^2.18.2",
+    "babel-core": "^7.0.0-bridge.0",
     "bcryptjs": "^2.4.3",
     "concurrently": "^5.3.0",
     "cookie-parser": "^1.4.5",
@@ -43,10 +43,20 @@
     "jsonwebtoken": "^8.5.1",
     "md5": "^2.3.0",
     "mongoose": "^5.10.9",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "regenerator-runtime": "^0.13.7"
   },
   "devDependencies": {
+    "@babel/cli": "^7.12.8",
+    "@babel/core": "^7.12.9",
+    "@babel/node": "^7.12.6",
+    "@babel/preset-env": "^7.12.7",
+    "babel-core": "^7.0.0-bridge.0",
     "concurrently": "^5.3.0",
+    "cross-env": "^7.0.2",
     "nodemon": "^2.0.5"
+  },
+  "resolutions": {
+    "babel-core": "7.0.0-bridge.0"
   }
 }
