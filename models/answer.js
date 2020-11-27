@@ -14,10 +14,6 @@ const answerSchema = new mongoose.Schema(
             type: Number,
             required: false,
         },
-        task: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-        },
         person: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,

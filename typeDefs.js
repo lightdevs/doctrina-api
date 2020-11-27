@@ -56,6 +56,7 @@ type Task {
     dateEnd: Date
     maxMark: Int
     answers: [ID!]
+    links: [ID!]
     parentInstance: ID!
 }
 
@@ -63,7 +64,7 @@ type Answer {
     _id: ID!
     title: String
     person: ID!
-    task: ID!
+    parentInstance: ID!
     timeAdded: Date
     mark: Int
     comments: [ID!]
@@ -97,6 +98,7 @@ type Person {
     city: String
     institution: String
     description: String
+    answers: [ID!]
     photo: File
     accountType: String!
     coursesTakesPart: [ID!]!
@@ -156,7 +158,7 @@ type Query {
     answerById(id: String!): Answer!
     commentById(id: String!): Comment!
 
-    tasksOfLesson(id: String!): [Task!]
+    tasksByLesson(id: String!): [Task!]
     commentsOfAnswer(id: String!): [Comment!]
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
@@ -164,7 +166,6 @@ type Query {
 }
 
 type Mutation {
-
     dropCourses: Boolean
 
     uploadCourseMaterial(file: Upload!, courseId: String!): Boolean
@@ -259,6 +260,12 @@ type Mutation {
         description: String
       ) : Link!
     deleteLessonLink(id: ID!) : MutationResult
+    addTaskLink(
+        idTask: ID!,
+        link: String!,
+        description: String
+      ) : Link!
+    deleteTaskLink(id: ID!) : MutationResult
 
     addTask(
         title:String!,
@@ -280,7 +287,6 @@ type Mutation {
 
     addAnswer(
         title: String,
-        personId: ID!,
         taskId: ID!
     ): Answer!
     updateAnswer(

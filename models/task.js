@@ -26,6 +26,10 @@ const taskSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             required: true,
         },
+        links: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false
+        },
         answers: {
             type: [mongoose.Schema.Types.ObjectId],
             required: false,

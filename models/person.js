@@ -42,6 +42,10 @@ const personSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        answers: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false,
+        },
         token: {
             type: String,
             required: false
