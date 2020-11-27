@@ -10,6 +10,8 @@ import { CourseInfoComponent } from './course-info/course-info.component';
 import { StudentListComponent } from './student-list/student-list.component';
 import { LessonsComponent } from './lessons/lessons.component';
 import { AddLessonsComponent } from './add-lessons/add-lessons.component';
+import { EditLessonComponent } from './edit-lesson/edit-lesson.component';
+import { LessonInfoComponent } from './lesson-info/lesson-info.component';
 
 
 @NgModule({
@@ -21,7 +23,9 @@ import { AddLessonsComponent } from './add-lessons/add-lessons.component';
     CourseInfoComponent,
     StudentListComponent,
     LessonsComponent,
-    AddLessonsComponent
+    AddLessonsComponent,
+    EditLessonComponent,
+    LessonInfoComponent
   ],
   imports: [
     CommonModule,

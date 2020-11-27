@@ -26,8 +26,11 @@ const lessonSchema = new mongoose.Schema(
             type: String,
             required: false
         },
-        mark: {
-            type: String,
+        marks: {
+            type: [{
+                student: mongoose.Schema.Types.ObjectId,
+                mark: String
+            }],
             required: false
         },
         dateStart: {

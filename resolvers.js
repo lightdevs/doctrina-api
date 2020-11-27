@@ -183,14 +183,14 @@ module.exports = {
       passCheck(info);
       if (context.loggedIn) {
         let files = [];
-        let lesson = await lesson.findById(args.lessonId);
+        let lesson = await Lesson.findById(args.lessonId);
         if (lesson) {
           for (let fileId of lesson.materials) {
             files.push(await File.findById(fileId));
           }
           return files;
         } else {
-          throw new Error("Course not found 404");
+          throw new Error("Lesson not found 404");
         }
       } else {
         throw new Error("Unauthorized 401");
@@ -212,9 +212,9 @@ module.exports = {
     linksByCourse: async (_, args, context, info) => {
       passCheck(info);
       let course = await Course.findById(args.id);
-      if(course) {
+      if (course) {
         let links = [];
-        for(let linkId of course.links) {
+        for (let linkId of course.links) {
           links.push(await Link.findById(linkId));
         }
         return links;
@@ -225,9 +225,9 @@ module.exports = {
     linksByLesson: async (_, args, context, info) => {
       passCheck(info);
       let lesson = await Lesson.findById(args.id);
-      if(lesson) {
+      if (lesson) {
         let links = [];
-        for(let linkId of lesson.links) {
+        for (let linkId of lesson.links) {
           links.push(await Link.findById(linkId));
         }
         return links;
@@ -360,7 +360,7 @@ module.exports = {
     lessonById: async (_, args, context, info) => {
       if (context.loggedIn) {
         passCheck(info);
-        let lesson = Lesson.findById(args.id);
+        let lesson = await Lesson.findById(args.id);
         if (lesson) {
           return lesson;
         } else {
@@ -383,6 +383,68 @@ module.exports = {
 
       } else {
         throw new Error("Unauthorized 401");
+      }
+    },
+
+    studentStatisticsByCourse: async (_, args, context, info) => {
+      passCheck(info);
+      let studentId = args.studentId;
+      let courseId = args.courseId;
+      let course = await Course.findById(courseId);
+      if (course) {
+        if (course.teacher == context.payload.payload._id && context.loggedIn) {
+          let student = await Person.findById(studentId);
+          if (student) {
+            if (student.accountType != "teacher") {
+              if (course.students.includes(studentId)) {
+                let res = [];
+                for (let lessonId of course.lessons) {
+                  let lesson = await Lesson.findById(lessonId);
+                  let stMark = lesson.marks.filter(el => el.student == studentId);
+                  res.push({
+                    lesson: lesson._id,
+                    mark: [{
+                      student: stMark[0].student,
+                      mark: stMark[0].mark
+                    }]
+                  });
+                }
+                return res;
+              } else {
+                throw new Error("Course does not contains this student");
+              }
+            } else {
+              throw new Error("Not a student ");
+            }
+          } else {
+            throw new Error("Person not found 404");
+          }
+        }
+      } else {
+        throw new Error("Course not found 404");
+      }
+    },
+    statisticsByCourse: async (_, args, context, info) => {
+      passCheck(info);
+      let courseId = args.courseId;
+      let course = await Course.findById(courseId);
+      if (course) {
+        if (course.teacher == context.payload.payload._id && context.loggedIn) {
+          let res = [];
+          for (let lessonId of course.lessons) {
+            let lesson = await Lesson.findById(lessonId);
+            res.push({
+              lesson: lesson._id,
+              mark: lesson.marks
+            });
+          }
+          return res;
+        } else {
+          throw new Error("Unauthorized 401");
+        }
+
+      } else {
+        throw new Error("Course not found 404");
       }
     }
   },
@@ -568,6 +630,13 @@ module.exports = {
               });
             newFile.save();
 
+            if (person.photo != null) {
+              profilePicsBucket.delete(person.photo, function (error) {
+                throw new Error(error);
+              });
+              const res = await File.remove({ _id: person.photo })
+            }
+
             let updatedPerson = await Person.findByIdAndUpdate({ _id: personId }, { photo: newFile._id }, {
               returnOriginal: false
             });
@@ -591,7 +660,7 @@ module.exports = {
     deleteFile: async (_, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
-        let file = File.findById(args.id);
+        let file = await File.findById(args.id);
         if (file) {
           if (file.userId == context.payload.payload._id) {
 
@@ -616,7 +685,7 @@ module.exports = {
                   let lesson = await Lesson.findById(file.parentInstance);
                   arr = lesson.materials;
                   arr.remove(args.id);
-                  updated = await Course.findByIdAndUpdate({ _id: lesson._id }, { materials: arr }, {
+                  updated = await Lesson.findByIdAndUpdate({ _id: lesson._id }, { materials: arr }, {
                     returnOriginal: false
                   });
                   break;
@@ -633,9 +702,10 @@ module.exports = {
               throw err;
             }
 
-            bucket.delete(args.id, function (error) {
-              throw new Error(error);
+            bucket.delete(file.fileId, function (error) {
+              //console.log(error);
             });
+            const res = await File.remove({ _id: file._id });
             return { affectedRows: 1 };
 
           } else {
@@ -677,6 +747,7 @@ module.exports = {
       if (context.loggedIn && course.teacher == context.payload.payload._id) {
         let authorCourses = teacher.coursesConducts;
         let students = course.students;
+        let lessons = course.lessons;
         const res = await Course.remove({ _id: id });
         authorCourses.remove(id);
         let updatedAuthor = await Person.findOneAndUpdate({ _id: teacher._id }, { coursesConducts: authorCourses }, {
@@ -693,6 +764,10 @@ module.exports = {
           updatedStudent = await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: studentCourses }, {
             returnOriginal: false
           });
+        }
+
+        for (let lessonId of lessons) {
+          await Lesson.remove({ _id: lessonId });
         }
 
         if (updatedAuthor && updatedStudent) {
@@ -1014,50 +1089,114 @@ module.exports = {
 
     setLessonMark: async (_, args, context, info) => {
       passCheck(info);
-      let lesson = await Lesson.findById(args.id);
-      if (lesson) {
-        let course = await Course.findById(lesson.course);
-        if (course) {
-          if (context.loggedIn && course.teacher == context.payload.payload._id) {
-            let updatedLesson = await Lesson.findOneAndUpdate({ _id: lesson._id }, { mark: args.mark }, {
-              new: true
-            });
-            if (updatedLesson) {
-              return updatedLesson;
+      let student = await Person.findById(args.idStudent);
+      if (student && student.accountType == "student") {
+        let lesson = await Lesson.findById(args.idLesson);
+        if (lesson) {
+          let course = await Course.findById(lesson.course);
+          if (course) {
+            if (course.students.includes(student._id)) {
+              if (context.loggedIn && course.teacher == context.payload.payload._id) {
+                let marks = lesson.marks;
+                marks.push({
+                  student: student._id,
+                  mark: args.mark
+                });
+                let updatedLesson = await Lesson.findOneAndUpdate({ _id: lesson._id }, { marks: marks }, {
+                  new: true
+                });
+                if (updatedLesson) {
+                  return updatedLesson;
+                } else {
+                  throw new Error("Can't update lesson")
+                }
+              } else {
+                throw new Error("Unauthorized 401");
+              }
             } else {
-              throw new Error("Cant't update course")
+              throw new Error("Course does not contain this student");
             }
           } else {
-            throw new Error("Unauthorized 401");
+            throw new Error("Course not found 404");
+          }
+        } else {
+          throw new Error("Lesson not found 404");
+        }
+      } else {
+        throw new Error("Incorrect student");
+      }
+    },
+    setCourseMark: async (_, args, context, info) => {
+      passCheck(info);
+      let student = await Person.findById(args.idStudent);
+      if (student && student.accountType == "student") {
+        let course = await Course.findById(args.idCourse);
+        if (course) {
+          if (course.students.includes((student)._id)) {
+            if (context.loggedIn && course.teacher == context.payload.payload._id) {
+              let marks = course.marks;
+              marks.push({
+                student: student._id,
+                mark: args.mark
+              });
+              let updatedCourse = await Course.findOneAndUpdate({ _id: course._id }, { marks: marks }, {
+                new: true
+              });
+              if (updatedCourse) {
+                return updatedCourse;
+              } else {
+                throw new Error("Can't update lesson")
+              }
+            } else {
+              throw new Error("Unauthorized 401");
+            }
+          } else {
+            throw new Error("Course does not contain this student");
           }
         } else {
           throw new Error("Course not found 404");
         }
       } else {
-        throw new Error("Lesson not found 404");
+        throw new Error("Incorrect student");
       }
     },
-    setCourseMark: async (_, args, context, info) => {
-      passCheck(info);
-      let course = await Course.findById(args.id);
-      if (course) {
-        if (context.loggedIn && course.teacher == context.payload.payload._id) {
-          let updatedCourse = await Course.findOneAndUpdate({ _id: course._id }, { mark: args.mark }, {
-            new: true
-          });
-          if (updatedCourse) {
-            return updatedCourse;
-          } else {
-            throw new Error("Cant't update course")
-          }
-        } else {
-          throw new Error("Unauthorized 401");
-        }
-      } else {
-        throw new Error("Course not found 404");
-      }
-    }
 
+
+    dropCourses: async () => {
+      for (let course of await Course.find()) {
+        const teacher = await Person.findById(course.teacher);
+
+        let authorCourses = teacher.coursesConducts;
+        let students = course.students;
+        let lessons = course.lessons;
+        const res = await Course.remove({ _id: course.id });
+        authorCourses.remove(course.id);
+        let updatedAuthor = await Person.findOneAndUpdate({ _id: teacher._id }, { coursesConducts: authorCourses }, {
+          returnOriginal: false
+        });
+
+
+        let updatedStudent;
+
+        for (let studentId of students) {
+          const student = await Person.findById(studentId);
+          let studentCourses = student.coursesTakesPart;
+          studentCourses.remove(course.id);
+          updatedStudent = await Person.findOneAndUpdate({ _id: studentId }, { coursesTakesPart: studentCourses }, {
+            returnOriginal: false
+          });
+        }
+
+        for (let lessonId of lessons) {
+          await Lesson.remove({ _id: lessonId });
+        }
+
+        if (updatedAuthor && updatedStudent) {
+
+        }
+      }
+      return true;
+    }
   },
 
   Date: new GraphQLScalarType({

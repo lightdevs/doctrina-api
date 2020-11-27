@@ -5,20 +5,21 @@
         <mat-card class="w-100">
         <div class="card-header-container">
           <h1 class="bold">
-            Course
+            Lesson
           </h1>
           <mat-label *ngIf="canEdit">
-            <button color="primary" mat-icon-button type="button" (click)="startEdit()" tabindex="-1" *ngIf="!editCourse">
+            <button color="primary" mat-icon-button type="button" (click)="startEdit()" tabindex="-1" *ngIf="!editLesson">
                 <mat-icon>edit</mat-icon>
             </button>
           </mat-label>
         </div>
-        <ng-container *ngIf="!editCourse">
-          <ng-container *ngIf="course.value">
+        <ng-container *ngIf="!editLesson">
+          <ng-container *ngIf="course.value && lesson.value">
               <div class="row">
                   <div class="col-md-7 d-flex align-items-center text-center">
                       <div class="form-group w-100">
                           <h1 class="primary-color">{{course.value?.title}}</h1>
+                          <h3 class="bold">{{lesson.value?.title}} {{lesson.value?.type}}</h3>
                       </div>
                   </div>
                   <div class="col-md-5">
@@ -34,15 +35,15 @@
                           </li>
                           <li>
                             <mat-label class="bold">Max mark: </mat-label>
-                            <mat-label>{{course.value?.maxMark}}</mat-label>
+                            <mat-label>{{lesson.value?.maxMark}}</mat-label>
                           </li>
                           <li>
                             <mat-label class="bold">Date of the begining: </mat-label>
-                            <mat-label>{{ getDate(course.value?.dateStart)}}</mat-label>
+                            <mat-label>{{ getDate(lesson.value?.dateStart)}}</mat-label>
                           </li>
                           <li>
                             <mat-label class="bold">Date of the end: </mat-label>
-                            <mat-label>{{ getDate(course.value?.dateEnd)}}</mat-label>
+                            <mat-label>{{ getDate(lesson.value?.dateEnd)}}</mat-label>
                           </li>
                         </ul>
                       </div>
@@ -50,31 +51,25 @@
               </div>
               <div class="form-group">
                 <mat-form-field appearance="outline">
-                  <mat-label>Course description</mat-label>
-                  <textarea matInput value="{{course.value?.description}}" readonly></textarea>
+                  <mat-label>Lesson description</mat-label>
+                  <textarea matInput value="{{lesson.value?.description}}" readonly></textarea>
                 </mat-form-field>
               </div>
           </ng-container>
         </ng-container>
 
-        <ng-container *ngIf="editCourse">
-          <form class="pt-2" [formGroup]="editCourseForm" (ngSubmit)="updateCourseInfo()">
+        <ng-container *ngIf="editLesson">
+          <form class="pt-2" [formGroup]="editLessoForm" (ngSubmit)="updateLessonInfo()">
               <div class="row">
                   <div class="col-md-6">
                       <div class="form-group">
                           <mat-form-field appearance="outline">
                           <mat-label>Title</mat-label>
                           <input matInput formControlName="title"/>
-                          <mat-error *ngIf="editCourseForm.get('title').hasError('required')">
+                          <mat-error *ngIf="editLessoForm.get('title').hasError('required')">
                               Title is required
                           </mat-error>
                           </mat-form-field>
-                      </div>
-                      <div class="form-group">
-                        <mat-form-field appearance="outline">
-                            <mat-label>Identifire</mat-label>
-                            <input matInput formControlName="identifier" readonly/>
-                        </mat-form-field>
                       </div>
                       <div class="form-group">
                         <mat-form-field appearance="outline">
@@ -89,7 +84,7 @@
                             {{option}}
                             </mat-option>
                         </mat-autocomplete>
-                        <mat-error *ngIf="editCourseForm.get('maxMark').hasError('required')">
+                        <mat-error *ngIf="editLessoForm.get('maxMark').hasError('required')">
                             Max mark is required
                         </mat-error>
                         </mat-form-field>
@@ -97,10 +92,10 @@
                   </div>
                   <div class="col-md-6">
                       <div class="form-group">
-                          <mat-form-field appearance="outline">
-                              <mat-label>Teacher</mat-label>
-                              <input matInput value="{{ teacherInfo?.surname + ' ' + teacherInfo?.name}}" readonly/>
-                          </mat-form-field>
+                        <mat-form-field appearance="outline">
+                          <mat-label>Teacher</mat-label>
+                          <input matInput value="{{ teacherInfo?.surname + ' ' + teacherInfo?.name}}" readonly/>
+                        </mat-form-field>
                       </div>
                       <div class="row">
                           <div class="col-md-6">
@@ -110,7 +105,7 @@
                                       <input matInput [matDatepicker]="picker2" formControlName="dateStart" placeholder="mm/dd/yyyy">
                                       <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
                                       <mat-datepicker #picker2></mat-datepicker>
-                                      <mat-error *ngIf="editCourseForm.get('dateStart').hasError('required')">
+                                      <mat-error *ngIf="editLessoForm.get('dateStart').hasError('required')">
                                       Date of the begining is required
                                       </mat-error>
                                   </mat-form-field>
@@ -123,7 +118,7 @@
                                       <input matInput [matDatepicker]="picker1" formControlName="dateEnd" placeholder="mm/dd/yyyy">
                                       <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                                       <mat-datepicker #picker1></mat-datepicker>
-                                      <mat-error *ngIf="editCourseForm.get('dateEnd').hasError('required')">
+                                      <mat-error *ngIf="editLessoForm.get('dateEnd').hasError('required')">
                                       Date of the end is required
                                       </mat-error>
                                   </mat-form-field>
@@ -131,12 +126,23 @@
                           </div>
                       </div>
                   </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                        <mat-form-field appearance="outline">
+                        <mat-label>Type</mat-label>
+                        <input matInput formControlName="type"/>
+                          <mat-error *ngIf="editLessoForm.get('type').hasError('required')">
+                            Type is required
+                          </mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
               </div>
               <div class="form-group">
                 <mat-form-field appearance="outline">
                   <mat-label class="bold">Course description</mat-label>
                   <textarea matInput placeholder="course description" formControlName="description"></textarea>
-                  <mat-error *ngIf="editCourseForm.get('description').hasError('required')">
+                  <mat-error *ngIf="editLessoForm.get('description').hasError('required')">
                     Description is required
                   </mat-error>
                 </mat-form-field>
@@ -171,7 +177,7 @@
                       <h2 class="bold text-truncate" style="max-width: 150px;"> {{link.description}}</h2>
                       <mat-label>
                         <a mat-stroked-button href="{{link.link}}" target="_blank">Link</a>
-                        <button *ngIf="canEdit" mat-icon-button type="button" tabindex="-1" color="warn" (click)="deleteCourseLinks(link._id)">
+                        <button *ngIf="canEdit" mat-icon-button type="button" tabindex="-1" color="warn" (click)="deleteLessonLink(link._id)">
                           <mat-icon> close </mat-icon>
                         </button>
                       </mat-label>

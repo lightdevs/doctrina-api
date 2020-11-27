@@ -31,8 +31,11 @@ const courseSchema = new mongoose.Schema(
             type: [mongoose.Schema.Types.ObjectId],
             required: false,
         },
-        mark: {
-            type: String,
+        marks: {
+            type: [{
+                student: mongoose.Schema.Types.ObjectId,
+                mark: String
+            }],
             required: false
         },
         links: {
