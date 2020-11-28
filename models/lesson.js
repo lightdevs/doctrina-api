@@ -18,6 +18,10 @@ const lessonSchema = new mongoose.Schema(
             type: [mongoose.Schema.Types.ObjectId],
             required: false
         },
+        tasks: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false,
+        },
         links: {
             type: [mongoose.Schema.Types.ObjectId],
             required: false
