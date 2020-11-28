@@ -277,6 +277,29 @@ module.exports = {
       }
       return answers;
     },
+    tasksByPerson: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+      const person = await Person.findById(context.payload.payload._id);
+      if (!person) throw new Error("Person not found");
+
+      let tasks = [];
+      for (let courseId of person.coursesTakesPart) {
+        const course = await Course.findById(courseId);
+        if (!course) continue;
+        for (let lessonId of course.lessons) {
+          const lesson = await Lesson.findById(lessonId);
+          if (!lesson) continue;
+          for (let taskId of lesson.tasks) {
+            const task = await Task.findById(taskId);
+            if (!task) continue;
+            tasks.push(task);
+          }
+        }
+      }
+
+      return tasks;
+    },
 
     downloadFile: async (_, args, context, info) => {
       passCheck(info);
@@ -1441,6 +1464,32 @@ module.exports = {
       const updAnswer = await Answer.findByIdAndUpdate({ _id: answer._id }, { mark: args.mark }, { new: true });
       if (!updAnswer) throw new Error("Can`t update answer");
       return updAnswer;
+    },
+
+    addComment: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+      const answer = await Answer.findById(args.parentInstance);
+      if (!answer) throw new Error("Answer not found 404");
+      let today = new Date();
+      let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+      let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      let dateTime = date + ' ' + time;
+      const comment = new Comment({
+        text: args.text,
+        timeAdded: dateTime,
+        parentInstance: answer._id,
+        person: context.payload.payload._id
+      });
+      comment.save();
+
+      let answerComments = answer.comments;
+      answerComments.push(comment._id);
+      let updatedAnswer = await Answer.findOneAndUpdate({ _id: answer._id }, { comments: answerComments }, {
+        returnOriginal: false
+      });
+
+      return updatedAnswer ? comment : "Cant modify answer";
     },
 
     setLessonMark: async (_, args, context, info) => {

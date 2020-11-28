@@ -99,7 +99,7 @@ type Person {
     institution: String
     description: String
     answers: [ID!]
-    photo: File
+    photo: ID
     accountType: String!
     coursesTakesPart: [ID!]!
     coursesConducts: [ID!]! 
@@ -161,6 +161,7 @@ type Query {
     tasksByLesson(id: String!): [Task!]
     answersByTask(id: String!): [Answer!]
     answersByPerson: [Answer!]
+    tasksByPerson: [Task!]
     commentsOfAnswer(id: String!): [Comment!]
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
