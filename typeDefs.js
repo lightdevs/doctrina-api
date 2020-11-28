@@ -159,6 +159,7 @@ type Query {
     commentById(id: String!): Comment!
 
     tasksByLesson(id: String!): [Task!]
+    answersByTask(id: String!): [Answer!]
     commentsOfAnswer(id: String!): [Comment!]
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
@@ -172,8 +173,8 @@ type Mutation {
     uploadLessonMaterial(file: Upload!, lessonId: String!): Boolean
     uploadProfilePic(file: Upload!, personId: String!): Boolean
 
-    setCourseMark(idCourse: String!,idStudent: String!, mark: String!) : Course
-    setLessonMark(idLesson: String!,idStudent: String!, mark: String!) : Lesson
+    setCourseMark(idCourse: String!,idStudent: String!, mark: String!) : Course  #?
+    setLessonMark(idLesson: String!,idStudent: String!, mark: String!) : Lesson   #?
 
     deleteFile(id: String!): MutationResult
 

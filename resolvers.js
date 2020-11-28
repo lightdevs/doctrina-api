@@ -249,6 +249,23 @@ module.exports = {
         throw new Error("Lesson not found");
       }
     },
+    answersByTask: async (_, args, context, info) => {
+      passCheck(info);
+      const teacher = await Person.findById(context.payload.payload._id);
+      if(!teacher) throw new Error("Person not found 404");
+      const task = await Task.findById(args.id);
+      if(!task) throw new Error("Task not found 404");
+      const lesson = await Lesson.findById(task.parentInstance);
+      if(!lesson) throw new Error("Lesson not found 404");
+      const course = await Course.findById(lesson.course);
+      if(!course) throw new Error("Course not found 404");
+      if(teacher._id.toString() != course.teacher.toString()) throw new Error("Unauthorized 401");
+        let answers = [];
+        for (let answerId of task.answers) {
+          answers.push(await Answer.findById(answerId));
+        }
+        return answers;
+    },
 
     downloadFile: async (_, args, context, info) => {
       passCheck(info);
@@ -405,6 +422,20 @@ module.exports = {
         let task = await Task.findById(args.id);
         if (task) {
           return task;
+        } else {
+          throw new Error("Not found 404");
+        }
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    answerById: async (_, args, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        let answer = await Answer.findById(args.id);
+        if (answer) {
+          return answer;
         } else {
           throw new Error("Not found 404");
         }
@@ -659,10 +690,9 @@ module.exports = {
             newFile.save();
 
             if (person.photo != null) {
-              ы
               let file = await File.findById(person.photo);
               profilePicsBucket.delete(file.fileId, function (error) {
-                console.log(error);
+                //console.log(error);
               });
               const res = await File.deleteOne({ _id: person.photo })
             }
@@ -1385,6 +1415,21 @@ module.exports = {
     },
     setAnswerMark: async (_, args, context, info) => {
       passCheck(info);
+      const answer = await Answer.findById(args.answerId);
+      if(!answer) throw new Error("Answer not found 404");
+      const teacher = await Person.findById(context.payload.payload._id);
+      if(!teacher) throw new Error("Person not found 404");
+      const task = await Task.findById(answer.parentInstance);
+      if(!task) throw new Error("Task not found 404");
+      const lesson = await Lesson.findById(task.parentInstance);
+      if(!lesson) throw new Error("Lesson not found 404");
+      const course = await Course.findById(lesson.course);
+      if(!course) throw new Error("Course not found 404");
+      if(teacher._id.toString() != course.teacher.toString()) throw new Error("Unauthorized 401");
+
+      const updAnswer = await Answer.findByIdAndUpdate({ _id: answer._id }, {mark: args.mark}, { new: true });
+      if (!updAnswer) throw new Error("Can`t update answer");
+      return updAnswer;
     },
 
     setLessonMark: async (_, args, context, info) => {
@@ -1425,7 +1470,7 @@ module.exports = {
       } else {
         throw new Error("Incorrect student");
       }
-    },
+    }, //?
     setCourseMark: async (_, args, context, info) => {
       passCheck(info);
       let student = await Person.findById(args.idStudent);
@@ -1459,7 +1504,7 @@ module.exports = {
       } else {
         throw new Error("Incorrect student");
       }
-    },
+    }, //?
 
 
     dropCourses: async () => {
