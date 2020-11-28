@@ -300,6 +300,26 @@ module.exports = {
 
       return tasks;
     },
+    commentsByAnswer: async (_, args, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        let answer = await Answer.findById(args.id);
+        if (answer) {
+          let comments = [];
+          for(let commentId of answer.comments) {
+            let comment = await Comment.findById(commentId);
+            if(!comment) continue;
+            comments.push(comment);
+          }
+          return comments;
+        } else {
+          throw new Error("Answer not found 404");
+        }
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
 
     downloadFile: async (_, args, context, info) => {
       passCheck(info);
@@ -470,6 +490,20 @@ module.exports = {
         let answer = await Answer.findById(args.id);
         if (answer) {
           return answer;
+        } else {
+          throw new Error("Not found 404");
+        }
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    commentById: async (_, args, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        let comment = await Comment.findById(args.id);
+        if (comment) {
+          return comment;
         } else {
           throw new Error("Not found 404");
         }

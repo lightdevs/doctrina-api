@@ -162,7 +162,7 @@ type Query {
     answersByTask(id: String!): [Answer!]
     answersByPerson: [Answer!]
     tasksByPerson: [Task!]
-    commentsOfAnswer(id: String!): [Comment!]
+    commentsByAnswer(id: String!): [Comment!]
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
     statisticsByCourse(courseId: String!): [Stat!]
@@ -306,10 +306,6 @@ type Mutation {
         text: String
         parentInstance: String!
     ): Comment!
-    updateComment(
-        text: String
-    ): Comment!
-    deleteComment(id: String!): MutationResult!
 
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!
