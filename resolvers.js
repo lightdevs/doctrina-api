@@ -252,19 +252,30 @@ module.exports = {
     answersByTask: async (_, args, context, info) => {
       passCheck(info);
       const teacher = await Person.findById(context.payload.payload._id);
-      if(!teacher) throw new Error("Person not found 404");
+      if (!teacher) throw new Error("Person not found 404");
       const task = await Task.findById(args.id);
-      if(!task) throw new Error("Task not found 404");
+      if (!task) throw new Error("Task not found 404");
       const lesson = await Lesson.findById(task.parentInstance);
-      if(!lesson) throw new Error("Lesson not found 404");
+      if (!lesson) throw new Error("Lesson not found 404");
       const course = await Course.findById(lesson.course);
-      if(!course) throw new Error("Course not found 404");
-      if(teacher._id.toString() != course.teacher.toString()) throw new Error("Unauthorized 401");
-        let answers = [];
-        for (let answerId of task.answers) {
-          answers.push(await Answer.findById(answerId));
-        }
-        return answers;
+      if (!course) throw new Error("Course not found 404");
+      if (teacher._id.toString() != course.teacher.toString()) throw new Error("Unauthorized 401");
+      let answers = [];
+      for (let answerId of task.answers) {
+        answers.push(await Answer.findById(answerId));
+      }
+      return answers;
+    },
+    answersByPerson: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+      const person = await Person.findById(context.payload.payload._id);
+      if (!person) throw new Error("Person not found");
+      let answers = [];
+      for (let answerId of person.answers) {
+        answers.push(await Answer.findById(answerId));
+      }
+      return answers;
     },
 
     downloadFile: async (_, args, context, info) => {
@@ -1416,18 +1427,18 @@ module.exports = {
     setAnswerMark: async (_, args, context, info) => {
       passCheck(info);
       const answer = await Answer.findById(args.answerId);
-      if(!answer) throw new Error("Answer not found 404");
+      if (!answer) throw new Error("Answer not found 404");
       const teacher = await Person.findById(context.payload.payload._id);
-      if(!teacher) throw new Error("Person not found 404");
+      if (!teacher) throw new Error("Person not found 404");
       const task = await Task.findById(answer.parentInstance);
-      if(!task) throw new Error("Task not found 404");
+      if (!task) throw new Error("Task not found 404");
       const lesson = await Lesson.findById(task.parentInstance);
-      if(!lesson) throw new Error("Lesson not found 404");
+      if (!lesson) throw new Error("Lesson not found 404");
       const course = await Course.findById(lesson.course);
-      if(!course) throw new Error("Course not found 404");
-      if(teacher._id.toString() != course.teacher.toString()) throw new Error("Unauthorized 401");
+      if (!course) throw new Error("Course not found 404");
+      if (teacher._id.toString() != course.teacher.toString()) throw new Error("Unauthorized 401");
 
-      const updAnswer = await Answer.findByIdAndUpdate({ _id: answer._id }, {mark: args.mark}, { new: true });
+      const updAnswer = await Answer.findByIdAndUpdate({ _id: answer._id }, { mark: args.mark }, { new: true });
       if (!updAnswer) throw new Error("Can`t update answer");
       return updAnswer;
     },

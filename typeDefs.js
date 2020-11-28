@@ -160,6 +160,7 @@ type Query {
 
     tasksByLesson(id: String!): [Task!]
     answersByTask(id: String!): [Answer!]
+    answersByPerson: [Answer!]
     commentsOfAnswer(id: String!): [Comment!]
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
