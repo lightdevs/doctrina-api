@@ -134,6 +134,10 @@ type ExtendedPerson {
     courses: [CourseWithTeacher!]!,
     isEnd: Boolean!
 }
+type ExtendedTask {
+    task: Task!
+    status: Int!
+}
 
 
 type Query {
@@ -160,7 +164,7 @@ type Query {
     answerById(id: String!): Answer!
     commentById(id: String!): Comment!
 
-    tasksByLesson(id: String!): [Task!]
+    tasksByLesson(id: String!): [ExtendedTask!]
     answersByTask(id: String!): [Answer!]
     answersByPerson: [Answer!]
     tasksByPerson: [Task!]

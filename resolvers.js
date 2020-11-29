@@ -248,7 +248,20 @@ module.exports = {
       if (lesson) {
         let tasks = [];
         for (let taskId of lesson.tasks) {
-          tasks.push(await Task.findById(taskId));
+          let task = await Task.findById(taskId);
+          if (!task) continue;
+          let status = -1;
+          for (let answerId of task.answers) {
+            let answer = await Answer.findById(answerId);
+            if (!answer) continue;
+            if (answer.person.toString() == context.payload.payload._id.toString()) {
+              status = (typeof answer.mark == 'undefined' || answer.mark == null) ? 0 : 1;
+            }
+          }
+          tasks.push({
+            task,
+            status
+          });
         }
         return tasks;
       } else {
