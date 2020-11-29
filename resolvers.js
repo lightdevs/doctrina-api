@@ -633,10 +633,12 @@ module.exports = {
       if (!context.loggedIn) throw new Error("Unauthorized 401");
       let lesson = await Lesson.findById(args.id);
       if (lesson) {
-        let dateEnd = lesson.dateSEnd;
-        let today = new Date();
-        //if(dateEnd < today) throw new Error("Late 412");
-        if(dateEnd < today) return false;
+        if (lesson.dateEnd) {
+          let dateEnd = lesson.dateEnd;
+          let today = new Date();
+          //if(dateEnd < today) throw new Error("Late 412");
+          if (dateEnd < today) return false;
+        }
         let visitors = lesson.visitors;
         visitors.push(context.payload.payload._id);
         let updatedLesson = await Lesson.findOneAndUpdate({ _id: lesson.id }, { visitors: visitors }, {
