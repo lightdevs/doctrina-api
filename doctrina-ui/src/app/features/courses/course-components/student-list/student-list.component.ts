@@ -3,8 +3,9 @@ import { IUserInfo } from 'src/app/core/interfaces/user.interface';
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
-import { CoursesService } from '../courses.service';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CourseDataService } from '../course-data.service';
+
 
 @Component({
   selector: 'app-student-list',
@@ -19,7 +20,7 @@ export class StudentListComponent implements OnInit, OnDestroy {
   filterTerm: string;
 
   private destroy$ = new Subject<void>();
-  constructor(private courseService: CoursesService,
+  constructor(private courseService: CourseDataService,
               @Inject(MAT_DIALOG_DATA) public data: any,
               public dialog: MatDialog) {
     this.courseId = data;

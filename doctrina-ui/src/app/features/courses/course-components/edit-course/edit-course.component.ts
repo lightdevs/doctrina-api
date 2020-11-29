@@ -1,30 +1,27 @@
-import { ILesson } from 'src/app/core/interfaces/lesson.interface';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { Message } from 'src/app/core/extension/messages';
-import { toastrTitle } from 'src/app/core/helpers';
+import { Subject, BehaviorSubject } from 'rxjs';
 import { ICourses } from 'src/app/core/interfaces/course.interface';
 import { IUserInfo } from 'src/app/core/interfaces/user.interface';
+import { ToastrService } from 'ngx-toastr';
+import { toastrTitle } from 'src/app/core/helpers';
+import { Message } from 'src/app/core/extension/messages';
 import { DeletePopUpComponent } from 'src/app/shared/components/delete-pop-up/delete-pop-up.component';
-import { AuthenticationService } from '../../authentication/authentication.service';
-import { CoursesService } from '../courses.service';
+import { takeUntil } from 'rxjs/operators';
+import { AuthenticationService } from 'src/app/features/authentication/authentication.service';
 import { StudentListComponent } from '../student-list/student-list.component';
+import { CourseDataService } from '../course-data.service';
 
 @Component({
-  selector: 'app-edit-lesson',
-  templateUrl: './edit-lesson.component.html',
-  styleUrls: ['./edit-lesson.component.scss']
+  selector: 'app-edit-course',
+  templateUrl: './edit-course.component.html',
+  styleUrls: ['./edit-course.component.scss']
 })
-export class EditLessonComponent implements OnInit, OnDestroy {
+export class EditCourseComponent implements OnInit, OnDestroy {
 
   courseId: string;
-  lessonId: string;
   course = new  BehaviorSubject<ICourses>(null);
-  lesson = new  BehaviorSubject<ILesson>(null);
   teacherInfo: IUserInfo;
   canEdit = false;
   currentUser: IUserInfo;
@@ -33,19 +30,17 @@ export class EditLessonComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   constructor(private route: ActivatedRoute,
               private authService: AuthenticationService,
-              private courseService: CoursesService,
+              private courseService: CourseDataService,
               private router: Router,
               public toastr: ToastrService,
               public dialog: MatDialog) {
     this.courseId = this.route.snapshot.params.id;
-    this.lessonId = this.route.snapshot.params.lessonId;
     authService.currentUser.subscribe( x => this.currentUser = x);
   }
 
 
   ngOnInit(): void {
     this.getCoursesInfo();
-    this.getLessonInfo();
   }
 
   getCoursesInfo(): void {
@@ -57,22 +52,7 @@ export class EditLessonComponent implements OnInit, OnDestroy {
             this.getTheacherName(res.data.courseById.course.teacher);
           } else {
             this.toastr.error(this.message.SOMETHING_IS_WRONG, toastrTitle.Error);
-            this.router.navigate(['/courses/course/', this.courseId]);
-          }
-      });
-    }
-  }
-
-
-  getLessonInfo(): void {
-    if (this.courseId) {
-      this.courseService.getLessonById(this.lessonId)
-        .subscribe(res => {
-          if (res.data.lessonById) {
-            this.lesson.next(res.data.lessonById);
-          } else {
-            this.toastr.error(this.message.SOMETHING_IS_WRONG, toastrTitle.Error);
-            this.router.navigate(['/courses/course/', this.courseId]);
+            this.router.navigate(['/courses/main']);
           }
       });
     }
@@ -88,14 +68,14 @@ export class EditLessonComponent implements OnInit, OnDestroy {
     });
   }
 
-  deleteLesson(): void {
+  deleteCourse(): void {
     const config = new MatDialogConfig();
     config.panelClass = `modal-setting`;
     config.width = '500px';
     config.height = '200px';
     config.data = {
       title: `Are you sure?`,
-      body: `Lesson will be deleted`
+      body: `Course will be deleted`
     };
     const dialogRef = this.dialog.open(DeletePopUpComponent, config);
     dialogRef.afterClosed()
@@ -103,10 +83,10 @@ export class EditLessonComponent implements OnInit, OnDestroy {
       .subscribe(result => {
         if (result != null) {
           if (result === true ) {
-            this.courseService.deleteLesson(this.lessonId)
+            this.courseService.deleteCourse(this.courseId)
               .subscribe(() => {
-                this.toastr.success(`Lesson Deleted`, toastrTitle.Success);
-                this.router.navigate(['/courses/course/', this.courseId]);
+                this.toastr.success(this.message.COURSE_DELETED, toastrTitle.Success);
+                this.router.navigate(['/courses/main']);
             });
           }
         }
@@ -114,9 +94,20 @@ export class EditLessonComponent implements OnInit, OnDestroy {
       });
   }
 
+  viewStudentList(): void {
+    const config = new MatDialogConfig();
+    config.panelClass = `modal-setting`;
+    config.width = '1000px';
+    config.height = '500px';
+    config.data = this.courseId;
+    const dialogRef = this.dialog.open(StudentListComponent, config);
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe();
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
 }

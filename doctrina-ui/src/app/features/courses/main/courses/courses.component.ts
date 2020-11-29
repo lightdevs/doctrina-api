@@ -8,8 +8,8 @@ import { takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { IUserInfo } from 'src/app/core/interfaces/user.interface';
-import { AuthenticationService } from '../../authentication/authentication.service';
-import { CoursesService } from '../courses.service';
+import { AuthenticationService } from 'src/app/features/authentication/authentication.service';
+import { CoursesService } from '../courses-data.service';
 
 
 @Component({

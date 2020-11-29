@@ -1,15 +1,13 @@
-import { AddLessonsComponent } from './../add-lessons/add-lessons.component';
-import { map, takeUntil } from 'rxjs/operators';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ILesson } from 'src/app/core/interfaces/lesson.interface';
-import { IUserInfo } from 'src/app/core/interfaces/user.interface';
-import { CoursesService } from '../courses.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { toastrTitle } from 'src/app/core/helpers';
 import { DeletePopUpComponent } from 'src/app/shared/components/delete-pop-up/delete-pop-up.component';
+import { AddLessonsComponent } from '../add-lessons/add-lessons.component';
+import { CourseDataService } from '../course-data.service';
 
 @Component({
   selector: 'app-lessons',
@@ -24,7 +22,7 @@ export class LessonsComponent implements OnInit, OnDestroy {
   lessons: ILesson[] = [];
   private destroy$ = new Subject<void>();
   constructor(private router: Router,
-              private courseService: CoursesService,
+              private courseService: CourseDataService,
               private toastr: ToastrService,
               public dialog: MatDialog) { }
 

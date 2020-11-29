@@ -6,7 +6,7 @@ import { Subject, Observable } from 'rxjs';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { Message } from 'src/app/core/extension/messages';
 import { configureToastr, toastrTitle } from 'src/app/core/helpers';
-import { CoursesService } from '../courses.service';
+import { CourseDataService } from '../course-data.service';
 
 @Component({
   selector: 'app-add-lessons',
@@ -25,7 +25,7 @@ export class AddLessonsComponent implements OnInit, OnDestroy {
   lessonId: string;
   private destroy$ = new Subject<void>();
   constructor(
-    private coursesService: CoursesService,
+    private coursesService: CourseDataService,
     private toastr: ToastrService,
     private formBuilder: FormBuilder,
     @Inject(MAT_DIALOG_DATA) public data: any,

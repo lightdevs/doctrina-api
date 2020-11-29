@@ -1,13 +1,12 @@
-import { Component, EventEmitter, Inject, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Apollo } from 'apollo-angular';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, FormGroupDirective, Validators, FormControl } from '@angular/forms';
-import { Message } from '../../../core/extension/messages';
-import { configureToastr, toastrTitle } from '../../../core/helpers';
-import { CoursesService } from '../courses.service';
 import { ToastrService } from 'ngx-toastr';
 import { map, startWith, takeUntil } from 'rxjs/operators';
 import { Observable, Subject} from 'rxjs';
+import { Message } from 'src/app/core/extension/messages';
+import { configureToastr, toastrTitle } from 'src/app/core/helpers';
+import { CoursesService } from '../courses-data.service';
 
 @Component({
   selector: 'app-create-course',

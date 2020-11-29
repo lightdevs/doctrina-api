@@ -1,8 +1,9 @@
-import { EditLessonComponent } from './edit-lesson/edit-lesson.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { CoursesComponent } from './courses/courses.component';
-import { EditCourseComponent } from './edit-course/edit-course.component';
+import { EditCourseComponent } from './course-components/edit-course/edit-course.component';
+import { EditLessonComponent } from './lesson-components/edit-lesson/edit-lesson.component';
+import { CoursesComponent } from './main/courses/courses.component';
+
 
 const routes: Routes = [
   { path: '', redirectTo: 'main'},
