@@ -41,6 +41,10 @@ const lessonSchema = new mongoose.Schema(
             type: Date,
             required: false,
         },
+        visitors: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false
+        },
         dateEnd: {
             type: Date,
             required: false,

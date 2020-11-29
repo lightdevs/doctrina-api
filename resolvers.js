@@ -211,11 +211,14 @@ module.exports = {
     },
     linksByCourse: async (_, args, context, info) => {
       passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
       let course = await Course.findById(args.id);
       if (course) {
         let links = [];
         for (let linkId of course.links) {
-          links.push(await Link.findById(linkId));
+          let link = await Link.findById(linkId);
+          if (!link) continue;
+          links.push(link);
         }
         return links;
       } else {
@@ -224,11 +227,14 @@ module.exports = {
     },
     linksByLesson: async (_, args, context, info) => {
       passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
       let lesson = await Lesson.findById(args.id);
       if (lesson) {
         let links = [];
         for (let linkId of lesson.links) {
-          links.push(await Link.findById(linkId));
+          let link = await Link.findById(linkId);
+          if (!link) continue;
+          links.push(link);
         }
         return links;
       } else {
@@ -306,9 +312,9 @@ module.exports = {
         let answer = await Answer.findById(args.id);
         if (answer) {
           let comments = [];
-          for(let commentId of answer.comments) {
+          for (let commentId of answer.comments) {
             let comment = await Comment.findById(commentId);
-            if(!comment) continue;
+            if (!comment) continue;
             comments.push(comment);
           }
           return comments;
@@ -318,6 +324,22 @@ module.exports = {
 
       } else {
         throw new Error("Unauthorized 401");
+      }
+    },
+    visitorsByLesson: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+      let lesson = await Lesson.findById(args.id);
+      if (lesson) {
+        let visitors = [];
+        for (let visitorId of lesson.visitors) {
+          let visitor = await Person.findById(visitorId);
+          if (!visitor) continue;
+          visitors.push(visitor);
+        }
+        return visitors;
+      } else {
+        throw new Error("Lesson not found");
       }
     },
 
@@ -604,6 +626,25 @@ module.exports = {
       } else {
         // Throwing Error on Match Status Failed.
         throw new Error("Wrong Login or Password!")
+      }
+    },
+
+    markVisited: async (_, args, context, info) => {
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+      let lesson = await Lesson.findById(args.id);
+      if (lesson) {
+        let dateEnd = lesson.dateSEnd;
+        let today = new Date();
+        //if(dateEnd < today) throw new Error("Late 412");
+        if(dateEnd < today) return false;
+        let visitors = lesson.visitors;
+        visitors.push(context.payload.payload._id);
+        let updatedLesson = await Lesson.findOneAndUpdate({ _id: lesson.id }, { visitors: visitors }, {
+          returnOriginal: false
+        });
+        return !!updatedLesson;
+      } else {
+        throw new Error("Lesson not found 404");
       }
     },
 

@@ -39,6 +39,7 @@ type Lesson {
     title:String!
     description:String
     materials: [ID!]
+    visitors: [ID!]
     marks: [Tuple]
     links: [ID!]
     tasks: [ID!]
@@ -153,6 +154,7 @@ type Query {
     personById(id: String!, sort: String, page: Int!, count: Int!): ExtendedPerson
     lessonById(id: String!): Lesson
     linkById(id: String!): Link
+    visitorsByLesson(id: String!): [Person]
 
     taskById(id: String!): Task!
     answerById(id: String!): Answer!
@@ -179,6 +181,8 @@ type Mutation {
     setLessonMark(idLesson: String!,idStudent: String!, mark: String!) : Lesson   #?
 
     deleteFile(id: String!): MutationResult
+
+    markVisited(id: String!): Boolean
 
     createCourse(
     title:String!,
