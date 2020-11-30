@@ -223,7 +223,7 @@
                       <td>{{ file?.mimetype.split('/')[1] }}</td>
                       <td> {{ formatSize(file?.size) }}</td>
                       <td>
-                        <button mat-icon-button type="button" tabindex="-1" color="primary" (click)="downloadFile(file.fileId)">
+                        <button mat-icon-button type="button" tabindex="-1" color="primary" (click)="downloadFile(file._id, file.title, file.mimetype)">
                           <mat-icon> get_app </mat-icon>
                         </button>
                       </td>

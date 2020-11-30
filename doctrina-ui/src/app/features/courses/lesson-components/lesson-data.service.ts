@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import {Observable} from 'rxjs';
@@ -7,7 +8,7 @@ import {Observable} from 'rxjs';
 })
 export class LessonDataService {
 
-  constructor(private apollo: Apollo) {}
+  constructor(private apollo: Apollo, private http: HttpClient) {}
 
   getCourseById(courseId: string): Observable<any> {
     return  this.apollo.query<any>({
@@ -151,14 +152,7 @@ export class LessonDataService {
 
 
   downloadFile(id: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query downloadFile($id: String!) {
-        downloadFile(id: $id)
-        }`,
-      variables: {
-        id,
-      },
-    });
+    return this.http.get(`http://localhost:5000/download?id=` + id, {responseType: 'blob'});
   }
 
   getLessonLinks(lessonId: string): Observable<any> {
@@ -175,7 +169,6 @@ export class LessonDataService {
       },
     });
   }
-
 
   deleteLessonLink(linkId: string): Observable<any> {
     return this.apollo.mutate({
@@ -245,6 +238,7 @@ export class LessonDataService {
     return  this.apollo.query<any>({
       query: gql `query tasksByLesson($id: String!) {
         tasksByLesson(id: $id) {
+          task {
             _id
             title
             description
@@ -255,7 +249,8 @@ export class LessonDataService {
             links
             parentInstance
           }
-        }`,
+        }
+      }`,
       variables: {
         id
       },

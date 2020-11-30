@@ -15,6 +15,7 @@ import { AddLinkComponent } from 'src/app/shared/components/add-link/add-link.co
 import { CancelPopUpComponent } from 'src/app/shared/components/cancel-pop-up/cancel-pop-up.component';
 import { AuthenticationService } from 'src/app/features/authentication/authentication.service';
 import { LessonDataService } from '../lesson-data.service';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-lesson-info',
@@ -168,20 +169,11 @@ export class LessonInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-  downloadFile(fileId: string): void {
+  downloadFile(fileId: string, fileName: string, filteType: string): void {
     this.lessonService.downloadFile(fileId)
     .subscribe(response => {
-      this.getfile(response.downloadFile).subscribe(res => {
-
-        /*const fileName = this.getFileName(response.downloadFile);
-        const blob = new Blob([response.downloadFile]);
-        const downloadURL = window.URL.createObjectURL(response.downloadFile);
-        const link = document.createElement('a');
-        link.href = downloadURL;
-        link.download = fileName;
-        link.click();*/
+      saveAs(response, `${fileName}.${filteType.split('/')[1]}`);
       });
-    });
   }
 
   protected saveFile(blob: Blob, fileName: string): void {

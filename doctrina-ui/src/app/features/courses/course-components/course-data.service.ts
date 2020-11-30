@@ -299,14 +299,6 @@ export class CourseDataService {
   }
 
   downloadFile(id: string): Observable<any> {
-   /* return  this.apollo.query<any>({
-      query: gql `query downloadFile($id: String!) {
-        downloadFile(id: $id)
-        }`,
-      variables: {
-        id,
-      },
-    });*/
     return this.http.get(`http://localhost:5000/download?id=` + id, {responseType: 'blob'});
   }
 

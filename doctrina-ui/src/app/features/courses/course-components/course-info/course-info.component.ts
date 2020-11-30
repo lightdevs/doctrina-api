@@ -178,14 +178,6 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
     this.courseService.downloadFile(fileId)
     .subscribe(response => {
       saveAs(response, `${fileName}.${filteType.split('/')[1]}`);
-      // this.domService.downloadFile("co-picklist"+ ".pdf", response, 'application/pdf;base64');
-        /*const fileName = this.getFileName(response.downloadFile);
-        const blob = new Blob([response.downloadFile]);
-        const downloadURL = window.URL.createObjectURL(response.downloadFile);
-        const link = document.createElement('a');
-        link.href = downloadURL;
-        link.download = fileName;
-        link.click();*/
       });
   }
 

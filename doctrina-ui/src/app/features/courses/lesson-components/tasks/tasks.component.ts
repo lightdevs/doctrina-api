@@ -16,6 +16,7 @@ import { AddTaskComponent } from '../add-task/add-task.component';
 })
 export class TasksComponent implements OnInit, OnDestroy {
 
+  @Input() courseId: string;
   @Input() lessonId: string;
   @Input() canEdit: boolean;
 
@@ -80,7 +81,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   openTask(id: string): void {
-    this.router.navigate(['/courses/lesson/', this.lessonId, id, ]);
+    this.router.navigate(['/tasks/zema/', this.courseId, this.lessonId, id ]);
   }
 
   ngOnDestroy(): void {
