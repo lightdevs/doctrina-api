@@ -211,11 +211,14 @@ module.exports = {
     },
     linksByCourse: async (_, args, context, info) => {
       passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
       let course = await Course.findById(args.id);
       if (course) {
         let links = [];
         for (let linkId of course.links) {
-          links.push(await Link.findById(linkId));
+          let link = await Link.findById(linkId);
+          if (!link) continue;
+          links.push(link);
         }
         return links;
       } else {
@@ -224,11 +227,14 @@ module.exports = {
     },
     linksByLesson: async (_, args, context, info) => {
       passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
       let lesson = await Lesson.findById(args.id);
       if (lesson) {
         let links = [];
         for (let linkId of lesson.links) {
-          links.push(await Link.findById(linkId));
+          let link = await Link.findById(linkId);
+          if (!link) continue;
+          links.push(link);
         }
         return links;
       } else {
@@ -242,7 +248,20 @@ module.exports = {
       if (lesson) {
         let tasks = [];
         for (let taskId of lesson.tasks) {
-          tasks.push(await Task.findById(taskId));
+          let task = await Task.findById(taskId);
+          if (!task) continue;
+          let status = -1;
+          for (let answerId of task.answers) {
+            let answer = await Answer.findById(answerId);
+            if (!answer) continue;
+            if (answer.person.toString() == context.payload.payload._id.toString()) {
+              status = (typeof answer.mark == 'undefined' || answer.mark == null) ? 0 : 1;
+            }
+          }
+          tasks.push({
+            task,
+            status
+          });
         }
         return tasks;
       } else {
@@ -276,6 +295,65 @@ module.exports = {
         answers.push(await Answer.findById(answerId));
       }
       return answers;
+    },
+    tasksByPerson: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+      const person = await Person.findById(context.payload.payload._id);
+      if (!person) throw new Error("Person not found");
+
+      let tasks = [];
+      for (let courseId of person.coursesTakesPart) {
+        const course = await Course.findById(courseId);
+        if (!course) continue;
+        for (let lessonId of course.lessons) {
+          const lesson = await Lesson.findById(lessonId);
+          if (!lesson) continue;
+          for (let taskId of lesson.tasks) {
+            const task = await Task.findById(taskId);
+            if (!task) continue;
+            tasks.push(task);
+          }
+        }
+      }
+
+      return tasks;
+    },
+    commentsByAnswer: async (_, args, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        let answer = await Answer.findById(args.id);
+        if (answer) {
+          let comments = [];
+          for (let commentId of answer.comments) {
+            let comment = await Comment.findById(commentId);
+            if (!comment) continue;
+            comments.push(comment);
+          }
+          return comments;
+        } else {
+          throw new Error("Answer not found 404");
+        }
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
+    visitorsByLesson: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+      let lesson = await Lesson.findById(args.id);
+      if (lesson) {
+        let visitors = [];
+        for (let visitorId of lesson.visitors) {
+          let visitor = await Person.findById(visitorId);
+          if (!visitor) continue;
+          visitors.push(visitor);
+        }
+        return visitors;
+      } else {
+        throw new Error("Lesson not found");
+      }
     },
 
     downloadFile: async (_, args, context, info) => {
@@ -455,6 +533,20 @@ module.exports = {
         throw new Error("Unauthorized 401");
       }
     },
+    commentById: async (_, args, context, info) => {
+      if (context.loggedIn) {
+        passCheck(info);
+        let comment = await Comment.findById(args.id);
+        if (comment) {
+          return comment;
+        } else {
+          throw new Error("Not found 404");
+        }
+
+      } else {
+        throw new Error("Unauthorized 401");
+      }
+    },
 
     studentStatisticsByCourse: async (_, args, context, info) => {
       passCheck(info);
@@ -547,6 +639,27 @@ module.exports = {
       } else {
         // Throwing Error on Match Status Failed.
         throw new Error("Wrong Login or Password!")
+      }
+    },
+
+    markVisited: async (_, args, context, info) => {
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+      let lesson = await Lesson.findById(args.id);
+      if (lesson) {
+        if (lesson.dateEnd) {
+          let dateEnd = lesson.dateEnd;
+          let today = new Date();
+          //if(dateEnd < today) throw new Error("Late 412");
+          if (dateEnd < today) return false;
+        }
+        let visitors = lesson.visitors;
+        visitors.push(context.payload.payload._id);
+        let updatedLesson = await Lesson.findOneAndUpdate({ _id: lesson.id }, { visitors: visitors }, {
+          returnOriginal: false
+        });
+        return !!updatedLesson;
+      } else {
+        throw new Error("Lesson not found 404");
       }
     },
 
@@ -823,7 +936,14 @@ module.exports = {
                   });
                   break;
                 case "answer":
-                  //TODO
+                  const { answerMaterialsBucket } = require("./buckets");
+                  bucket = answerMaterialsBucket;
+                  let answer = await Answer.findById(file.parentInstance);
+                  arr = answer.materials;
+                  arr.remove(args.id);
+                  updated = await Answer.findByIdAndUpdate({ _id: answer._id }, { materials: arr }, {
+                    returnOriginal: false
+                  });
                   break;
 
               }
@@ -1441,6 +1561,32 @@ module.exports = {
       const updAnswer = await Answer.findByIdAndUpdate({ _id: answer._id }, { mark: args.mark }, { new: true });
       if (!updAnswer) throw new Error("Can`t update answer");
       return updAnswer;
+    },
+
+    addComment: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+      const answer = await Answer.findById(args.parentInstance);
+      if (!answer) throw new Error("Answer not found 404");
+      let today = new Date();
+      let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+      let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      let dateTime = date + ' ' + time;
+      const comment = new Comment({
+        text: args.text,
+        timeAdded: dateTime,
+        parentInstance: answer._id,
+        person: context.payload.payload._id
+      });
+      comment.save();
+
+      let answerComments = answer.comments;
+      answerComments.push(comment._id);
+      let updatedAnswer = await Answer.findOneAndUpdate({ _id: answer._id }, { comments: answerComments }, {
+        returnOriginal: false
+      });
+
+      return updatedAnswer ? comment : "Cant modify answer";
     },
 
     setLessonMark: async (_, args, context, info) => {
