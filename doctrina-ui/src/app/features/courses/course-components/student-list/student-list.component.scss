@@ -1,0 +1,53 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+.spacer-beetwen {
+  display: flex;
+  justify-content: space-between;
+}
+
+.info {
+  vertical-align: super;
+}
+
+.custom-placeholder {
+  background: #ccc;
+  border: dotted 3px #999;
+  height: 30px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.drag-icon {
+  margin-right: 10px;
+  vertical-align: sub;
+}
+
+.drag-row {
+  height: 30px;
+}
+
+.btn-w-150 {
+  width: 162px;
+}
+
+.list {
+  height: 300px;
+  overflow: auto;
+}
+
+.bordered {
+  border: 1px solid var(--primary-color);
+
+  &.invalid {
+    border-color: var(--warn-color);
+  }
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.scroll {
+  overflow: scroll;
+}

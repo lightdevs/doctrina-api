@@ -6,9 +6,24 @@ const config = require('./config');
 const utils = require('./utils');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+var cors = require('cors')
+
+var whitelist = ['http://127.0.0.1:4200','http://127.0.0.1:4000'];
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  optionsSuccessStatus: 200
+}
 
 const startServer = async () => {
   const app = express();
+  app.use(cors());
+
   app.use(morgan("tiny"));
 
   app.use(function (_, __, next) {
