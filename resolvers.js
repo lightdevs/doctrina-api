@@ -248,7 +248,20 @@ module.exports = {
       if (lesson) {
         let tasks = [];
         for (let taskId of lesson.tasks) {
-          tasks.push(await Task.findById(taskId));
+          let task = await Task.findById(taskId);
+          if (!task) continue;
+          let status = -1;
+          for (let answerId of task.answers) {
+            let answer = await Answer.findById(answerId);
+            if (!answer) continue;
+            if (answer.person.toString() == context.payload.payload._id.toString()) {
+              status = (typeof answer.mark == 'undefined' || answer.mark == null) ? 0 : 1;
+            }
+          }
+          tasks.push({
+            task,
+            status
+          });
         }
         return tasks;
       } else {
@@ -633,10 +646,12 @@ module.exports = {
       if (!context.loggedIn) throw new Error("Unauthorized 401");
       let lesson = await Lesson.findById(args.id);
       if (lesson) {
-        let dateEnd = lesson.dateSEnd;
-        let today = new Date();
-        //if(dateEnd < today) throw new Error("Late 412");
-        if(dateEnd < today) return false;
+        if (lesson.dateEnd) {
+          let dateEnd = lesson.dateEnd;
+          let today = new Date();
+          //if(dateEnd < today) throw new Error("Late 412");
+          if (dateEnd < today) return false;
+        }
         let visitors = lesson.visitors;
         visitors.push(context.payload.payload._id);
         let updatedLesson = await Lesson.findOneAndUpdate({ _id: lesson.id }, { visitors: visitors }, {
@@ -921,7 +936,14 @@ module.exports = {
                   });
                   break;
                 case "answer":
-                  //TODO
+                  const { answerMaterialsBucket } = require("./buckets");
+                  bucket = answerMaterialsBucket;
+                  let answer = await Answer.findById(file.parentInstance);
+                  arr = answer.materials;
+                  arr.remove(args.id);
+                  updated = await Answer.findByIdAndUpdate({ _id: answer._id }, { materials: arr }, {
+                    returnOriginal: false
+                  });
                   break;
 
               }
