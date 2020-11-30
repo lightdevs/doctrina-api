@@ -27,6 +27,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   loading = false;
   currentUser: IUserInfo;
   querySubscription: Subscription;
+  count = 5;
 
   constructor(
     private authService: AuthenticationService,
@@ -45,8 +46,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
     this.getCourses();
   }
 
-  getCourses(filterValue: string = null): void {
-    this.querySubscription = this.courseService.getCourses(filterValue)
+  getCourses(): void {
+    this.querySubscription = this.courseService.getCourses(0, this.count, this.filterTerm)
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
 
@@ -87,6 +88,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
   editCourse(id): void {
     console.log(id);
     this.router.navigate(['/courses/course/', id]);
+  }
+
+  onScrollDown() {
+    this.count += 1;
+    this.getCourses();
   }
 
   ngOnDestroy(): void {

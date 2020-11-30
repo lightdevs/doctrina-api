@@ -7,7 +7,8 @@ import {Apollo, gql} from 'apollo-angular';
   providedIn: 'root'
 })
 export class CoursesService {
-  constructor(private apollo: Apollo) {}
+  constructor(private apollo: Apollo) {
+  }
 
   createCourse(form: ICreateCourseForm): Observable<any> {
     return this.apollo.mutate({
@@ -25,8 +26,8 @@ export class CoursesService {
   }
 
   getMyCourse(userId: string) {
-    return  this.apollo.query<any>({
-      query: gql `query personById($id: String!, $page: Int!, $count: Int!) {
+    return this.apollo.query<any>({
+      query: gql`query personById($id: String!, $page: Int!, $count: Int!) {
         personById(id: $id, page: $page, count: $count) {
           courses {
             _id
@@ -47,9 +48,9 @@ export class CoursesService {
     });
   }
 
-  getCourses(filterValue: string = null, sort: string = null): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query courses($sort: String, $title: String, $page: Int!, $count: Int!) {
+  getCourses(page: number = 0, count: number = 5, filterValue: string = null, sort: string = null): Observable<any> {
+    return this.apollo.query<any>({
+      query: gql`query courses($sort: String, $title: String, $page: Int!, $count: Int!) {
           courses(sort: $sort, title: $title, page: $page, count: $count) {
           courses {
             course{
@@ -68,8 +69,8 @@ export class CoursesService {
       variables: {
         sort,
         title: filterValue,
-        page: 0,
-        count: 1000
+        page,
+        count
       },
     });
   }
