@@ -14,6 +14,7 @@ import { CoursesRoutingModule } from './courses-routing.module';
 import { CoursesComponent } from './main/courses/courses.component';
 import { FilterPipe } from './main/courses/filter.pipe';
 import { CreateCourseComponent } from './main/create-course/create-course.component';
+import {InfiniteScrollModule} from 'ngx-infinite-scroll';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { CreateCourseComponent } from './main/create-course/create-course.compon
   imports: [
     CommonModule,
     CoursesRoutingModule,
-    SharedModule
+    SharedModule,
+    InfiniteScrollModule
   ]
 })
 export class CoursesModule { }

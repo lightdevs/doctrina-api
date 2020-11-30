@@ -4,7 +4,7 @@
 
       <div class="form-group">
         <input type="text" class="form-control" placeholder="title..."
-               (keydown.enter)="getCourses($event.target.value)"
+               (keydown.enter)="getCourses()"
                [(ngModel)]="filterTerm" name="filterTerm">
       </div>
 
@@ -31,7 +31,16 @@
     </div>
   </div>
 
-<div class="course-list flex-column">
+<div
+  class="course-list"
+
+  infiniteScroll
+  [infiniteScrollDistance]="2"
+  [infiniteScrollUpDistance]="5"
+  [infiniteScrollThrottle]="50"
+  (scrolled)="onScrollDown()"
+  [scrollWindow]="false"
+>
   <ng-container *ngFor="let course of courses">
     <section class="flex-row pt-3 mx-3">
       <mat-card class="w-100">
@@ -69,7 +78,4 @@
     </section>
   </ng-container>
 </div>
-
-
-
 
