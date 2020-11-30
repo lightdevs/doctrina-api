@@ -936,7 +936,14 @@ module.exports = {
                   });
                   break;
                 case "answer":
-                  //TODO
+                  const { answerMaterialsBucket } = require("./buckets");
+                  bucket = answerMaterialsBucket;
+                  let answer = await Answer.findById(file.parentInstance);
+                  arr = answer.materials;
+                  arr.remove(args.id);
+                  updated = await Answer.findByIdAndUpdate({ _id: answer._id }, { materials: arr }, {
+                    returnOriginal: false
+                  });
                   break;
 
               }
