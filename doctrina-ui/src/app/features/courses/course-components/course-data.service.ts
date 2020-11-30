@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {IEditCourseForm} from 'src/app/core/interfaces/course.interface';
@@ -7,7 +8,7 @@ import {Apollo, gql} from 'apollo-angular';
   providedIn: 'root'
 })
 export class CourseDataService {
-  constructor(private apollo: Apollo) {}
+  constructor(private apollo: Apollo, private http: HttpClient) {}
 
   updateCourse(form: IEditCourseForm): Observable<any> {
     return this.apollo.mutate({
@@ -298,15 +299,18 @@ export class CourseDataService {
   }
 
   downloadFile(id: string): Observable<any> {
-    return  this.apollo.query<any>({
+   /* return  this.apollo.query<any>({
       query: gql `query downloadFile($id: String!) {
         downloadFile(id: $id)
         }`,
       variables: {
         id,
       },
-    });
+    });*/
+    return this.http.get(`http://localhost:5000/download?id=` + id, {responseType: 'blob'});
   }
+
+
 
   addCourseLink(idCourse: string , form): Observable<any> {
     return this.apollo.mutate({

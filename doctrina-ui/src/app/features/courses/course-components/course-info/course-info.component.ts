@@ -16,6 +16,8 @@ import { ILink } from 'src/app/core/interfaces/link.interface';
 import { AuthenticationService } from 'src/app/features/authentication/authentication.service';
 import { AddLinkComponent } from 'src/app/shared/components/add-link/add-link.component';
 import { CourseDataService } from '../course-data.service';
+import { DomService } from 'src/app/core/services/dom.service';
+import { saveAs } from 'file-saver';
 
 
 
@@ -43,6 +45,7 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
               private http: HttpClient,
               private courseService: CourseDataService,
               private toastr: ToastrService,
+              private domService: DomService,
               public dialog: MatDialog) { }
 
       // tslint:disable-next-line:typedef
@@ -171,11 +174,11 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-  downloadFile(fileId: string): void {
+  downloadFile(fileId: string, fileName: string, filteType: string): void {
     this.courseService.downloadFile(fileId)
     .subscribe(response => {
-      this.getfile(response.downloadFile).subscribe(res => {
-
+      saveAs(response, `${fileName}.${filteType.split('/')[1]}`);
+      // this.domService.downloadFile("co-picklist"+ ".pdf", response, 'application/pdf;base64');
         /*const fileName = this.getFileName(response.downloadFile);
         const blob = new Blob([response.downloadFile]);
         const downloadURL = window.URL.createObjectURL(response.downloadFile);
@@ -184,7 +187,6 @@ export class CourseInfoComponent implements OnInit, OnDestroy {
         link.download = fileName;
         link.click();*/
       });
-    });
   }
 
   protected saveFile(blob: Blob, fileName: string): void {

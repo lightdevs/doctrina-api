@@ -74,7 +74,7 @@ export class AddLessonsComponent implements OnInit, OnDestroy {
       })
       .subscribe(
         (res) => {
-          this.toastr.success(this.message.COURSE_CREATED, toastrTitle.Success);
+          this.toastr.success(`Lesson Created`, toastrTitle.Success);
           this.dialogRef.close();
         },
         () => {

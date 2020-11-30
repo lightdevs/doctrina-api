@@ -225,4 +225,55 @@ export class LessonDataService {
        }
     });
   }
+
+  addTask(form: any): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation addTask($title: String!, $description: String, $dateStart: Date, $dateEnd: Date, $maxMark: Int, $parentInstance: String!) {
+        addTask(title: $title, description: $description, dateStart: $dateStart, dateEnd: $dateEnd, maxMark: $maxMark, parentInstance: $parentInstance) {
+          _id
+        }
+      }
+    `,
+      variables: {
+        ...form
+      },
+    });
+  }
+
+  getTasksByLessons(id: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query tasksByLesson($id: String!) {
+        tasksByLesson(id: $id) {
+            _id
+            title
+            description
+            dateStart
+            dateEnd
+            maxMark
+            answers
+            links
+            parentInstance
+          }
+        }`,
+      variables: {
+        id
+      },
+    });
+  }
+
+  deleteTask(taskId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation deleteTask($id: String!) {
+        deleteTask(id: $id) {
+          affectedRows
+        }
+      }
+    `,
+        variables: {
+          id: taskId
+        },
+    });
+  }
 }
