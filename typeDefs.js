@@ -166,9 +166,11 @@ type Query {
 
     tasksByLesson(id: String!): [ExtendedTask!]
     answersByTask(id: String!): [Answer!]
+    myAnswersByTask(id: String!): [Answer!]
     answersByPerson: [Answer!]
     tasksByPerson: [Task!]
     commentsByAnswer(id: String!): [Comment!]
+    filesOfAnswer(id: String!): [File!]
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
     statisticsByCourse(courseId: String!): [Stat!]
