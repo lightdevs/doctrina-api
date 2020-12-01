@@ -285,6 +285,20 @@ module.exports = {
       }
       return answers;
     },
+    myAnswersByTask: async (_, args, context, info) => {
+      passCheck(info);
+      const task = await Task.findById(args.id);
+      if (!task) throw new Error("Task not found 404");
+      let answers = [];
+      for (let answerId of task.answers) {
+        let answer = await Answer.findById(answerId);
+        if (!answer) continue;
+        if (answer.person.toString() == context.payload.payload._id.toString()) {
+          answers.push(answer);
+        }
+      }
+      return answers;
+    },
     answersByPerson: async (_, args, context, info) => {
       passCheck(info);
       if (!context.loggedIn) throw new Error("Unauthorized 401");
@@ -354,6 +368,20 @@ module.exports = {
       } else {
         throw new Error("Lesson not found");
       }
+    },
+    filesOfAnswer: async (_, args, context, info) => {
+      passCheck(info);
+      let answer = await Answer.findById(args.id);
+      if (!answer) throw new Error("Answer not found 404");
+      if (answer.person.toString() != context.payload.payload._id.toString() || !context.loggedIn)
+        throw new Error("Unauthorized 401");
+      let files = [];
+      for (let fileId of answer.materials) {
+        let file = await File.findById(fileId);
+        if (!file) continue;
+        files.push(file);
+      }
+      return files;
     },
 
     downloadFile: async (_, args, context, info) => {
