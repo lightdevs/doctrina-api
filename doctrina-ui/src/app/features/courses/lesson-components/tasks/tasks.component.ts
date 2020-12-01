@@ -20,7 +20,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   @Input() lessonId: string;
   @Input() canEdit: boolean;
 
-  tasks: ITask[] = [];
+  tasks: any[] = [];
   private destroy$ = new Subject<void>();
   constructor(private router: Router,
               private courseService: LessonDataService,
@@ -37,8 +37,8 @@ export class TasksComponent implements OnInit, OnDestroy {
       .subscribe(res => {
         if (res.data.tasksByLesson) {
           res.data.tasksByLesson.forEach(x => {
-            x.dateStart = new Date(x.dateStart);
-            x.dateEnd = new Date(x.dateEnd);
+            x.task.dateStart = new Date(x.task.dateStart);
+            x.task.dateEnd = new Date(x.task.dateEnd);
           });
           this.tasks = res.data.tasksByLesson;
         }

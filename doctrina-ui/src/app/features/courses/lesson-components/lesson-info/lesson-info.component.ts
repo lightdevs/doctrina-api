@@ -176,6 +176,7 @@ export class LessonInfoComponent implements OnInit, OnDestroy {
       });
   }
 
+
   protected saveFile(blob: Blob, fileName: string): void {
     const a = document.createElement('a');
     const url = window.URL.createObjectURL(blob);

@@ -85,10 +85,10 @@ export class EditTaskComponent implements OnInit, OnDestroy {
 
   getTaskInfo(): void {
     if (this.taskId) {
-      this.taskService.getLessonById(this.taskId)
+      this.taskService.getTaskById(this.taskId)
         .subscribe(res => {
           if (res.data.taskById) {
-            this.lesson.next(res.data.taskById);
+            this.task.next(res.data.taskById);
           } else {
             this.toastr.error(this.message.SOMETHING_IS_WRONG, toastrTitle.Error);
             this.router.navigate(['/courses/course/', this.courseId]);

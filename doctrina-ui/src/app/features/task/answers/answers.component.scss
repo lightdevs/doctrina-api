@@ -1,0 +1,48 @@
+ul.horizontal-slide {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+ul.horizontal-slide li[class*="span"] {
+  display: inline-block;
+  float: none;
+}
+
+ul.horizontal-slide li[class*="span"]:first-child {
+  margin-left: 0;
+}
+
+.course-list {
+  background-color: #f2f2f2;
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px;
+}
+
+.card-header-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.spinner-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-span {
+  display: inline-block;
+  margin-left: 12px;
+}
+
+.span1 {
+  height: 400px !important;
+  overflow-y: scroll;
+}

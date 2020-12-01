@@ -133,7 +133,6 @@ export class TaskDataService {
     });
   }
 
-
   downloadFile(id: string): Observable<any> {
     return this.http.get(`http://localhost:5000/download?id=` + id, {responseType: 'blob'});
   }
@@ -165,6 +164,91 @@ export class TaskDataService {
         variables: {
           id: taskId
         },
+    });
+  }
+
+  addAnswer(form): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation addAnswer($title: String, $taskId: ID!) {
+        addAnswer(title: $title, taskId: $taskId) {
+          _id
+        }
+      }
+    `,
+      variables: {
+        ...form
+      },
+    });
+  }
+
+  updateAnswer(form): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation updateAnswer($title: String, $id: String!) {
+        updateAnswer(title: $title, id: $id) {
+        }
+      }
+    `,
+      variables: {
+        ...form
+      },
+    });
+  }
+
+  uploadAnswerMaterial(uploadFile , answerId: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation uploadAnswerMaterial($answerId: String!, $file: Upload!) {
+        uploadAnswerMaterial(answerId: $answerId, file: $file)
+      }
+    `,
+        variables: {
+          answerId,
+          file: uploadFile
+        },
+        context: {
+          useMultipart: true
+       }
+    });
+  }
+
+  getMyAnswerByTask(taskId: string): Observable<any> {
+
+    return  this.apollo.query<any>({
+      query: gql `query myAnswersByTask($id: String!) {
+        myAnswersByTask(id: $id) {
+          _id
+          title
+          person
+          parentInstance
+          comments
+          timeAdded
+          mark
+        }
+      }`,
+      variables: {
+        id: taskId,
+      },
+    });
+  }
+
+  getAnswersMaterial(answerId: string): Observable<any> {
+    console.log('hi')
+    return  this.apollo.query<any>({
+      query: gql `query filesOfAnswer($id: String!) {
+        filesOfAnswer(id: $id) {
+          _id
+          title
+          fileId
+          description
+          size
+          mimetype
+        }
+      }`,
+      variables: {
+        id: answerId,
+      },
     });
   }
 }
