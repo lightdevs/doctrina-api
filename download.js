@@ -23,6 +23,10 @@ router.get('/', async function (req, res) {
                 const { profilePicsBucket } = require("./buckets");
                 readStream = profilePicsBucket.openDownloadStreamByName(hash);
                 break;
+                case "answer":
+                const { answerMaterialsBucket } = require("./buckets");
+                readStream = answerMaterialsBucket.openDownloadStreamByName(hash);
+                break;
         }
 
 
