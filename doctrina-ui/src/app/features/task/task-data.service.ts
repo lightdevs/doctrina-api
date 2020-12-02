@@ -256,13 +256,20 @@ export class TaskDataService {
     return  this.apollo.query<any>({
       query: gql `query answersByTask($id: String!) {
         answersByTask(id: $id) {
-          _id
-          title
-          person
-          parentInstance
-          comments
-          timeAdded
-          mark
+          answer{
+            _id
+            title
+            person
+            parentInstance
+            comments
+            timeAdded
+            mark
+          }
+          author {
+           name
+           surname
+           email
+          }
         }
       }`,
       variables: {
