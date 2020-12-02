@@ -282,12 +282,13 @@ module.exports = {
       let answers = [];
       for (let answerId of task.answers) {
         let answer = await Answer.findById(answerId);
-        if(!author) continue;
+        if (!answer) continue;
+        let author = await Person.findById(answer.person);
         answers.push({
           answer,
-          author: await Person.findById(answer.person)
-        })
-        }
+          author 
+        });
+      }
       return answers;
     },
     myAnswersByTask: async (_, args, context, info) => {
