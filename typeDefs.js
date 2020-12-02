@@ -39,6 +39,7 @@ type Lesson {
     title:String!
     description:String
     materials: [ID!]
+    visitors: [ID!]
     marks: [Tuple]
     links: [ID!]
     tasks: [ID!]
@@ -99,7 +100,7 @@ type Person {
     institution: String
     description: String
     answers: [ID!]
-    photo: File
+    photo: ID
     accountType: String!
     coursesTakesPart: [ID!]!
     coursesConducts: [ID!]! 
@@ -133,6 +134,10 @@ type ExtendedPerson {
     courses: [CourseWithTeacher!]!,
     isEnd: Boolean!
 }
+type ExtendedTask {
+    task: Task!
+    status: Int!
+}
 
 
 type Query {
@@ -153,15 +158,17 @@ type Query {
     personById(id: String!, sort: String, page: Int!, count: Int!): ExtendedPerson
     lessonById(id: String!): Lesson
     linkById(id: String!): Link
+    visitorsByLesson(id: String!): [Person]
 
     taskById(id: String!): Task!
     answerById(id: String!): Answer!
     commentById(id: String!): Comment!
 
-    tasksByLesson(id: String!): [Task!]
+    tasksByLesson(id: String!): [ExtendedTask!]
     answersByTask(id: String!): [Answer!]
     answersByPerson: [Answer!]
-    commentsOfAnswer(id: String!): [Comment!]
+    tasksByPerson: [Task!]
+    commentsByAnswer(id: String!): [Comment!]
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
     statisticsByCourse(courseId: String!): [Stat!]
@@ -178,6 +185,8 @@ type Mutation {
     setLessonMark(idLesson: String!,idStudent: String!, mark: String!) : Lesson   #?
 
     deleteFile(id: String!): MutationResult
+
+    markVisited(id: String!): Boolean
 
     createCourse(
     title:String!,
@@ -305,10 +314,6 @@ type Mutation {
         text: String
         parentInstance: String!
     ): Comment!
-    updateComment(
-        text: String
-    ): Comment!
-    deleteComment(id: String!): MutationResult!
 
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!

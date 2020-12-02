@@ -1,0 +1,74 @@
+<mat-toolbar class="dark">
+  <h1>Create Task</h1>
+  <span class="spacer"></span>
+  <button mat-icon-button type="button" (click)="close()">
+      <mat-icon color="warn">close</mat-icon>
+  </button>
+</mat-toolbar>
+<div class="mx-3">
+  <form [formGroup]="createTaskForm" (ngSubmit)="onSubmit()">
+      <div class="form-group pt-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Title</mat-label>
+          <input matInput formControlName="title"/>
+          <mat-error *ngIf="createTaskForm.get('title').hasError('required')">
+            Title is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group pt-3">
+            <mat-form-field appearance="outline">
+              <mat-label>Date of the begining</mat-label>
+                <input matInput type="datetime-local" formControlName="dateStart">
+                <mat-error *ngIf="createTaskForm.get('dateStart').hasError('required')">
+                  Date of the begining is required
+                </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group pt-3">
+            <mat-form-field appearance="outline">
+              <mat-label>Date of the end</mat-label>
+                <input matInput type="datetime-local" formControlName="dateEnd">
+                <mat-error *ngIf="createTaskForm.get('dateEnd').hasError('required')">
+                  Date of the end is required
+                </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group pt-3">
+            <mat-form-field appearance="outline">
+              <mat-label>Max mark</mat-label>
+              <input placeholder="Type..."
+                    matInput
+                    type="number"
+                    formControlName="maxMark"
+                    [matAutocomplete]="auto">
+              <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                  {{option}}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+      <div class="form-group pt-3">
+        <mat-form-field appearance="outline">
+          <mat-label>Description</mat-label>
+          <textarea matInput placeholder="course description" formControlName="description"></textarea>
+        </mat-form-field>
+      </div>
+      <mat-dialog-actions class="spacer-beetwen align-bottom  mx-2 p-4 pb-5">
+        <button mat-flat-button color="warn" (click)="close()">NO THANKS</button>
+        <button mat-flat-button color="primary" type="submit" >CREATE</button>
+      </mat-dialog-actions>
+  </form>
+</div>
