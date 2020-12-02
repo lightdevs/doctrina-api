@@ -23,7 +23,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   tasks: any[] = [];
   private destroy$ = new Subject<void>();
   constructor(private router: Router,
-              private courseService: LessonDataService,
+              private lessonService: LessonDataService,
               private toastr: ToastrService,
               public dialog: MatDialog) { }
 
@@ -33,7 +33,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   getTasks(): void {
-    this.courseService.getTasksByLessons(this.lessonId)
+    this.lessonService.getTasksByLessons(this.lessonId)
       .subscribe(res => {
         if (res.data.tasksByLesson) {
           res.data.tasksByLesson.forEach(x => {
@@ -69,7 +69,7 @@ export class TasksComponent implements OnInit, OnDestroy {
       .subscribe(result => {
         if (result != null) {
           if (result === true ) {
-            this.courseService.deleteTask(taskId)
+            this.lessonService.deleteTask(taskId)
               .subscribe(() => {
                 this.toastr.success(`Task Deleted`, toastrTitle.Success);
                 this.getTasks();

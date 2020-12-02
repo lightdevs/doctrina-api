@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Apollo, gql } from 'apollo-angular';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Apollo, gql} from 'apollo-angular';
 import {Observable} from 'rxjs';
 
 @Injectable({
@@ -8,11 +8,12 @@ import {Observable} from 'rxjs';
 })
 export class LessonDataService {
 
-  constructor(private apollo: Apollo, private http: HttpClient) {}
+  constructor(private apollo: Apollo, private http: HttpClient) {
+  }
 
   getCourseById(courseId: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query courseById($id: String!, $page: Int!, $count: Int!) {
+    return this.apollo.query<any>({
+      query: gql`query courseById($id: String!, $page: Int!, $count: Int!) {
         courseById(id: $id, page: $page, count: $count) {
           course {
             _id
@@ -35,8 +36,8 @@ export class LessonDataService {
 
 
   getTeacherName(teacherId: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query personById($id: String!, $page: Int!, $count: Int!) {
+    return this.apollo.query<any>({
+      query: gql`query personById($id: String!, $page: Int!, $count: Int!) {
         personById(id: $id, page: $page, count: $count) {
           person {
             _id
@@ -66,16 +67,16 @@ export class LessonDataService {
         }
       }
     `,
-        variables: {
-          id: lessonId
-        },
+      variables: {
+        id: lessonId
+      },
     });
   }
 
 
   getLessonById(lessonId: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query lessonById($id: String!) {
+    return this.apollo.query<any>({
+      query: gql`query lessonById($id: String!) {
         lessonById(id: $id) {
           _id
           course
@@ -116,8 +117,8 @@ export class LessonDataService {
 
 
   getLessonMaterial(lessonId: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query filesByLesson($lessonId: String!, $mimetype: String) {
+    return this.apollo.query<any>({
+      query: gql`query filesByLesson($lessonId: String!, $mimetype: String) {
         filesByLesson(lessonId: $lessonId, mimetype: $mimetype) {
           _id
           title
@@ -133,20 +134,20 @@ export class LessonDataService {
     });
   }
 
-  uploadLessonFile(uploadFile , lessonId: string): Observable<any> {
+  uploadLessonFile(uploadFile, lessonId: string): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
       mutation uploadLessonMaterial($lessonId: String!, $file: Upload!) {
         uploadLessonMaterial(lessonId: $lessonId, file: $file)
       }
     `,
-        variables: {
-          lessonId,
-          file: uploadFile
-        },
-        context: {
-          useMultipart: true
-       }
+      variables: {
+        lessonId,
+        file: uploadFile
+      },
+      context: {
+        useMultipart: true
+      }
     });
   }
 
@@ -156,8 +157,8 @@ export class LessonDataService {
   }
 
   getLessonLinks(lessonId: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query linksByLesson($id: String!) {
+    return this.apollo.query<any>({
+      query: gql`query linksByLesson($id: String!) {
         linksByLesson(id: $id) {
           _id
           description
@@ -179,9 +180,9 @@ export class LessonDataService {
         }
       }
     `,
-        variables: {
-          id: linkId
-        },
+      variables: {
+        id: linkId
+      },
     });
   }
 
@@ -194,13 +195,13 @@ export class LessonDataService {
         }
       }
     `,
-        variables: {
-          id
-        },
+      variables: {
+        id
+      },
     });
   }
 
-  addLessonLink(idLesson: string , form): Observable<any> {
+  addLessonLink(idLesson: string, form): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
       mutation addLessonLink($idLesson: ID!, $description: String!, $link: String!) {
@@ -209,13 +210,13 @@ export class LessonDataService {
         }
       }
     `,
-        variables: {
-          idLesson,
-          ...form
-        },
-        context: {
-          useMultipart: true
-       }
+      variables: {
+        idLesson,
+        ...form
+      },
+      context: {
+        useMultipart: true
+      }
     });
   }
 
@@ -235,8 +236,8 @@ export class LessonDataService {
   }
 
   getTasksByLessons(id: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query tasksByLesson($id: String!) {
+    return this.apollo.query<any>({
+      query: gql`query tasksByLesson($id: String!) {
         tasksByLesson(id: $id) {
           task {
             _id
@@ -266,9 +267,41 @@ export class LessonDataService {
         }
       }
     `,
-        variables: {
-          id: taskId
-        },
+      variables: {
+        id: taskId
+      },
+    });
+  }
+
+
+  markVisited(id: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation markVisited($id: String!) {
+        markVisited(id: $id)
+      }
+    `,
+      variables: {
+        id
+      },
+    });
+  }
+
+  getVisitorsByLesson(id: string): Observable<any> {
+    return this.apollo.query<any>({
+      query: gql`query visitorsByLesson($id: String!) {
+        visitorsByLesson(id: $id) {
+          _id
+          email
+          name
+          surname
+          country
+          city
+        }
+      }`,
+      variables: {
+        id
+      },
     });
   }
 }

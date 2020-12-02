@@ -1,21 +1,21 @@
-import { ILesson } from 'src/app/core/interfaces/lesson.interface';
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Subject, Observable } from 'rxjs';
-import { map, startWith, takeUntil } from 'rxjs/operators';
-import { toastrTitle } from 'src/app/core/helpers';
-import { ICourses } from 'src/app/core/interfaces/course.interface';
-import { IMaterials } from 'src/app/core/interfaces/filte.interface';
-import { ILink } from 'src/app/core/interfaces/link.interface';
-import { IUserInfo } from 'src/app/core/interfaces/user.interface';
-import { AddLinkComponent } from 'src/app/shared/components/add-link/add-link.component';
-import { CancelPopUpComponent } from 'src/app/shared/components/cancel-pop-up/cancel-pop-up.component';
-import { AuthenticationService } from 'src/app/features/authentication/authentication.service';
-import { LessonDataService } from '../lesson-data.service';
-import { saveAs } from 'file-saver';
+import {ILesson} from 'src/app/core/interfaces/lesson.interface';
+import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {Component, HostListener, Input, OnDestroy, OnInit} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import {ToastrService} from 'ngx-toastr';
+import {BehaviorSubject, Subject, Observable} from 'rxjs';
+import {map, startWith, takeUntil} from 'rxjs/operators';
+import {toastrTitle} from 'src/app/core/helpers';
+import {ICourses} from 'src/app/core/interfaces/course.interface';
+import {IMaterials} from 'src/app/core/interfaces/filte.interface';
+import {ILink} from 'src/app/core/interfaces/link.interface';
+import {IUserInfo} from 'src/app/core/interfaces/user.interface';
+import {AddLinkComponent} from 'src/app/shared/components/add-link/add-link.component';
+import {CancelPopUpComponent} from 'src/app/shared/components/cancel-pop-up/cancel-pop-up.component';
+import {AuthenticationService} from 'src/app/features/authentication/authentication.service';
+import {LessonDataService} from '../lesson-data.service';
+import {saveAs} from 'file-saver';
 
 @Component({
   selector: 'app-lesson-info',
@@ -35,42 +35,50 @@ export class LessonInfoComponent implements OnInit, OnDestroy {
   isUploading: boolean;
   materials: IMaterials[] = [];
   links: ILink[] = [];
+  visitors = [];
+  currentUser: IUserInfo;
 
   private destroy$ = new Subject<void>();
+
   constructor(private formBuilder: FormBuilder,
               private authenticationService: AuthenticationService,
               private http: HttpClient,
               private lessonService: LessonDataService,
               private toastr: ToastrService,
-              public dialog: MatDialog) { }
+              public dialog: MatDialog) {
+    authenticationService.currentUser.subscribe(x => this.currentUser = x);
+  }
 
-      // tslint:disable-next-line:typedef
+  // tslint:disable-next-line:typedef
   @HostListener('window:beforeunload', ['$event']) unloadNotification($event: any) {
     if (this.editLessoForm.dirty) {
-        $event.returnValue = false;
+      $event.returnValue = false;
     }
   }
 
   ngOnInit(): void {
     this.createForm();
     this.lesson
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      if(this.lesson.value) {
-        this.initForm(this.lesson.value);
-        this.getLessonLinks();
-        this.getLessonMaterial();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.lesson.value) {
+          this.initForm(this.lesson.value);
+          this.getLessonLinks();
+          this.getLessonMaterial();
+          if (!this.lessonWill()) {
+            this.getVisitorsByLesson();
+          }
+        }
+      });
     this.filteredOptions = (this.editLessoForm.get('maxMark') as FormControl).valueChanges
-    .pipe(
-      takeUntil(this.destroy$),
-      startWith(''),
-      map(value => this._filter(value))
-    );
+      .pipe(
+        takeUntil(this.destroy$),
+        startWith(''),
+        map(value => this._filter(value))
+      );
   }
 
-  createForm(): void  {
+  createForm(): void {
     this.editLessoForm = this.formBuilder.group({
       id: [null, Validators.required],
       title: [null, Validators.required],
@@ -109,7 +117,7 @@ export class LessonInfoComponent implements OnInit, OnDestroy {
   }
 
   uploadDocument(event: any): void {
-    if (event.target.files.length === 0){
+    if (event.target.files.length === 0) {
       return;
     }
 
@@ -171,8 +179,8 @@ export class LessonInfoComponent implements OnInit, OnDestroy {
 
   downloadFile(fileId: string, fileName: string, filteType: string): void {
     this.lessonService.downloadFile(fileId)
-    .subscribe(response => {
-      saveAs(response, `${fileName}.${filteType.split('/')[1]}`);
+      .subscribe(response => {
+        saveAs(response, `${fileName}.${filteType.split('/')[1]}`);
       });
   }
 
@@ -201,19 +209,19 @@ export class LessonInfoComponent implements OnInit, OnDestroy {
   }
 
   addLink(): void {
-      const config = new MatDialogConfig();
-      config.panelClass = `modal-setting`;
-      config.width = '500px';
-      config.height = '300px';
-      const dialogRef = this.dialog.open(AddLinkComponent, config);
-      dialogRef.afterClosed()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(result => {
-            if (result) {
-              this.lessonService.addLessonLink(this.lesson.value._id, result)
-              .subscribe(() => this.getLessonLinks());
-            }
-        });
+    const config = new MatDialogConfig();
+    config.panelClass = `modal-setting`;
+    config.width = '500px';
+    config.height = '300px';
+    const dialogRef = this.dialog.open(AddLinkComponent, config);
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        if (result) {
+          this.lessonService.addLessonLink(this.lesson.value._id, result)
+            .subscribe(() => this.getLessonLinks());
+        }
+      });
   }
 
   getLessonLinks(): void {
@@ -237,7 +245,9 @@ export class LessonInfoComponent implements OnInit, OnDestroy {
   }
 
   formatSize(bytes): string {
-    if (bytes === 0) { return '0 Bytes'; }
+    if (bytes === 0) {
+      return '0 Bytes';
+    }
 
     const k = 1024;
     const dm = 1 < 0 ? 0 : 1;
@@ -255,10 +265,35 @@ export class LessonInfoComponent implements OnInit, OnDestroy {
     return this.options;
   }
 
+  lessonWill(): boolean {
+    return this.lesson.value?.dateStart > new Date();
+  }
+
+  lessonNow(): boolean {
+    const today = new Date();
+    return this.lesson.value?.dateEnd >= today && this.lesson.value?.dateStart <= today;
+  }
+
+  lessonEnded(): boolean {
+    return this.lesson.value?.dateEnd < new Date();
+  }
+
+
+  getVisitorsByLesson(): void {
+    this.lessonService.getVisitorsByLesson(this.lesson.value._id).subscribe(res => {
+      this.visitors = res.data.visitorsByLesson;
+    });
+  }
+
+  markVisited(): void {
+    this.lessonService.markVisited(this.lesson.value._id).subscribe(res => {
+      console.log(res);
+    });
+    this.getVisitorsByLesson();
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
 }
