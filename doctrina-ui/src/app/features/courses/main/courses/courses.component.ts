@@ -1,15 +1,15 @@
 import {Component, OnDestroy, OnInit, Pipe, PipeTransform, ViewChild} from '@angular/core';
-import { Apollo } from 'apollo-angular';
-import { CreateCourseComponent } from '../create-course/create-course.component';
+import {Apollo} from 'apollo-angular';
+import {CreateCourseComponent} from '../create-course/create-course.component';
 import gql from 'graphql-tag';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {Observable, Subject, Subscription} from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
-import { IUserInfo } from 'src/app/core/interfaces/user.interface';
-import { AuthenticationService } from 'src/app/features/authentication/authentication.service';
-import { CoursesService } from '../courses-data.service';
+import {takeUntil} from 'rxjs/operators';
+import {Router} from '@angular/router';
+import {DatePipe} from '@angular/common';
+import {IUserInfo} from 'src/app/core/interfaces/user.interface';
+import {AuthenticationService} from 'src/app/features/authentication/authentication.service';
+import {CoursesService} from '../courses-data.service';
 
 
 @Component({
@@ -37,7 +37,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
     private router: Router,
     private datepipe: DatePipe
   ) {
-    authService.currentUser.subscribe( x => this.currentUser = x);
+    authService.currentUser.subscribe(x => this.currentUser = x);
   }
 
   private destroy$ = new Subject<void>();
@@ -54,7 +54,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
         const data = JSON.parse(JSON.stringify(res.data.courses.courses));
 
         const transformData = data.map(x => {
-          return{
+          return {
             teacher: x.teacher,
             course: {
               ...x.course,
@@ -64,7 +64,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
           };
         });
 
-        console.log('transformData:' , transformData);
+        console.log('transformData:', transformData);
         this.courses = transformData && transformData.length > 0 ? transformData : [];
       });
   }

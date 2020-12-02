@@ -2,7 +2,7 @@
   <h1>STUDENT LIST</h1>
   <span class="spacer"></span>
   <button mat-icon-button type="button" [mat-dialog-close]="null">
-      <mat-icon color="warn">close</mat-icon>
+    <mat-icon color="warn">close</mat-icon>
   </button>
 </mat-toolbar>
 <div class="mx-3">
@@ -10,8 +10,8 @@
     <div class="col-6 px-4">
       <div class="d-flex justify-content-between uppercase">
         <input type="text" class="form-control" placeholder="Filter by E-mail..."
-        (keydown.enter)="getStudentsNotOnThisCourse()"
-        [(ngModel)]="filterTerm" name="filterTerm">
+               (keydown.enter)="getStudentsNotOnThisCourse()"
+               [(ngModel)]="filterTerm" name="filterTerm">
       </div>
     </div>
   </div>
@@ -24,109 +24,109 @@
       </div>
       <div class="bordered rounded">
         <div class="list p-3"
-          cdkDropList
-          #courseStudentsList="cdkDropList"
-          [cdkDropListConnectedTo]="[studentList]
-          "[cdkDropListData]="courseStudents"
-          (cdkDropListDropped)="drop($event)">
-             <div class="container">
-              <div class="row">
-                <div class="col-1 text-left">
-                </div>
-                <div class="bold col-4 text-center">
-                  Student
-                </div>
-                <div class="bold col-2 text-center">
-                  University
-                </div>
-                <div class="bold col-5 text-center">
-                  E-mail
-                </div>
-              </div>
-          <div
-            *ngFor="let column of courseStudents" cdkDrag
-            class="drag-row scroll"
-
-            infiniteScroll
-            [infiniteScrollDistance]="2"
-            [infiniteScrollUpDistance]="5"
-            [infiniteScrollThrottle]="50"
-            (scrolled)="onScrollStudentsOnCourseDown()"
-            [scrollWindow]="false"
-          >
-            <div class="row" cdkDragHandle>
+             cdkDropList
+             #courseStudentsList="cdkDropList"
+             [cdkDropListConnectedTo]="[studentList]
+          " [cdkDropListData]="courseStudents"
+             (cdkDropListDropped)="drop($event)">
+          <div class="container">
+            <div class="row">
               <div class="col-1 text-left">
-                <mat-icon class="drag-icon" color="primary">drag_indicator</mat-icon>
               </div>
-              <div class="col-4 text-center">
-                <mat-label class="mat-body-2">{{column.surname}}</mat-label>
+              <div class="bold col-4 text-center">
+                Student
               </div>
-              <div class="col-2 text-center">
-                ?????
+              <div class="bold col-2 text-center">
+                University
               </div>
-              <div class="col-5 text-center">
-                <mat-label class="mat-body-2">{{column.email}}</mat-label>
+              <div class="bold col-5 text-center">
+                E-mail
               </div>
             </div>
-            <div class="custom-placeholder" *cdkDragPlaceholder></div>
+            <div
+              *ngFor="let column of courseStudents" cdkDrag
+              class="drag-row"
+
+              infiniteScroll
+              [infiniteScrollDistance]="2"
+              [infiniteScrollUpDistance]="5"
+              [infiniteScrollThrottle]="50"
+              (scrolled)="onScrollStudentsOnCourseDown()"
+              [scrollWindow]="false"
+            >
+              <div class="row" cdkDragHandle>
+                <div class="col-1 text-left">
+                  <mat-icon class="drag-icon" color="primary">drag_indicator</mat-icon>
+                </div>
+                <div class="col-4 text-center">
+                  <mat-label class="mat-body-2">{{column.surname}}</mat-label>
+                </div>
+                <div class="col-2 text-center">
+                  ?????
+                </div>
+                <div class="col-5 text-center">
+                  <mat-label class="mat-body-2">{{column.email}}</mat-label>
+                </div>
+              </div>
+              <div class="custom-placeholder" *cdkDragPlaceholder></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
     <div class="p-4 col-6">
       <div class="d-flex justify-content-between uppercase mb-2">
         <b>Othere Students</b>
       </div>
       <div class="bordered rounded">
         <div class="list p-3"
-            #studentList="cdkDropList"
-            [cdkDropListData]="students"
-            [cdkDropListConnectedTo]="[courseStudentsList]"
-            cdkDropList
+             #studentList="cdkDropList"
+             [cdkDropListData]="students"
+             [cdkDropListConnectedTo]="[courseStudentsList]"
+             cdkDropList
              (cdkDropListDropped)="dropDelete($event)">
-             <div class="container">
-              <div class="row">
-                <div class="col-1 text-left">
-                </div>
-                <div class="bold col-4 text-center">
-                  Student
-                </div>
-                <div class="bold col-2 text-center">
-                  University
-                </div>
-                <div class="bold col-5 text-center">
-                  E-mail
-                </div>
+          <div class="container">
+            <div class="row">
+              <div class="col-1 text-left">
               </div>
-              <div
-                *ngFor="let column of students"
-                cdkDrag class="drag-row"
-
-                infiniteScroll
-                [infiniteScrollDistance]="2"
-                [infiniteScrollUpDistance]="5"
-                [infiniteScrollThrottle]="50"
-                (scrolled)="onScrollStudentsNotOnCourseDown()"
-                [scrollWindow]="false"
-              >
-                <div class="row" cdkDragHandle>
-                  <div class="col-1 text-left">
-                    <mat-icon class="drag-icon" color="primary">drag_indicator</mat-icon>
-                  </div>
-                  <div class="col-4 text-center">
-                    <mat-label class="mat-body-2">{{column.surname}}</mat-label>
-                  </div>
-                  <div class="col-2 text-center">
-                    ?????
-                  </div>
-                  <div class="col-5 text-center">
-                    <mat-label class="mat-body-2">{{column.email}}</mat-label>
-                  </div>
-                </div>
-                <div class="custom-placeholder" *cdkDragPlaceholder></div>
+              <div class="bold col-4 text-center">
+                Student
+              </div>
+              <div class="bold col-2 text-center">
+                University
+              </div>
+              <div class="bold col-5 text-center">
+                E-mail
               </div>
             </div>
+            <div
+              *ngFor="let column of students"
+              cdkDrag class="drag-row"
+
+              infiniteScroll
+              [infiniteScrollDistance]="2"
+              [infiniteScrollUpDistance]="5"
+              [infiniteScrollThrottle]="50"
+              (scrolled)="onScrollStudentsNotOnCourseDown()"
+              [scrollWindow]="false"
+            >
+              <div class="row" cdkDragHandle>
+                <div class="col-1 text-left">
+                  <mat-icon class="drag-icon" color="primary">drag_indicator</mat-icon>
+                </div>
+                <div class="col-4 text-center">
+                  <mat-label class="mat-body-2">{{column.surname}}</mat-label>
+                </div>
+                <div class="col-2 text-center">
+                  ?????
+                </div>
+                <div class="col-5 text-center">
+                  <mat-label class="mat-body-2">{{column.email}}</mat-label>
+                </div>
+              </div>
+              <div class="custom-placeholder" *cdkDragPlaceholder></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
