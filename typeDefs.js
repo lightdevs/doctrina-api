@@ -139,6 +139,11 @@ type ExtendedTask {
     status: Int!
 }
 
+type ExtendedAnswer {
+    answer: Answer!
+    author: Person
+}
+
 
 type Query {
     downloadFile(id: String!): String
@@ -165,7 +170,7 @@ type Query {
     commentById(id: String!): Comment!
 
     tasksByLesson(id: String!): [ExtendedTask!]
-    answersByTask(id: String!): [Answer!]
+    answersByTask(id: String!): [ExtendedAnswer!]
     myAnswersByTask(id: String!): [Answer!]
     answersByPerson: [Answer!]
     tasksByPerson: [Task!]
@@ -309,8 +314,6 @@ type Mutation {
     deleteAnswer(id: String!): MutationResult!
     uploadAnswerMaterial(file: Upload!, answerId: String!): Boolean
     setAnswerMark(answerId: String!, mark: Int): Answer!
-
-    deleteAnswerFile(idAnswer: String!, idFile: String!): MutationResult  
 
     addComment(
         text: String
