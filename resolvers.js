@@ -681,6 +681,7 @@ module.exports = {
           if (dateEnd < today) return false;
         }
         let visitors = lesson.visitors;
+        if(visitors.includes(context.payload.payload._id)) return lesson;
         visitors.push(context.payload.payload._id);
         let updatedLesson = await Lesson.findOneAndUpdate({ _id: lesson.id }, { visitors: visitors }, {
           returnOriginal: false
@@ -924,6 +925,10 @@ module.exports = {
       }
     },
 
+    deleteAnswerFile: async (_, args, context, info) => {
+      passCheck(info);
+    },
+
     deleteFile: async (_, args, context, info) => {
       passCheck(info);
       if (context.loggedIn) {
@@ -982,7 +987,7 @@ module.exports = {
             bucket.delete(file.fileId, function (error) {
             });
             const res = await File.remove({ _id: file._id });
-            return { affectedRows: 1 };
+            return { affectedRows: res.deletedCount };
 
           } else {
             throw new Error("Not permitted to modify 403");

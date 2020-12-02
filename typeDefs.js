@@ -309,8 +309,8 @@ type Mutation {
     deleteAnswer(id: String!): MutationResult!
     uploadAnswerMaterial(file: Upload!, answerId: String!): Boolean
     setAnswerMark(answerId: String!, mark: Int): Answer!
-    
 
+    deleteAnswerFile(idAnswer: String!, idFile: String!): MutationResult  
 
     addComment(
         text: String
