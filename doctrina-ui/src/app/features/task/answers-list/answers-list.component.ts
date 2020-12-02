@@ -19,7 +19,7 @@ import {ActivatedRoute} from '@angular/router';
 })
 export class AnswersListComponent implements OnInit {
 
-  answers: IAnswer[] = [];
+  answers = [];
   isUploading: boolean;
   taskId: string;
 
@@ -44,9 +44,7 @@ export class AnswersListComponent implements OnInit {
   getAnswersByTask(): void {
     this.taskService.getAnswersByTask(this.taskId)
       .subscribe(res => {
-        if (res.data.myAnswersByTask) {
-          this.answers = res.data.answersByTask;
-        }
+        this.answers = res.data.answersByTask;
       });
   }
 
