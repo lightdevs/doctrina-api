@@ -251,4 +251,23 @@ export class TaskDataService {
       },
     });
   }
+
+  getAnswersByTask(taskId: string): Observable<any> {
+    return  this.apollo.query<any>({
+      query: gql `query answersByTask($id: String!) {
+        answersByTask(id: $id) {
+          _id
+          title
+          person
+          parentInstance
+          comments
+          timeAdded
+          mark
+        }
+      }`,
+      variables: {
+        id: taskId,
+      },
+    });
+  }
 }
