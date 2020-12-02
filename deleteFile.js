@@ -1,4 +1,4 @@
-export function deleteFile(file) {
+export async function deleteFile(file) {
     let bucket;
     let updated;
     let arr;
