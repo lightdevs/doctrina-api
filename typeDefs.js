@@ -166,9 +166,11 @@ type Query {
 
     tasksByLesson(id: String!): [ExtendedTask!]
     answersByTask(id: String!): [Answer!]
+    myAnswersByTask(id: String!): [Answer!]
     answersByPerson: [Answer!]
     tasksByPerson: [Task!]
     commentsByAnswer(id: String!): [Comment!]
+    filesOfAnswer(id: String!): [File!]
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
     statisticsByCourse(courseId: String!): [Stat!]
@@ -307,8 +309,8 @@ type Mutation {
     deleteAnswer(id: String!): MutationResult!
     uploadAnswerMaterial(file: Upload!, answerId: String!): Boolean
     setAnswerMark(answerId: String!, mark: Int): Answer!
-    
 
+    deleteAnswerFile(idAnswer: String!, idFile: String!): MutationResult  
 
     addComment(
         text: String

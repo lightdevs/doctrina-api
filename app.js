@@ -8,7 +8,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 var cors = require('cors')
 
-var whitelist = ['http://127.0.0.1:4200','http://127.0.0.1:4000'];
+var whitelist = ['http://127.0.0.1:4200', 'http://127.0.0.1:4000'];
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
@@ -31,11 +31,16 @@ const startServer = async () => {
     next();
   });
 
+  app.use((req, res, next) => {
+    //console.log(req.headers);
+    next();
+  });
+
   app.use('/download', require('./download.js').router);
 
   await mongoose.connect(config.database, { useNewUrlParser: true, useUnifiedTopology: true });
   mongoose.set('useFindAndModify', false);
-  
+
   const server = new ApolloServer({
     typeDefs, resolvers, context: ({ req, res }) => {
       const token = req.headers.authorization || '';

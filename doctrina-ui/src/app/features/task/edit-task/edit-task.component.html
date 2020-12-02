@@ -1,0 +1,8 @@
+
+<app-task-info [canEdit]="canEdit" [course]="course" [lesson]="lesson" [task]="task" [teacherInfo]="teacherInfo"></app-task-info>
+<app-answers *ngIf="!canEdit" [canEdit]="canEdit" [taskId]="taskId" ></app-answers>
+<div class="text-center pt-1" *ngIf="canEdit">
+  <button mat-flat-button color="warn" (click)="deleteTask()">Delete Task</button>
+</div>
+
+
