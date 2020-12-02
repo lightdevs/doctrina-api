@@ -27,7 +27,7 @@
              cdkDropList
              #courseStudentsList="cdkDropList"
              [cdkDropListConnectedTo]="[studentList]
-          " [cdkDropListData]="courseStudents"
+          "[cdkDropListData]="courseStudents"
              (cdkDropListDropped)="drop($event)">
           <div class="container">
             <div class="row">
@@ -43,17 +43,7 @@
                 E-mail
               </div>
             </div>
-            <div
-              *ngFor="let column of courseStudents" cdkDrag
-              class="drag-row"
-
-              infiniteScroll
-              [infiniteScrollDistance]="2"
-              [infiniteScrollUpDistance]="5"
-              [infiniteScrollThrottle]="50"
-              (scrolled)="onScrollStudentsOnCourseDown()"
-              [scrollWindow]="false"
-            >
+            <div *ngFor="let column of courseStudents" cdkDrag class="drag-row">
               <div class="row" cdkDragHandle>
                 <div class="col-1 text-left">
                   <mat-icon class="drag-icon" color="primary">drag_indicator</mat-icon>
@@ -99,17 +89,7 @@
                 E-mail
               </div>
             </div>
-            <div
-              *ngFor="let column of students"
-              cdkDrag class="drag-row"
-
-              infiniteScroll
-              [infiniteScrollDistance]="2"
-              [infiniteScrollUpDistance]="5"
-              [infiniteScrollThrottle]="50"
-              (scrolled)="onScrollStudentsNotOnCourseDown()"
-              [scrollWindow]="false"
-            >
+            <div *ngFor="let column of students" cdkDrag class="drag-row">
               <div class="row" cdkDragHandle>
                 <div class="col-1 text-left">
                   <mat-icon class="drag-icon" color="primary">drag_indicator</mat-icon>

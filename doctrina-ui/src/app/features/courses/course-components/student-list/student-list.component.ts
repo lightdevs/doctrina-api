@@ -18,8 +18,6 @@ export class StudentListComponent implements OnInit, OnDestroy {
   courseStudents: IUserInfo[] = [];
   students: IUserInfo[] = [];
   filterTerm: string;
-  studentsOnCourse = 8;
-  studentsNotOnCourse = 9;
 
   private destroy$ = new Subject<void>();
   constructor(private courseService: CourseDataService,
@@ -33,19 +31,8 @@ export class StudentListComponent implements OnInit, OnDestroy {
     this.getStudentsNotOnThisCourse();
   }
 
-  onScrollStudentsNotOnCourseDown() {
-    console.log(this.studentsNotOnCourse);
-    this.studentsNotOnCourse += 1;
-    this.getStudentsNotOnThisCourse();
-  }
-
-  onScrollStudentsOnCourseDown() {
-    this.studentsOnCourse += 1;
-    this.getStudentsOfCurrentCourse();
-  }
-
   getStudentsOfCurrentCourse(): void {
-    this.courseService.getStudentsOfCourse(this.courseId, this.studentsOnCourse)
+    this.courseService.getStudentsOfCourse(this.courseId)
       .pipe(takeUntil(this.destroy$))
       .subscribe(res => {
         if (res.data.courseById.persons && res.data.courseById.persons.length > 0) {
@@ -55,7 +42,7 @@ export class StudentListComponent implements OnInit, OnDestroy {
   }
 
   getStudentsNotOnThisCourse(): void {
-    this.courseService.getStudentsNotOnThisCourse(this.courseId, this.studentsNotOnCourse, this.filterTerm)
+    this.courseService.getStudentsNotOnThisCourse(this.courseId, this.filterTerm)
     .pipe(takeUntil(this.destroy$))
     .subscribe(res => {
       if (res.data.personsNotOnCourse.persons && res.data.personsNotOnCourse.persons.length > 0) {
