@@ -16,13 +16,14 @@ import { AddTaskComponent } from '../add-task/add-task.component';
 })
 export class TasksComponent implements OnInit, OnDestroy {
 
+  @Input() courseId: string;
   @Input() lessonId: string;
   @Input() canEdit: boolean;
 
-  tasks: ITask[] = [];
+  tasks: any[] = [];
   private destroy$ = new Subject<void>();
   constructor(private router: Router,
-              private courseService: LessonDataService,
+              private lessonService: LessonDataService,
               private toastr: ToastrService,
               public dialog: MatDialog) { }
 
@@ -32,12 +33,12 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   getTasks(): void {
-    this.courseService.getTasksByLessons(this.lessonId)
+    this.lessonService.getTasksByLessons(this.lessonId)
       .subscribe(res => {
         if (res.data.tasksByLesson) {
           res.data.tasksByLesson.forEach(x => {
-            x.dateStart = new Date(x.dateStart);
-            x.dateEnd = new Date(x.dateEnd);
+            x.task.dateStart = new Date(x.task.dateStart);
+            x.task.dateEnd = new Date(x.task.dateEnd);
           });
           this.tasks = res.data.tasksByLesson;
         }
@@ -68,7 +69,7 @@ export class TasksComponent implements OnInit, OnDestroy {
       .subscribe(result => {
         if (result != null) {
           if (result === true ) {
-            this.courseService.deleteTask(taskId)
+            this.lessonService.deleteTask(taskId)
               .subscribe(() => {
                 this.toastr.success(`Task Deleted`, toastrTitle.Success);
                 this.getTasks();
@@ -80,7 +81,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   openTask(id: string): void {
-    this.router.navigate(['/courses/lesson/', this.lessonId, id, ]);
+    this.router.navigate(['/tasks/zema/', this.courseId, this.lessonId, id ]);
   }
 
   ngOnDestroy(): void {

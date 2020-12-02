@@ -129,7 +129,7 @@ export class CourseDataService {
     });
   }
 
-  getStudentsOfCourse(courseId: string, count: number): Observable<any> {
+  getStudentsOfCourse(courseId: string): Observable<any> {
     return  this.apollo.query({
         query: gql `query courseById($id: String!, $page: Int!, $count: Int!) {
           courseById(id: $id, page: $page, count: $count) {
@@ -146,7 +146,7 @@ export class CourseDataService {
         variables: {
           id: courseId,
           page: 0,
-          count
+          count: 1000
         },
     });
   }
@@ -173,7 +173,7 @@ export class CourseDataService {
     });
   }
 
-  getStudentsNotOnThisCourse(courseId: string, count: number, filterEmail: string | null): Observable<any> {
+  getStudentsNotOnThisCourse(courseId: string, filterEmail: string | null): Observable<any> {
     return  this.apollo.query({
       query: gql `query personsNotOnCourse($courseId: String, $email: String, $page: Int!, $count: Int!) {
         personsNotOnCourse(courseId: $courseId, email: $email, page: $page, count: $count) {
@@ -191,7 +191,7 @@ export class CourseDataService {
         courseId,
         email: filterEmail,
         page: 0,
-        count
+        count: 1000
       },
     });
   }
@@ -299,14 +299,6 @@ export class CourseDataService {
   }
 
   downloadFile(id: string): Observable<any> {
-   /* return  this.apollo.query<any>({
-      query: gql `query downloadFile($id: String!) {
-        downloadFile(id: $id)
-        }`,
-      variables: {
-        id,
-      },
-    });*/
     return this.http.get(`http://localhost:5000/download?id=` + id, {responseType: 'blob'});
   }
 

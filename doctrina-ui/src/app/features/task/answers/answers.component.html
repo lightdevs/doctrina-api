@@ -1,0 +1,88 @@
+<div class="mx-3">
+  <div class="course-list flex-column">
+    <section class="flex-row mx-3">
+      <section class="pt-2" >
+        <mat-card class="w-100">
+          <div class="card-header-container p-2">
+            <h1 class="bold">
+              Reply
+            </h1>
+            <mat-label>
+              <button color="primary" mat-raised-button type="button" tabindex="-1" (click)="addAnswer()">
+                  <mat-icon>add</mat-icon> Add Answer
+              </button>
+            </mat-label>
+          </div>
+        </mat-card>
+        <ng-container *ngFor="let answer of answers; let i = index">
+          <div class="pt-1" *ngIf="answers">
+            <mat-card class="w-100">
+              <ul style="list-style-type: none;">
+
+                  <li>
+                      <div class="row">
+                        <div class="col-md-6 w-100">
+                            <h2 class="bold">Title:
+                              <span>
+                              {{answer.title}}
+                            </span></h2>
+                          <br>
+                          <h2 class="bold">Add At: {{answer.timeAdded}}</h2>
+                        </div>
+                        <div class="col-md-6 w-100 text-right">
+                          <button mat-button color="primary" *ngIf="canEdit">Set Mark</button>
+                          <br  *ngIf="canEdit">
+                          <h2 class="bold">Mark: {{answer.mark ? answer.mark : '????' }}</h2>
+                        </div>
+                      <div class="col-md-12 w-100">
+                        <div class="card-header-container p-2">
+                          <h1 class="bold">
+                            Materials
+                          </h1>
+                          <mat-label>
+                            <button mat-raised-button type="button" tabindex="-1" color="primary" [disabled]="isUploading" (click)="clickElementWithId(i)">
+                              <div class="spinner-container">
+                                  <mat-icon *ngIf="!isUploading">add</mat-icon>
+                                  <mat-spinner *ngIf="isUploading" diameter="20" mode="indeterminate"></mat-spinner>
+                                  Add Material
+                              </div>
+                            </button>
+                          </mat-label>
+                        </div>
+                        <input type="file" [attr.id]="'inputFile ' + i" [attr.name]="'inputFile ' + i" (change)="uploadDocument($event, answer._id)" hidden>
+                        <ul class="horizontal-slide">
+                          <ng-container *ngFor="let material of answer?.materials">
+                            <li class="span2 p-1" style="background: #ccc; border: dotted 3px #999;">
+                              <mat-label>File Name: {{material?.title}} </mat-label>
+                              <br>
+                              <mat-label>Type: {{ material?.mimetype.split('/')[1] }}</mat-label>
+                              <br>
+                              <mat-label>Size: {{ formatSize(material?.size) }}</mat-label>
+                              <br>
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <button mat-icon-button type="button" tabindex="-1" color="primary" (click)="downloadFile(material._id, material.title, material.mimetype)">
+                                    <mat-icon> get_app </mat-icon>
+                                  </button>
+                                </div>
+                                <div class="col-md-6">
+                                  <button mat-icon-button type="button" tabindex="-1" color="warn" (click)="deleteFile(material._id)">
+                                    <mat-icon> close </mat-icon>
+                                  </button>
+                                </div>
+                              </div>
+                            </li>
+                          </ng-container>
+                        </ul>
+                      </div>
+                    </div>
+                  </li>
+              </ul>
+            </mat-card>
+          </div>
+        </ng-container>
+      </section>
+    </section>
+  </div>
+</div>
+

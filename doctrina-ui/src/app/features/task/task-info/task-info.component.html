@@ -1,1 +1,150 @@
-<p>task-info works!</p>
+<div class="mx-3">
+  <div class="course-list flex-column">
+    <section class="flex-row mx-3">
+      <section class="pt-2" >
+        <mat-card class="w-100">
+        <div class="card-header-container">
+          <h1 class="bold">
+            Task
+          </h1>
+          <mat-label *ngIf="canEdit">
+            <button color="primary" mat-icon-button type="button" (click)="startEdit()" tabindex="-1" *ngIf="!editTask">
+                <mat-icon>edit</mat-icon>
+            </button>
+          </mat-label>
+        </div>
+        <ng-container *ngIf="!editTask">
+          <ng-container *ngIf="course.value && lesson.value">
+              <div class="row">
+                  <div class="col-md-7 d-flex align-items-center text-center">
+                      <div class="form-group w-100">
+                          <h1 class="primary-color">{{course.value?.title}}</h1>
+                          <h3 class="bold">{{task.value?.title}}  {{task.value?.title}}  {{lesson.value?.title}} {{lesson.value?.type}}</h3>
+                      </div>
+                  </div>
+                  <div class="col-md-5">
+                      <div class="form-group">
+                        <ul style="list-style: none;">
+                          <li>
+                            <mat-label class="bold">Identifire:</mat-label>
+                            <mat-label>{{course.value?.identifier}}</mat-label>
+                          </li>
+                          <li>
+                            <mat-label class="bold">Teacher: </mat-label>
+                            <mat-label>{{ teacherInfo?.surname + ' ' + teacherInfo?.name }}</mat-label>
+                          </li>
+                          <li>
+                            <mat-label class="bold">Max mark: </mat-label>
+                            <mat-label>{{task.value?.maxMark}}</mat-label>
+                          </li>
+                          <li>
+                            <mat-label class="bold">Date of the begining: </mat-label>
+                            <mat-label>{{ getDate(task.value?.dateStart)}}</mat-label>
+                          </li>
+                          <li>
+                            <mat-label class="bold">Date of the end: </mat-label>
+                            <mat-label>{{ getDate(task.value?.dateEnd)}}</mat-label>
+                          </li>
+                        </ul>
+                      </div>
+                  </div>
+              </div>
+              <div class="form-group">
+                <mat-form-field appearance="outline">
+                  <mat-label>Task description</mat-label>
+                  <textarea matInput value="{{task.value?.description}}" readonly></textarea>
+                </mat-form-field>
+              </div>
+          </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="editTask">
+          <form class="pt-2" [formGroup]="editTaskForm" (ngSubmit)="updateLessonInfo()">
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="form-group">
+                          <mat-form-field appearance="outline">
+                          <mat-label>Title</mat-label>
+                          <input matInput formControlName="title"/>
+                          <mat-error *ngIf="editTaskForm.get('title').hasError('required')">
+                              Title is required
+                          </mat-error>
+                          </mat-form-field>
+                      </div>
+                      <div class="form-group">
+                        <mat-form-field appearance="outline">
+                        <mat-label>Max mark</mat-label>
+                        <input placeholder="Type..."
+                                matInput
+                                type="number"
+                                formControlName="maxMark"
+                                [matAutocomplete]="auto">
+                        <mat-autocomplete #auto="matAutocomplete">
+                            <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                            {{option}}
+                            </mat-option>
+                        </mat-autocomplete>
+                        <mat-error *ngIf="editTaskForm.get('maxMark').hasError('required')">
+                            Max mark is required
+                        </mat-error>
+                        </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="form-group">
+                        <mat-form-field appearance="outline">
+                          <mat-label>Teacher</mat-label>
+                          <input matInput value="{{ teacherInfo?.surname + ' ' + teacherInfo?.name}}" readonly/>
+                        </mat-form-field>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-6">
+                              <div class="form-group">
+                                  <mat-form-field appearance="outline">
+                                    <mat-label>Date of the begining</mat-label>
+                                      <input matInput [matDatepicker]="picker2" formControlName="dateStart" placeholder="mm/dd/yyyy">
+                                      <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                                      <mat-datepicker #picker2></mat-datepicker>
+                                      <mat-error *ngIf="editTaskForm.get('dateStart').hasError('required')">
+                                      Date of the begining is required
+                                      </mat-error>
+                                  </mat-form-field>
+                              </div>
+                          </div>
+                          <div class="col-md-6">
+                              <div class="form-group">
+                                  <mat-form-field appearance="outline">
+                                    <mat-label>Date of the end</mat-label>
+                                      <input matInput [matDatepicker]="picker1" formControlName="dateEnd" placeholder="mm/dd/yyyy">
+                                      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                                      <mat-datepicker #picker1></mat-datepicker>
+                                      <mat-error *ngIf="editTaskForm.get('dateEnd').hasError('required')">
+                                      Date of the end is required
+                                      </mat-error>
+                                  </mat-form-field>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="form-group">
+                <mat-form-field appearance="outline">
+                  <mat-label class="bold">Task description</mat-label>
+                  <textarea matInput placeholder="task description" formControlName="description"></textarea>
+                  <mat-error *ngIf="editTaskForm.get('description').hasError('required')">
+                    Description is required
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="card-header-container">
+                <button mat-flat-button color="warn" type="button" (click)="cancelEdit()">CANCEL</button>
+                <button mat-flat-button color="primary" type="submit" >UPDATE</button>
+              </div>
+          </form>
+        </ng-container>
+      </mat-card>
+    </section>
+  </section>
+</div>
+</div>
+<input type="file" #inputFile (change)="uploadDocument($event)" hidden>
