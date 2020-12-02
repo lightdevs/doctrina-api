@@ -1,13 +1,13 @@
-import { LessonDataService } from './../lesson-data.service';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
-import { toastrTitle } from 'src/app/core/helpers';
-import { ITask } from 'src/app/core/interfaces/task.interface';
-import { DeletePopUpComponent } from 'src/app/shared/components/delete-pop-up/delete-pop-up.component';
-import { AddTaskComponent } from '../add-task/add-task.component';
+import {LessonDataService} from './../lesson-data.service';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import {Router} from '@angular/router';
+import {ToastrService} from 'ngx-toastr';
+import {Subject} from 'rxjs';
+import {toastrTitle} from 'src/app/core/helpers';
+import {ITask} from 'src/app/core/interfaces/task.interface';
+import {DeletePopUpComponent} from 'src/app/shared/components/delete-pop-up/delete-pop-up.component';
+import {AddTaskComponent} from '../add-task/add-task.component';
 
 @Component({
   selector: 'app-tasks',
@@ -22,10 +22,12 @@ export class TasksComponent implements OnInit, OnDestroy {
 
   tasks: any[] = [];
   private destroy$ = new Subject<void>();
+
   constructor(private router: Router,
               private lessonService: LessonDataService,
               private toastr: ToastrService,
-              public dialog: MatDialog) { }
+              public dialog: MatDialog) {
+  }
 
   ngOnInit(): void {
     console.log(this.lessonId);
@@ -68,12 +70,12 @@ export class TasksComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed()
       .subscribe(result => {
         if (result != null) {
-          if (result === true ) {
+          if (result === true) {
             this.lessonService.deleteTask(taskId)
               .subscribe(() => {
                 this.toastr.success(`Task Deleted`, toastrTitle.Success);
                 this.getTasks();
-            });
+              });
           }
         }
         return;
@@ -81,7 +83,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   openTask(id: string): void {
-    this.router.navigate(['/tasks/zema/', this.courseId, this.lessonId, id ]);
+    this.router.navigate(['/tasks/zema/', this.courseId, this.lessonId, id]);
   }
 
   ngOnDestroy(): void {
