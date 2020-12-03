@@ -1,10 +1,10 @@
 <div class="container">
   <mat-grid-list cols="2" rowHeight="1:1">
     <mat-grid-tile>
-      <div class="profile-picture">{{currentUser.name[0]}}{{currentUser.surname[0]}}</div>
+      <div class="profile-picture">{{currentUser?.name[0]}}{{currentUser?.surname[0]}}</div>
     </mat-grid-tile>
     <mat-grid-tile>
-      <form [formGroup]="updateProfileForm" (ngSubmit)="this.updateProfile()">
+      <form [formGroup]="updateProfileForm" (ngSubmit)="updateProfile()">
           <div class="form-group row">
             <div class="cell">
               <mat-form-field appearance="outline">
