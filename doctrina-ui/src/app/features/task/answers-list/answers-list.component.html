@@ -27,8 +27,14 @@
                   <td>{{data.answer.title}}</td>
                   <td>mark: {{data.answer.mark == null ? 'no mark' : data.answer.mark }}</td>
                   <td>
-                    <button mat-icon-button type="button" tabindex="-1" color="primary">
-                      <mat-icon> visibility </mat-icon>
+                    <button mat-icon-button type="button" tabindex="-1" color="primary" (click)="showStudentAnswer(data)">
+                      <div *ngIf="data.answer.mark == null; else elseBlock">
+                        <mat-icon> visibility </mat-icon>
+                      </div>
+                      <ng-template #elseBlock>
+                        <mat-icon> visibility_off </mat-icon>
+                      </ng-template>
+
                     </button>
                   </td>
                 </tr>

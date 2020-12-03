@@ -10,6 +10,8 @@ import {TaskDataService} from '../task-data.service';
 import {saveAs} from 'file-saver';
 import {DOCUMENT} from '@angular/common';
 import {ActivatedRoute} from '@angular/router';
+import {takeUntil} from 'rxjs/operators';
+import {AnswerPreviewComponent} from '../answer-preview/answer-preview.component';
 
 
 @Component({
@@ -48,10 +50,17 @@ export class AnswersListComponent implements OnInit {
       });
   }
 
-  downloadFile(fileId: string, fileName: string, filteType: string): void {
-    this.taskService.downloadFile(fileId)
-      .subscribe(response => {
-        saveAs(response, `${fileName}.${filteType.split('/')[1]}`);
-      });
+  showStudentAnswer(data): void {
+    const config = new MatDialogConfig();
+    config.panelClass = `modal-setting`;
+    config.disableClose = true;
+    config.width = '700px';
+    config.height = '550px';
+    config.data = data;
+    const openDialog = this.dialog.open(AnswerPreviewComponent, config);
+    openDialog.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.getAnswersByTask();
+    });
   }
 }
+

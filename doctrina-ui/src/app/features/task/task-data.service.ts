@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Apollo, gql } from 'apollo-angular';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Apollo, gql} from 'apollo-angular';
 import {Observable} from 'rxjs';
 
 @Injectable({
@@ -8,11 +8,12 @@ import {Observable} from 'rxjs';
 })
 export class TaskDataService {
 
-  constructor(private apollo: Apollo, private http: HttpClient) {}
+  constructor(private apollo: Apollo, private http: HttpClient) {
+  }
 
   getCourseById(courseId: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query courseById($id: String!, $page: Int!, $count: Int!) {
+    return this.apollo.query<any>({
+      query: gql`query courseById($id: String!, $page: Int!, $count: Int!) {
         courseById(id: $id, page: $page, count: $count) {
           course {
             _id
@@ -35,8 +36,8 @@ export class TaskDataService {
 
 
   getTeacherName(teacherId: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query personById($id: String!, $page: Int!, $count: Int!) {
+    return this.apollo.query<any>({
+      query: gql`query personById($id: String!, $page: Int!, $count: Int!) {
         personById(id: $id, page: $page, count: $count) {
           person {
             _id
@@ -55,11 +56,13 @@ export class TaskDataService {
         count: 0
       },
     });
-  }taskById
+  }
+
+  taskById
 
   getTaskById(taskId: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query taskById($id: String!) {
+    return this.apollo.query<any>({
+      query: gql`query taskById($id: String!) {
         taskById(id: $id) {
           _id
           title
@@ -77,8 +80,8 @@ export class TaskDataService {
 
 
   getLessonById(lessonId: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query lessonById($id: String!) {
+    return this.apollo.query<any>({
+      query: gql`query lessonById($id: String!) {
         lessonById(id: $id) {
           _id
           course
@@ -116,20 +119,20 @@ export class TaskDataService {
     });
   }
 
-  uploadTaskFile(uploadFile , lessonId: string): Observable<any> {
+  uploadTaskFile(uploadFile, lessonId: string): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
       mutation uploadLessonMaterial($lessonId: String!, $file: Upload!) {
         uploadLessonMaterial(lessonId: $lessonId, file: $file)
       }
     `,
-        variables: {
-          lessonId,
-          file: uploadFile
-        },
-        context: {
-          useMultipart: true
-       }
+      variables: {
+        lessonId,
+        file: uploadFile
+      },
+      context: {
+        useMultipart: true
+      }
     });
   }
 
@@ -146,9 +149,9 @@ export class TaskDataService {
         }
       }
     `,
-        variables: {
-          id
-        },
+      variables: {
+        id
+      },
     });
   }
 
@@ -161,9 +164,9 @@ export class TaskDataService {
         }
       }
     `,
-        variables: {
-          id: taskId
-        },
+      variables: {
+        id: taskId
+      },
     });
   }
 
@@ -196,27 +199,26 @@ export class TaskDataService {
     });
   }
 
-  uploadAnswerMaterial(uploadFile , answerId: string): Observable<any> {
+  uploadAnswerMaterial(uploadFile, answerId: string): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
       mutation uploadAnswerMaterial($answerId: String!, $file: Upload!) {
         uploadAnswerMaterial(answerId: $answerId, file: $file)
       }
     `,
-        variables: {
-          answerId,
-          file: uploadFile
-        },
-        context: {
-          useMultipart: true
-       }
+      variables: {
+        answerId,
+        file: uploadFile
+      },
+      context: {
+        useMultipart: true
+      }
     });
   }
 
   getMyAnswerByTask(taskId: string): Observable<any> {
-
-    return  this.apollo.query<any>({
-      query: gql `query myAnswersByTask($id: String!) {
+    return this.apollo.query<any>({
+      query: gql`query myAnswersByTask($id: String!) {
         myAnswersByTask(id: $id) {
           _id
           title
@@ -235,8 +237,8 @@ export class TaskDataService {
 
   getAnswersMaterial(answerId: string): Observable<any> {
     console.log('hi')
-    return  this.apollo.query<any>({
-      query: gql `query filesOfAnswer($id: String!) {
+    return this.apollo.query<any>({
+      query: gql`query filesOfAnswer($id: String!) {
         filesOfAnswer(id: $id) {
           _id
           title
@@ -253,8 +255,8 @@ export class TaskDataService {
   }
 
   getAnswersByTask(taskId: string): Observable<any> {
-    return  this.apollo.query<any>({
-      query: gql `query answersByTask($id: String!) {
+    return this.apollo.query<any>({
+      query: gql`query answersByTask($id: String!) {
         answersByTask(id: $id) {
           answer{
             _id
@@ -266,6 +268,7 @@ export class TaskDataService {
             mark
           }
           author {
+           _id
            name
            surname
            email
@@ -274,6 +277,93 @@ export class TaskDataService {
       }`,
       variables: {
         id: taskId,
+      },
+    });
+  }
+
+  getAnswerById(id: string): Observable<any> {
+    return this.apollo.query<any>({
+      query: gql`query answerById($id: String!) {
+        answerById(id: $id) {
+          _id
+          title
+          person
+          parentInstance
+          comments
+          timeAdded
+          mark
+        }
+      }`,
+      variables: {
+        id,
+      },
+    });
+  }
+
+  getCommentById(id: string): Observable<any> {
+    return this.apollo.query<any>({
+      query: gql`query commentById($id: String!) {
+        commentById(id: $id) {
+            _id
+            text
+            person
+            parentInstance
+            timeAdded
+        }
+      }`,
+      variables: {
+        id,
+      },
+    });
+  }
+
+  getFilesOfAnswer(answerId: string): Observable<any> {
+    return this.apollo.query<any>({
+      query: gql`query filesOfAnswer($id: String!) {
+        filesOfAnswer(id: $id) {
+          _id
+          title
+          fileId
+          description
+          size
+          mimetype
+        }
+      }`,
+      variables: {
+        id: answerId,
+      },
+    });
+  }
+
+  setAnswerMark(answerId: string, mark: number): Observable<any> {
+    console.log(answerId, mark);
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation setAnswerMark($answerId: String!, $mark: Int) {
+        setAnswerMark(answerId: $answerId, mark: $mark) {
+          _id
+        }
+      }
+    `,
+      variables: {
+        answerId,
+        mark
+      },
+    });
+  }
+
+  addComment(text: string, parentInstance: string): Observable<any> {
+    return this.apollo.mutate({
+      mutation: gql`
+      mutation addComment($text: String, $parentInstance: String!) {
+        addComment(text: $text, parentInstance: $parentInstance) {
+          _id
+        }
+      }
+    `,
+      variables: {
+        text,
+        parentInstance
       },
     });
   }

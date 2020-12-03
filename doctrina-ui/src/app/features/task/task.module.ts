@@ -8,6 +8,7 @@ import {EditTaskComponent} from './edit-task/edit-task.component';
 import {AddAnswerComponent} from './add-answer/add-answer.component';
 import {AnswersComponent} from './answers/answers.component';
 import {AnswersListComponent} from './answers-list/answers-list.component';
+import {AnswerPreviewComponent} from './answer-preview/answer-preview.component';
 
 
 @NgModule({
@@ -18,6 +19,7 @@ import {AnswersListComponent} from './answers-list/answers-list.component';
     AddAnswerComponent,
     AnswersComponent,
     AnswersListComponent,
+    AnswerPreviewComponent,
   ],
   imports: [
     CommonModule,
