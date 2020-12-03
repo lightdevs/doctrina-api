@@ -5,7 +5,6 @@ import {Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
 import {Subject} from 'rxjs';
 import {toastrTitle} from 'src/app/core/helpers';
-import {ITask} from 'src/app/core/interfaces/task.interface';
 import {DeletePopUpComponent} from 'src/app/shared/components/delete-pop-up/delete-pop-up.component';
 import {AddTaskComponent} from '../add-task/add-task.component';
 

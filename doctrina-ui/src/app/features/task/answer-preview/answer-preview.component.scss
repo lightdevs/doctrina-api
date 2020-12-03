@@ -1,0 +1,33 @@
+.mark {
+  display: flex;
+  flex-direction: row;
+}
+
+.comment-block {
+  padding: 2em;
+}
+
+.mark-block {
+  padding: 1em;
+}
+
+.comment-box {
+  height: 6em;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.comment-line {
+  height: 10em;
+  width: 20em;
+  overflow: auto;
+  border: 1px dashed #000000;
+  border-radius: 3px;
+}
+
+.comment {
+  font-weight: bolder;
+  padding: 1em;
+}

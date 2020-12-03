@@ -4,7 +4,7 @@ import { DatePipe } from '@angular/common';
 import { IUserInfo } from 'src/app/core/interfaces/user.interface';
 import { AuthenticationService } from '../../authentication/authentication.service';
 import { ProfileService } from '../profile.service';
-import { Subject } from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import { Message } from '../../../core/extension/messages';
 import { FormGroup, FormBuilder, Validators, FormGroupDirective } from '@angular/forms';
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
@@ -28,6 +28,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   currentUser: IUserInfo;
   message = Message;
   updateProfileForm: FormGroup;
+
 
   private destroy$ = new Subject<void>();
   constructor(
@@ -84,8 +85,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  getMe(){
-    return  this.apollo.query<any>({
+  getMe(): void {
+    this.apollo.query<any>({
       query: gql `
         query {
         me {
@@ -106,6 +107,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
       }
     );
   }
+
+
 
   deleteProfile(): void {
     const config = new MatDialogConfig();

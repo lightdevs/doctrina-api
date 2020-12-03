@@ -281,7 +281,13 @@ module.exports = {
       if (teacher._id.toString() != course.teacher.toString()) throw new Error("Unauthorized 401");
       let answers = [];
       for (let answerId of task.answers) {
-        answers.push(await Answer.findById(answerId));
+        let answer = await Answer.findById(answerId);
+        if (!answer) continue;
+        let author = await Person.findById(answer.person);
+        answers.push({
+          answer,
+          author 
+        });
       }
       return answers;
     },
@@ -681,7 +687,7 @@ module.exports = {
           if (dateEnd < today) return false;
         }
         let visitors = lesson.visitors;
-        if(visitors.includes(context.payload.payload._id)) return lesson;
+        if (visitors.includes(context.payload.payload._id)) return lesson;
         visitors.push(context.payload.payload._id);
         let updatedLesson = await Lesson.findOneAndUpdate({ _id: lesson.id }, { visitors: visitors }, {
           returnOriginal: false
@@ -923,10 +929,6 @@ module.exports = {
       } else {
         throw new Error("Unauthorized 401");
       }
-    },
-
-    deleteAnswerFile: async (_, args, context, info) => {
-      passCheck(info);
     },
 
     deleteFile: async (_, args, context, info) => {
@@ -1599,6 +1601,7 @@ module.exports = {
     addComment: async (_, args, context, info) => {
       passCheck(info);
       if (!context.loggedIn) throw new Error("Unauthorized 401");
+      console.log(args.parentInstance);
       const answer = await Answer.findById(args.parentInstance);
       if (!answer) throw new Error("Answer not found 404");
       let today = new Date();

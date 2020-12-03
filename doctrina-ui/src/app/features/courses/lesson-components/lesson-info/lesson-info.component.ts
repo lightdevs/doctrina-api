@@ -282,14 +282,14 @@ export class LessonInfoComponent implements OnInit, OnDestroy {
   getVisitorsByLesson(): void {
     this.lessonService.getVisitorsByLesson(this.lesson.value._id).subscribe(res => {
       this.visitors = res.data.visitorsByLesson;
+      console.log(res.data.visitorsByLesson);
     });
   }
 
   markVisited(): void {
     this.lessonService.markVisited(this.lesson.value._id).subscribe(res => {
-      console.log(res);
+      this.getVisitorsByLesson();
     });
-    this.getVisitorsByLesson();
   }
 
   ngOnDestroy(): void {

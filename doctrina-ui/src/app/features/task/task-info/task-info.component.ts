@@ -1,17 +1,17 @@
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject, Subject, Observable } from 'rxjs';
-import { takeUntil, startWith, map } from 'rxjs/operators';
-import { ICourses } from 'src/app/core/interfaces/course.interface';
-import { ILesson } from 'src/app/core/interfaces/lesson.interface';
-import { IUserInfo } from 'src/app/core/interfaces/user.interface';
-import { CancelPopUpComponent } from 'src/app/shared/components/cancel-pop-up/cancel-pop-up.component';
-import { AuthenticationService } from '../../authentication/authentication.service';
-import { ITask } from 'src/app/core/interfaces/task.interface';
-import { TaskDataService } from '../task-data.service';
+import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {Component, HostListener, Input, OnDestroy, OnInit} from '@angular/core';
+import {FormGroup, FormBuilder, FormControl, Validators} from '@angular/forms';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import {ToastrService} from 'ngx-toastr';
+import {BehaviorSubject, Subject, Observable} from 'rxjs';
+import {takeUntil, startWith, map} from 'rxjs/operators';
+import {ICourses} from 'src/app/core/interfaces/course.interface';
+import {ILesson} from 'src/app/core/interfaces/lesson.interface';
+import {IUserInfo} from 'src/app/core/interfaces/user.interface';
+import {CancelPopUpComponent} from 'src/app/shared/components/cancel-pop-up/cancel-pop-up.component';
+import {AuthenticationService} from '../../authentication/authentication.service';
+import {ITask} from 'src/app/core/interfaces/task.interface';
+import {TaskDataService} from '../task-data.service';
 
 @Component({
   selector: 'app-task-info',
@@ -30,40 +30,44 @@ export class TaskInfoComponent implements OnInit, OnDestroy {
   editTaskForm: FormGroup;
   editTask = false;
   isUploading: boolean;
+  currentUser: IUserInfo;
 
   private destroy$ = new Subject<void>();
+
   constructor(private formBuilder: FormBuilder,
               private authenticationService: AuthenticationService,
               private http: HttpClient,
               private taskService: TaskDataService,
               private toastr: ToastrService,
-              public dialog: MatDialog) { }
+              public dialog: MatDialog) {
+    authenticationService.currentUser.subscribe(x => this.currentUser = x);
+  }
 
-      // tslint:disable-next-line:typedef
+  // tslint:disable-next-line:typedef
   @HostListener('window:beforeunload', ['$event']) unloadNotification($event: any) {
     if (this.editTaskForm.dirty) {
-        $event.returnValue = false;
+      $event.returnValue = false;
     }
   }
 
   ngOnInit(): void {
     this.createForm();
     this.task
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(() => {
-      if(this.task.value) {
-        this.initForm(this.task.value);
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.task.value) {
+          this.initForm(this.task.value);
+        }
+      })
     this.filteredOptions = (this.editTaskForm.get('maxMark') as FormControl).valueChanges
-    .pipe(
-      takeUntil(this.destroy$),
-      startWith(''),
-      map(value => this._filter(value))
-    );
+      .pipe(
+        takeUntil(this.destroy$),
+        startWith(''),
+        map(value => this._filter(value))
+      );
   }
 
-  createForm(): void  {
+  createForm(): void {
     this.editTaskForm = this.formBuilder.group({
       id: [null, Validators.required],
       title: [null, Validators.required],
@@ -99,7 +103,7 @@ export class TaskInfoComponent implements OnInit, OnDestroy {
   }
 
   uploadDocument(event: any): void {
-    if (event.target.files.length === 0){
+    if (event.target.files.length === 0) {
       return;
     }
 
@@ -150,12 +154,12 @@ export class TaskInfoComponent implements OnInit, OnDestroy {
     }
   }
 
- /* downloadFile(fileId: string, fileName: string, filteType: string): void {
-    this.taskService.downloadFile(fileId)
-    .subscribe(response => {
-      saveAs(response, `${fileName}.${filteType.split('/')[1]}`);
-      });
-  }*/
+  /* downloadFile(fileId: string, fileName: string, filteType: string): void {
+     this.taskService.downloadFile(fileId)
+     .subscribe(response => {
+       saveAs(response, `${fileName}.${filteType.split('/')[1]}`);
+       });
+   }*/
 
   protected saveFile(blob: Blob, fileName: string): void {
     const a = document.createElement('a');
@@ -191,7 +195,9 @@ export class TaskInfoComponent implements OnInit, OnDestroy {
   }
 
   formatSize(bytes): string {
-    if (bytes === 0) { return '0 Bytes'; }
+    if (bytes === 0) {
+      return '0 Bytes';
+    }
 
     const k = 1024;
     const dm = 1 < 0 ? 0 : 1;

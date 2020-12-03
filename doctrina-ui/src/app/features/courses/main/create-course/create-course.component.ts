@@ -46,7 +46,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     } else {
       this.createCourseForm.markAllAsTouched();
     }
-
   }
 
   createForm(): void  {
