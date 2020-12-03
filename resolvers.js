@@ -1601,6 +1601,7 @@ module.exports = {
     addComment: async (_, args, context, info) => {
       passCheck(info);
       if (!context.loggedIn) throw new Error("Unauthorized 401");
+      console.log(args.parentInstance);
       const answer = await Answer.findById(args.parentInstance);
       if (!answer) throw new Error("Answer not found 404");
       let today = new Date();

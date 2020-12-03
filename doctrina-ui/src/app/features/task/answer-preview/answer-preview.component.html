@@ -46,7 +46,7 @@
     </mat-grid-tile>
     <mat-grid-tile>
       <div class="comment-line">
-        <ng-container *ngFor="let comment of comments">
+        <ng-container *ngFor="let comment of comments.reverse()">
           <div class="comment">
             {{comment.text}}<br/>
             {{getDate(comment.timeAdded)}}

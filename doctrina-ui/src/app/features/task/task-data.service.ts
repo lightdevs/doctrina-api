@@ -236,7 +236,6 @@ export class TaskDataService {
   }
 
   getAnswersMaterial(answerId: string): Observable<any> {
-    console.log('hi')
     return this.apollo.query<any>({
       query: gql`query filesOfAnswer($id: String!) {
         filesOfAnswer(id: $id) {
@@ -353,6 +352,7 @@ export class TaskDataService {
   }
 
   addComment(text: string, parentInstance: string): Observable<any> {
+    console.log(parentInstance, text);
     return this.apollo.mutate({
       mutation: gql`
       mutation addComment($text: String, $parentInstance: String!) {
