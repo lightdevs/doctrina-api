@@ -613,13 +613,21 @@ module.exports = {
         for (let taskId of group.tasks) {
           let task = await Task.findById(taskId);
           if (!task) continue;
-          events.push(task);
+          if (args.dateEnd && args.dateStart) {
+            if (task.dateEnd < args.dateEnd || task.dateStart > args.dateStart) {
+              events.push(task);
+            }
+          } else events.push(task);
         }
 
         for (let lessonId of group.lessons) {
           let lesson = await Lesson.findById(lessonId);
           if (!lesson) continue;
-          events.push(lesson);
+          if (args.dateEnd && args.dateStart) {
+            if (lesson.dateEnd < args.dateEnd || lesson.dateStart > args.dateStart) {
+              events.push(lesson);
+            }
+          } else events.push(lesson);
         }
 
         for (let courseId of group.courses) {
@@ -629,20 +637,28 @@ module.exports = {
           for (let lessonId of course.lessons) {
             let lesson = await Lesson.findById(lessonId);
             if (!lesson) continue;
-            events.push(lesson);
+            if (args.dateEnd && args.dateStart) {
+              if (lesson.dateEnd < args.dateEnd || lesson.dateStart > args.dateStart) {
+                events.push(lesson);
+              }
+            } else events.push(lesson);
 
             for (let taskId of lesson.tasks) {
               let task = await Task.findById(taskId);
               if (!task) continue;
-              events.push(task);
+              if (args.dateEnd && args.dateStart) {
+                if (task.dateEnd < args.dateEnd || task.dateStart > args.dateStart) {
+                  events.push(task);
+                }
+              } else events.push(task);
             }
           }
         }
       }
 
-      // events.sort((a, b) => {
-
-      // });
+      events.sort((a, b) => {
+        return a.dateStart > b.dateStart ? 1 : a.dateStart < b.dateStart ? -1 : 0;
+      });
 
       return {
         dateStart: args.dateStart,
@@ -1812,10 +1828,40 @@ module.exports = {
       return updGroup;
     },
     addGroupLesson: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
 
+      let author = await Person.findById(context.payload.payload._id);
+      if (!author) throw new Error("Unauthorized 401");
+
+      let group = await Group.findById(args.idGroup);
+      if (!group) throw new Error("Group not found 404");
+
+      let lessons = group.lessons;
+      lessons.push(args.idLesson);
+
+      const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { lessons }, { new: true });
+      if (!updGroup) throw new Error("Can`t update group");
+
+      return updGroup;
     },
     addGroupTask: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
 
+      let author = await Person.findById(context.payload.payload._id);
+      if (!author) throw new Error("Unauthorized 401");
+
+      let group = await Group.findById(args.idGroup);
+      if (!group) throw new Error("Group not found 404");
+
+      let tasks = group.tasks;
+      tasks.push(args.idTask);
+
+      const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { tasks }, { new: true });
+      if (!updGroup) throw new Error("Can`t update group");
+
+      return updGroup;
     },
     //#endregion
 
