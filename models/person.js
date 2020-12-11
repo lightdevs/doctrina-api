@@ -57,6 +57,10 @@ const personSchema = new mongoose.Schema(
         coursesConducts: {
             type: [mongoose.Schema.Types.ObjectId],
             required: true
+        },
+        groups: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false
         }
     },
     { timestamps: true }
