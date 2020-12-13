@@ -1832,6 +1832,7 @@ module.exports = {
 
       return { affectedRows: res.deletedCount };
     },
+
     addGroupCourse: async (_, args, context, info) => {
       passCheck(info);
       if (!context.loggedIn) throw new Error("Unauthorized 401");
@@ -1841,6 +1842,8 @@ module.exports = {
 
       let group = await Group.findById(args.idGroup);
       if (!group) throw new Error("Group not found 404");
+
+      if(group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
 
       let courses = group.courses;
       courses.push(args.idCourse);
@@ -1860,6 +1863,8 @@ module.exports = {
       let group = await Group.findById(args.idGroup);
       if (!group) throw new Error("Group not found 404");
 
+      if(group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
+
       let lessons = group.lessons;
       lessons.push(args.idLesson);
 
@@ -1878,8 +1883,70 @@ module.exports = {
       let group = await Group.findById(args.idGroup);
       if (!group) throw new Error("Group not found 404");
 
+      if(group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
+
       let tasks = group.tasks;
       tasks.push(args.idTask);
+
+      const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { tasks }, { new: true });
+      if (!updGroup) throw new Error("Can`t update group");
+
+      return updGroup;
+    },
+    removeGroupCourse: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+
+      let author = await Person.findById(context.payload.payload._id);
+      if (!author) throw new Error("Unauthorized 401");
+
+      let group = await Group.findById(args.idGroup);
+      if (!group) throw new Error("Group not found 404");
+
+      if(group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
+
+      let courses = group.courses;
+      courses.remove(args.idCourse);
+
+      const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { courses }, { new: true });
+      if (!updGroup) throw new Error("Can`t update group");
+
+      return updGroup;
+    },
+    removeGroupLesson: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+
+      let author = await Person.findById(context.payload.payload._id);
+      if (!author) throw new Error("Unauthorized 401");
+
+      let group = await Group.findById(args.idGroup);
+      if (!group) throw new Error("Group not found 404");
+
+      if(group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
+
+      let lessons = group.lessons;
+      lessons.remove(args.idLesson);
+
+      const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { lessons }, { new: true });
+      if (!updGroup) throw new Error("Can`t update group");
+
+      return updGroup;
+    },
+    removeGroupTask: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+
+      let author = await Person.findById(context.payload.payload._id);
+      if (!author) throw new Error("Unauthorized 401");
+
+      let group = await Group.findById(args.idGroup);
+      if (!group) throw new Error("Group not found 404");
+
+      if(group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
+
+      let tasks = group.tasks;
+      tasks.remove(args.idTask);
 
       const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { tasks }, { new: true });
       if (!updGroup) throw new Error("Can`t update group");
