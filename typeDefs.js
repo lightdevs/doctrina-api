@@ -351,6 +351,7 @@ type Mutation {
     createGroup(
         title: String,
     ): Group!
+    deleteGroup(id: String) : MutationResult!
     
     addGroupCourse(
         idGroup: ID!,

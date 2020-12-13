@@ -1809,6 +1809,29 @@ module.exports = {
 
       return group;
     },
+    deleteGroup: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+
+      let author = await Person.findById(context.payload.payload._id);
+      if (!author) throw new Error("Unauthorized 401");
+
+      let group = await Group.findById(args.id);
+      if (!group) throw new Error("Group not found 404");
+
+      if(group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
+
+      let res = await Group.remove({ _id: group._id });
+      if (!res) throw new Error("Group can't be deleted");
+
+      let groups = author.groups;
+      groups.remove(group._id);
+
+      const updAuthor = await Person.findByIdAndUpdate({ _id: author._id }, { groups }, { new: true });
+      if (!updAuthor) throw new Error("Can`t update author");
+
+      return { affectedRows: res.deletedCount };
+    },
     addGroupCourse: async (_, args, context, info) => {
       passCheck(info);
       if (!context.loggedIn) throw new Error("Unauthorized 401");
