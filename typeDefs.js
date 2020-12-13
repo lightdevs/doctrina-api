@@ -153,6 +153,15 @@ type ExtendedAnswer {
     author: Person
 }
 
+type DeepLesson {
+    lesson: Lesson!
+    tasks: [Task!]
+}
+type DeepCourse {
+    course: Course!
+    lessons: [DeepLesson!]
+}
+
 union Event = Lesson | Task
 
 type Schedule {
@@ -171,6 +180,8 @@ type Query {
 
     linksByCourse(id: String!) : [Link!]
     linksByLesson(id: String!) : [Link!]
+
+    fullCoursesByPerson(id: String!): [DeepCourse!]
 
     courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
