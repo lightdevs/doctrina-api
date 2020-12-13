@@ -198,6 +198,10 @@ type Query {
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
     statisticsByCourse(courseId: String!): [Stat!]
+
+    #Group
+    groupsByPerson(id: String!): [Group!]
+    ##
     
     #Schedule
     getScheduleByGroups(
