@@ -351,6 +351,11 @@ type Mutation {
     createGroup(
         title: String,
     ): Group!
+    deleteGroup(id: String) : MutationResult!
+    updateGroup(
+        idGroup: ID!,
+        title: String
+    ): Group!
     
     addGroupCourse(
         idGroup: ID!,
@@ -368,20 +373,16 @@ type Mutation {
     removeGroupCourse(
         idGroup: ID!,
         idCourse: ID!
-    ): MutationResult!
+    ): Group!
     removeGroupLesson(
         idGroup: ID!,
         idLesson: ID!
-    ): MutationResult!
+    ): Group!
     removeGroupTask(
         idGroup: ID!,
         idTask: ID!
-    ): MutationResult!
-
-    updateGroup(
-        idGroup: ID!,
-        title: String
     ): Group!
+
     ##
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!
