@@ -604,16 +604,53 @@ module.exports = {
       let author = await Person.findById(context.payload.payload._id);
       if (!author) throw new Error("Unauthorized 401");
 
-      if(author._id.toString() != args.id.toString()) throw new Error("Not permitted 403");
+      if (author._id.toString() != args.id.toString()) throw new Error("Not permitted 403");
 
       let groups = [];
-      for(let groupId of author.groups) {
+      for (let groupId of author.groups) {
         let group = await Group.findById(groupId);
-        if(!group) continue;
+        if (!group) continue;
         groups.push(group);
       }
 
       return groups;
+    },
+
+    fullCoursesByPerson: async (_, args, context, info) => {
+      passCheck(info);
+      if (!context.loggedIn) throw new Error("Unauthorized 401");
+
+      let person = await Person.findById(args.id);
+      if (!person) throw new Error("Person not found 404");
+
+      let res = [];
+
+      for (let courseId of person.coursesTakesPart) {
+        let course = await Course.findById(courseId);
+        if (!course) continue;
+        let courseEx = {
+          course,
+          lessons: []
+        }
+        for (let lessonId of course.lessons) {
+          let lesson = await Lesson.findById(lessonId);
+          if (!lesson) continue;
+
+          let lessonEx = {
+            lesson,
+            tasks: []
+          }
+          for (let taskId of lesson.tasks) {
+            let task = await Task.findById(taskId);
+            if (!task) continue;
+            lessonEx.tasks.push(task);
+          }
+          courseEx.lessons.push(lessonEx);
+        }
+        res.push(courseEx);
+      }
+
+      return res;
     },
 
     //#region Schedule
