@@ -1,10 +1,9 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
-import {DatePipe} from '@angular/common';
 import {IUserInfo} from 'src/app/core/interfaces/user.interface';
 import {AuthenticationService} from '../../authentication/authentication.service';
 import {ScheduleService} from '../schedule.service';
-import {Observable, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {Message} from '../../../core/extension/messages';
 import {FormGroup, FormBuilder, Validators, FormGroupDirective} from '@angular/forms';
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
@@ -17,7 +16,6 @@ import {Router} from '@angular/router';
   selector: 'app-schedule',
   templateUrl: './schedule.component.html',
   styleUrls: ['./schedule.component.scss'],
-  providers: [DatePipe]
 })
 export class ScheduleComponent implements OnInit, OnDestroy {
 
