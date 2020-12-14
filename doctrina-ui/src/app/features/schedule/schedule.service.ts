@@ -1,15 +1,12 @@
 import {Injectable} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {Observable} from "rxjs";
-import {ICreateCourseForm} from "../../core/interfaces/course.interface";
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class ScheduleService {
   constructor(private apollo: Apollo) {}
-
 
   getFullCoursesByPerson(userId: string): Observable<any> {
     return this.apollo.query<any>({
@@ -52,7 +49,6 @@ export class ScheduleService {
       },
     });
   }
-
 
   addGroupCourse(idGroup: string, idCourse: string): Observable<any> {
     return this.apollo.mutate({

@@ -7,6 +7,8 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
 
+    <input type="text" class="group-title" placeholder="group title" [value]="null" matInput>
+
     <ng-container *ngFor="let course of courses">
       <mat-expansion-panel hideToggle class="course-block">
         <mat-expansion-panel-header>
