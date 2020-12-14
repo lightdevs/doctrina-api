@@ -218,7 +218,8 @@ type Query {
     getScheduleByGroups(
     groups: [ID!],
     dateStart: Date,
-    dateEnd: Date
+    dateEnd: Date,
+    expandLessons: Boolean
     ): Schedule!
     ##
 }
@@ -374,15 +375,15 @@ type Mutation {
     
     addGroupCourse(
         idGroup: ID!,
-        idCourse: ID!
+        idCourse: [ID!]
     ): Group!
     addGroupLesson(
         idGroup: ID!,
-        idLesson: ID!
+        idLesson: [ID!]
     ): Group!
     addGroupTask(
         idGroup: ID!,
-        idTask: ID!
+        idTask: [ID!]
     ): Group!
 
     removeGroupCourse(

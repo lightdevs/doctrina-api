@@ -683,6 +683,18 @@ module.exports = {
               events.push(lesson);
             }
           } else events.push(lesson);
+
+          if(args.expandLesson) {
+            for (let taskId of lesson.tasks) {
+              let task = await Task.findById(taskId);
+              if (!task) continue;
+              if (args.dateEnd && args.dateStart) {
+                if (task.dateEnd < args.dateEnd || task.dateStart > args.dateStart) {
+                  events.push(task);
+                }
+              } else events.push(task);
+            }
+          }
         }
 
         for (let courseId of group.courses) {
@@ -1894,14 +1906,14 @@ module.exports = {
 
       let author = await Person.findById(context.payload.payload._id);
       if (!author) throw new Error("Unauthorized 401");
-
+      
       let group = await Group.findById(args.idGroup);
       if (!group) throw new Error("Group not found 404");
 
       if (group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
 
       let courses = group.courses;
-      courses.push(args.idCourse);
+      courses = courses.concat(args.idCourse);
 
       const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { courses }, { new: true });
       if (!updGroup) throw new Error("Can`t update group");
@@ -1921,7 +1933,7 @@ module.exports = {
       if (group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
 
       let lessons = group.lessons;
-      lessons.push(args.idLesson);
+      lessons = lessons.concat(args.idLesson);
 
       const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { lessons }, { new: true });
       if (!updGroup) throw new Error("Can`t update group");
@@ -1941,7 +1953,7 @@ module.exports = {
       if (group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
 
       let tasks = group.tasks;
-      tasks.push(args.idTask);
+      tasks = tasks.concat(args.idTask);
 
       const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { tasks }, { new: true });
       if (!updGroup) throw new Error("Can`t update group");
