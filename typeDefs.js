@@ -17,7 +17,6 @@ type File {
     mimetype: String
 }
 
-
 type Course {
     _id: ID!
     title:String!
@@ -104,7 +103,17 @@ type Person {
     accountType: String!
     coursesTakesPart: [ID!]!
     coursesConducts: [ID!]! 
+    groups: [ID!]
     token: String
+}
+
+type Group {
+    _id: ID!
+    author: ID!
+    title: String!
+    courses: [ID!]
+    lessons: [ID!]
+    tasks: [ID!]
 }
 
 type Tuple {
@@ -139,6 +148,19 @@ type ExtendedTask {
     status: Int!
 }
 
+type ExtendedAnswer {
+    answer: Answer!
+    author: Person
+}
+
+union Event = Lesson | Task
+
+type Schedule {
+    dateStart: Date,
+    dateEnd: Date,
+    events: [Event!]
+}
+
 
 type Query {
     downloadFile(id: String!): String
@@ -160,12 +182,14 @@ type Query {
     linkById(id: String!): Link
     visitorsByLesson(id: String!): [Person]
 
+    groupById(id: String!): Group!
+
     taskById(id: String!): Task!
     answerById(id: String!): Answer!
     commentById(id: String!): Comment!
 
     tasksByLesson(id: String!): [ExtendedTask!]
-    answersByTask(id: String!): [Answer!]
+    answersByTask(id: String!): [ExtendedAnswer!]
     myAnswersByTask(id: String!): [Answer!]
     answersByPerson: [Answer!]
     tasksByPerson: [Task!]
@@ -174,6 +198,14 @@ type Query {
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
     statisticsByCourse(courseId: String!): [Stat!]
+    
+    #Schedule
+    getScheduleByGroups(
+    groups: [ID!],
+    dateStart: Date,
+    dateEnd: Date
+    ): Schedule!
+    ##
 }
 
 type Mutation {
@@ -310,13 +342,47 @@ type Mutation {
     uploadAnswerMaterial(file: Upload!, answerId: String!): Boolean
     setAnswerMark(answerId: String!, mark: Int): Answer!
 
-    deleteAnswerFile(idAnswer: String!, idFile: String!): MutationResult  
-
     addComment(
         text: String
         parentInstance: String!
     ): Comment!
 
+    # Group messing around
+    createGroup(
+        title: String,
+    ): Group!
+    
+    addGroupCourse(
+        idGroup: ID!,
+        idCourse: ID!
+    ): Group!
+    addGroupLesson(
+        idGroup: ID!,
+        idLesson: ID!
+    ): Group!
+    addGroupTask(
+        idGroup: ID!,
+        idTask: ID!
+    ): Group!
+
+    removeGroupCourse(
+        idGroup: ID!,
+        idCourse: ID!
+    ): MutationResult!
+    removeGroupLesson(
+        idGroup: ID!,
+        idLesson: ID!
+    ): MutationResult!
+    removeGroupTask(
+        idGroup: ID!,
+        idTask: ID!
+    ): MutationResult!
+
+    updateGroup(
+        idGroup: ID!,
+        title: String
+    ): Group!
+    ##
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!
     login(email: String!, password: String!): Person

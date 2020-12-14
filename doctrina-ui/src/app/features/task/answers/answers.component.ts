@@ -126,6 +126,4 @@ export class AnswersComponent implements OnInit {
           }
       });
   }
-
-
 }

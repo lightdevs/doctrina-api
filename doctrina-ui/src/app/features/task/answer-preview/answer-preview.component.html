@@ -1,0 +1,60 @@
+<mat-toolbar class="dark">
+  <h1>TASK REVIEW</h1>
+  <span class="spacer"></span>
+  <button mat-icon-button type="button" [mat-dialog-close]="null">
+    <mat-icon color="warn">close</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div class="mx-3">
+  <div class="mark-block">
+    <div>{{student.name}} {{student.surname}}</div>
+    <div>{{student.email}}</div>
+    <div>{{answer?.title}} {{answer?.mark}}</div>
+  </div>
+
+  <form [formGroup]="markForm" (ngSubmit)="onMarkFormSubmit()">
+    <div class="mark-block">
+      <mat-form-field appearance="outline">
+        <mat-label>Max</mat-label>
+        <input placeholder="Type..." matInput type="number" formControlName="mark">
+        <mat-error *ngIf="markForm.get('mark').hasError('required')">
+          Mark is required
+        </mat-error>
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="submit">SET MARK</button>
+
+    </div>
+  </form>
+
+  <mat-grid-list cols="2" rowHeight="1:1">
+    <mat-grid-tile>
+      <form [formGroup]="commentForm" (ngSubmit)="onCommentFormSubmit()">
+        <div class="comment-block">
+          <div class="form-group row cell-area">
+            <h3 class="bold">Comments:</h3>
+            <mat-form-field appearance="outline">
+              <textarea matInput placeholder="Message" formControlName="text" class="comment-box"></textarea>
+              <mat-error *ngIf="commentForm.get('text').hasError('required')">
+                Message body is required
+              </mat-error>
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="submit">COMMENT</button>
+          </div>
+        </div>
+      </form>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div class="comment-line">
+        <ng-container *ngFor="let comment of comments.reverse()">
+          <div class="comment">
+            {{comment.text}}<br/>
+            {{getDate(comment.timeAdded)}}
+          </div>
+        </ng-container>
+      </div>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
+
+

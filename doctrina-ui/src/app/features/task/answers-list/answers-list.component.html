@@ -1,0 +1,47 @@
+ <div class="course-list flex-column">
+      <section class="pt-3" >
+        <mat-card class="w-100">
+          <div class="card-header-container">
+            <h1 class="bold">
+              Answers
+            </h1>
+          </div>
+          <div class="span1">
+            <table class="table table-hover text-center">
+              <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Task title</th>
+                <th scope="col">Grade</th>
+                <th scope="col"></th>
+              </tr>
+              </thead>
+              <tbody>
+              <ng-container *ngFor="let data of answers; let i = index">
+                <tr>
+                  <th scope="row">{{i+1}}</th>
+                  <td>{{data.author.name}} {{data.author.surname}} </td>
+                  <td>{{data.author.email}}</td>
+                  <td>{{data.answer.title}}</td>
+                  <td>mark: {{data.answer.mark == null ? 'no mark' : data.answer.mark }}</td>
+                  <td>
+                    <button mat-icon-button type="button" tabindex="-1" color="primary" (click)="showStudentAnswer(data)">
+                      <div *ngIf="data.answer.mark == null; else elseBlock">
+                        <mat-icon> visibility </mat-icon>
+                      </div>
+                      <ng-template #elseBlock>
+                        <mat-icon> visibility_off </mat-icon>
+                      </ng-template>
+
+                    </button>
+                  </td>
+                </tr>
+              </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </mat-card>
+      </section>
+  </div>
