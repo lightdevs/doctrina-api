@@ -10,6 +10,7 @@ import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog
 import {configureToastr, toastrTitle} from '../../../core/helpers';
 import {ToastrService} from 'ngx-toastr';
 import {Router} from '@angular/router';
+import {takeUntil} from "rxjs/operators";
 
 
 @Component({
@@ -22,24 +23,34 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
   @ViewChild(FormGroupDirective) formDirective: FormGroupDirective;
 
   currentUser: IUserInfo;
-  message = Message;
-  updateProfileForm: FormGroup;
-
+  courses = [];
 
   private destroy$ = new Subject<void>();
 
   constructor(
-    private profileService: ScheduleService,
+    private scheduleService: ScheduleService,
     private apollo: Apollo,
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
     private toastr: ToastrService,
-    private authService: AuthenticationService,
+    private authenticationService: AuthenticationService,
     private router: Router
   ) {
+    authenticationService.currentUser.subscribe(x => this.currentUser = x);
+  }
+
+  getFullCoursesByPerson(): void {
+    console.log(this.currentUser._id);
+    this.scheduleService.getFullCoursesByPerson(this.currentUser._id)
+      .subscribe(res => {
+        console.log(res.data.fullCoursesByPerson);
+        this.courses = res.data.fullCoursesByPerson
+
+      });
   }
 
   ngOnInit() {
+    this.getFullCoursesByPerson();
     configureToastr(this.toastr);
   }
 

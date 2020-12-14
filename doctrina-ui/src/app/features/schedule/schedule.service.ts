@@ -7,8 +7,7 @@ import {Observable} from "rxjs";
   providedIn: 'root'
 })
 export class ScheduleService {
-  constructor(private apollo: Apollo) {
-  }
+  constructor(private apollo: Apollo) {}
 
 
   getFullCoursesByPerson(userId: string): Observable<any> {
