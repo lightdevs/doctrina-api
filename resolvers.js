@@ -625,7 +625,7 @@ module.exports = {
 
             let res = [];
 
-            for (let courseId of person.coursesTakesPart) {
+            for (let courseId of person.coursesTakesPart.concat(person.coursesConducts)) {
                 let course = await Course.findById(courseId);
                 if (!course) continue;
                 let courseEx = {
