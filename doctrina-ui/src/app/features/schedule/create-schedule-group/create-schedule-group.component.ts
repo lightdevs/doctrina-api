@@ -27,6 +27,8 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
   selectedCourses = [];
   selectedLessons = [];
   selectedTasks = [];
+  groupTitle: string;
+  groupId: string;
 
 
   private destroy$ = new Subject<void>();
@@ -38,7 +40,6 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private toastr: ToastrService,
     private authenticationService: AuthenticationService,
-    private router: Router
   ) {
     authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
@@ -52,29 +53,31 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
 
       });
   }
-
-  addCourseToList(id) {
-    this.selectedCourses.push(id);
+  changeCourseSelection(id) {
+    if (this.selectedCourses.indexOf(id) == -1) {
+      this.selectedCourses.push(id);
+    } else {
+      this.selectedCourses = this.removeItemOnce( this.selectedCourses, id);
+    }
+    console.log(this.selectedCourses);
   }
 
-  removeCourseFromList(id) {
-    this.selectedCourses = this.removeItemOnce( this.selectedCourses, id);
+  changeLessonSelection(id) {
+    if (this.selectedLessons.indexOf(id) == -1) {
+      this.selectedLessons.push(id);
+    } else {
+      this.selectedLessons = this.removeItemOnce(this.selectedLessons, id);
+    }
+    console.log(this.selectedLessons);
   }
 
-  addLessonToList(id) {
-    this.selectedLessons.push(id);
-  }
-
-  removeLessonFromList(id) {
-    this.selectedLessons = this.removeItemOnce( this.selectedLessons, id);
-  }
-
-  addTaskToList(id) {
-    this.selectedTasks.push(id);
-  }
-
-  removeTaskFromList(id) {
-    this.selectedTasks = this.removeItemOnce( this.selectedTasks, id);
+  changeTaskSelection(id) {
+    if (this.selectedTasks.indexOf(id) == -1) {
+      this.selectedTasks.push(id);
+    } else {
+      this.selectedTasks = this.removeItemOnce(this.selectedTasks, id);
+    }
+    console.log(this.selectedTasks);
   }
 
   removeItemOnce(arr, value) {
@@ -83,6 +86,15 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
       arr.splice(index, 1);
     }
     return arr;
+  }
+
+  createGroup(): void {
+    this.scheduleService.createGroup(this.groupTitle)
+      .subscribe(
+        (result) => {
+          this.groupId = result.data.createCourse._id;
+        }
+      );
   }
 
   ngOnInit() {

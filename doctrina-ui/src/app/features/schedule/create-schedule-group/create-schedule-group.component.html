@@ -11,11 +11,11 @@
       <div class="manage-part">
         <mat-form-field class="example-full-width">
           <mat-label>Group title</mat-label>
-          <input matInput placeholder="title" value="">
+          <input matInput placeholder="title" value="" [(ngModel)]="groupTitle">
         </mat-form-field>
       </div>
       <div class="manage-part">
-        <button mat-flat-button color="primary" class="width">
+        <button mat-flat-button color="primary" class="width" (click)="createGroup()">
           Create Group
         </button>
       </div>
@@ -25,19 +25,21 @@
       <mat-expansion-panel hideToggle class="course-block">
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-checkbox class="example-margin">{{course.course.title}}</mat-checkbox>
+            <mat-checkbox class="example-margin" (change)="changeCourseSelection(course.course._id)">
+              {{course.course.title}}
+            </mat-checkbox>
           </mat-panel-title>
         </mat-expansion-panel-header>
         <span class="example-list-section">
         <ul>
           <li *ngFor="let lesson of course.lessons">
-            <mat-checkbox>
+            <mat-checkbox (change)="changeLessonSelection(lesson.lesson._id)">
               {{lesson.lesson.title}}
             </mat-checkbox>
             <span class="example-list-section">
               <ul>
                 <li *ngFor="let task of lesson.tasks">
-                  <mat-checkbox>
+                  <mat-checkbox (change)="changeTaskSelection(task._id)">
                     {{task.title}}
                   </mat-checkbox>
                 </li>
