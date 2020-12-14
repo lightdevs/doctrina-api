@@ -24,6 +24,10 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
 
   currentUser: IUserInfo;
   courses = [];
+  selectedCourses = [];
+  selectedLessons = [];
+  selectedTasks = [];
+
 
   private destroy$ = new Subject<void>();
 
@@ -47,6 +51,38 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
         this.courses = res.data.fullCoursesByPerson
 
       });
+  }
+
+  addCourseToList(id) {
+    this.selectedCourses.push(id);
+  }
+
+  removeCourseFromList(id) {
+    this.selectedCourses = this.removeItemOnce( this.selectedCourses, id);
+  }
+
+  addLessonToList(id) {
+    this.selectedLessons.push(id);
+  }
+
+  removeLessonFromList(id) {
+    this.selectedLessons = this.removeItemOnce( this.selectedLessons, id);
+  }
+
+  addTaskToList(id) {
+    this.selectedTasks.push(id);
+  }
+
+  removeTaskFromList(id) {
+    this.selectedTasks = this.removeItemOnce( this.selectedTasks, id);
+  }
+
+  removeItemOnce(arr, value) {
+    let index = arr.indexOf(value);
+    if (index > -1) {
+      arr.splice(index, 1);
+    }
+    return arr;
   }
 
   ngOnInit() {
