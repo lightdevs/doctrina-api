@@ -802,42 +802,6 @@ module.exports = {
             } catch (e) {
                 throw e
             }
-<<<<<<< HEAD
-          } else events.push(lesson);
-
-          if(args.expandLesson) {
-            for (let taskId of lesson.tasks) {
-              let task = await Task.findById(taskId);
-              if (!task) continue;
-              if (args.dateEnd && args.dateStart) {
-                if (task.dateEnd < args.dateEnd || task.dateStart > args.dateStart) {
-                  events.push(task);
-                }
-              } else events.push(task);
-            }
-          }
-        }
-
-        for (let courseId of group.courses) {
-          let course = await Course.findById(courseId);
-          if (!course) continue;
-
-          for (let lessonId of course.lessons) {
-            let lesson = await Lesson.findById(lessonId);
-            if (!lesson) continue;
-            if (args.dateEnd && args.dateStart) {
-              if (lesson.dateEnd < args.dateEnd || lesson.dateStart > args.dateStart) {
-                events.push(lesson);
-              }
-            } else events.push(lesson);
-
-            for (let taskId of lesson.tasks) {
-              let task = await Task.findById(taskId);
-              if (!task) continue;
-              if (args.dateEnd && args.dateStart) {
-                if (task.dateEnd < args.dateEnd || task.dateStart > args.dateStart) {
-                  events.push(task);
-=======
         },
         login: async (_, { email, password }, __, info) => {
             const person = await Person.find({ email: email });
@@ -863,7 +827,6 @@ module.exports = {
                     let today = new Date();
                     //if(dateEnd < today) throw new Error("Late 412");
                     if (dateEnd < today) return false;
->>>>>>> 7e7ede3bdcfc42348655ad6ad75e952b5cd3ee4e
                 }
                 let visitors = lesson.visitors;
                 if (visitors.includes(context.payload.payload._id)) return lesson;
@@ -1929,29 +1892,16 @@ module.exports = {
             passCheck(info);
             if (!context.loggedIn) throw new Error("Unauthorized 401");
 
-<<<<<<< HEAD
-      let author = await Person.findById(context.payload.payload._id);
-      if (!author) throw new Error("Unauthorized 401");
-      
-      let group = await Group.findById(args.idGroup);
-      if (!group) throw new Error("Group not found 404");
-=======
             let author = await Person.findById(context.payload.payload._id);
             if (!author) throw new Error("Unauthorized 401");
 
             let group = await Group.findById(args.idGroup);
             if (!group) throw new Error("Group not found 404");
->>>>>>> 7e7ede3bdcfc42348655ad6ad75e952b5cd3ee4e
 
             if (group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
 
-<<<<<<< HEAD
-      let courses = group.courses;
-      courses = courses.concat(args.idCourse);
-=======
             let courses = group.courses;
             courses.push(args.idCourse);
->>>>>>> 7e7ede3bdcfc42348655ad6ad75e952b5cd3ee4e
 
             const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { courses }, { new: true });
             if (!updGroup) throw new Error("Can`t update group");
@@ -1970,13 +1920,8 @@ module.exports = {
 
             if (group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
 
-<<<<<<< HEAD
-      let lessons = group.lessons;
-      lessons = lessons.concat(args.idLesson);
-=======
             let lessons = group.lessons;
             lessons.push(args.idLesson);
->>>>>>> 7e7ede3bdcfc42348655ad6ad75e952b5cd3ee4e
 
             const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { lessons }, { new: true });
             if (!updGroup) throw new Error("Can`t update group");
@@ -1995,13 +1940,8 @@ module.exports = {
 
             if (group.author.toString() != author._id.toString()) throw new Error("Not permitted 403");
 
-<<<<<<< HEAD
-      let tasks = group.tasks;
-      tasks = tasks.concat(args.idTask);
-=======
             let tasks = group.tasks;
             tasks.push(args.idTask);
->>>>>>> 7e7ede3bdcfc42348655ad6ad75e952b5cd3ee4e
 
             const updGroup = await Group.findByIdAndUpdate({ _id: group._id }, { tasks }, { new: true });
             if (!updGroup) throw new Error("Can`t update group");
