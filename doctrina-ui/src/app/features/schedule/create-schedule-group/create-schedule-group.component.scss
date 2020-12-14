@@ -1,0 +1,25 @@
+.bold {
+  font-weight: bold;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+ul {
+  list-style-type: none;
+  margin-top: 4px;
+}
+
+.course-block {
+  margin: 10px;
+}
+
+.manage-block {
+  display: flex;
+  flex-direction: row;
+}
+
+.manage-part {
+  margin: 5px;
+}
