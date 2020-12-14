@@ -24,6 +24,12 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
 
   currentUser: IUserInfo;
   courses = [];
+  selectedCourses = [];
+  selectedLessons = [];
+  selectedTasks = [];
+  groupTitle: string;
+  groupId: string;
+
 
   private destroy$ = new Subject<void>();
 
@@ -34,7 +40,6 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private toastr: ToastrService,
     private authenticationService: AuthenticationService,
-    private router: Router
   ) {
     authenticationService.currentUser.subscribe(x => this.currentUser = x);
   }
@@ -47,6 +52,49 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
         this.courses = res.data.fullCoursesByPerson
 
       });
+  }
+  changeCourseSelection(id) {
+    if (this.selectedCourses.indexOf(id) == -1) {
+      this.selectedCourses.push(id);
+    } else {
+      this.selectedCourses = this.removeItemOnce( this.selectedCourses, id);
+    }
+    console.log(this.selectedCourses);
+  }
+
+  changeLessonSelection(id) {
+    if (this.selectedLessons.indexOf(id) == -1) {
+      this.selectedLessons.push(id);
+    } else {
+      this.selectedLessons = this.removeItemOnce(this.selectedLessons, id);
+    }
+    console.log(this.selectedLessons);
+  }
+
+  changeTaskSelection(id) {
+    if (this.selectedTasks.indexOf(id) == -1) {
+      this.selectedTasks.push(id);
+    } else {
+      this.selectedTasks = this.removeItemOnce(this.selectedTasks, id);
+    }
+    console.log(this.selectedTasks);
+  }
+
+  removeItemOnce(arr, value) {
+    let index = arr.indexOf(value);
+    if (index > -1) {
+      arr.splice(index, 1);
+    }
+    return arr;
+  }
+
+  createGroup(): void {
+    this.scheduleService.createGroup(this.groupTitle)
+      .subscribe(
+        (result) => {
+          this.groupId = result.data.createCourse._id;
+        }
+      );
   }
 
   ngOnInit() {
