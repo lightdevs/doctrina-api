@@ -153,6 +153,15 @@ type ExtendedAnswer {
     author: Person
 }
 
+type DeepLesson {
+    lesson: Lesson!
+    tasks: [Task!]
+}
+type DeepCourse {
+    course: Course!
+    lessons: [DeepLesson!]
+}
+
 union Event = Lesson | Task
 
 type Schedule {
@@ -171,6 +180,8 @@ type Query {
 
     linksByCourse(id: String!) : [Link!]
     linksByLesson(id: String!) : [Link!]
+
+    fullCoursesByPerson(id: String!): [DeepCourse!]
 
     courses(sort: String, title: String, page: Int!, count: Int!): ExtendedPerson
     persons(sort: String, email: String, page: Int!, count: Int!): ExtendedCourse
@@ -198,6 +209,10 @@ type Query {
 
     studentStatisticsByCourse(studentId: String!, courseId: String!): [Stat!]
     statisticsByCourse(courseId: String!): [Stat!]
+
+    #Group
+    groupsByPerson(id: String!): [Group!]
+    ##
     
     #Schedule
     getScheduleByGroups(
@@ -351,6 +366,11 @@ type Mutation {
     createGroup(
         title: String,
     ): Group!
+    deleteGroup(id: String) : MutationResult!
+    updateGroup(
+        idGroup: ID!,
+        title: String
+    ): Group!
     
     addGroupCourse(
         idGroup: ID!,
@@ -368,20 +388,16 @@ type Mutation {
     removeGroupCourse(
         idGroup: ID!,
         idCourse: ID!
-    ): MutationResult!
+    ): Group!
     removeGroupLesson(
         idGroup: ID!,
         idLesson: ID!
-    ): MutationResult!
+    ): Group!
     removeGroupTask(
         idGroup: ID!,
         idTask: ID!
-    ): MutationResult!
-
-    updateGroup(
-        idGroup: ID!,
-        title: String
     ): Group!
+
     ##
 
     register(email: String!, name: String!, surname: String!, password: String!, accountType: String!): Person!
