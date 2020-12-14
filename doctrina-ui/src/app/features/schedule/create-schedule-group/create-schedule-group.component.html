@@ -7,7 +7,19 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
 
-    <input type="text" class="group-title" placeholder="group title" [value]="null" matInput>
+    <div class="manage-block">
+      <div class="manage-part">
+        <mat-form-field class="example-full-width">
+          <mat-label>Group title</mat-label>
+          <input matInput placeholder="title" value="">
+        </mat-form-field>
+      </div>
+      <div class="manage-part">
+        <button mat-flat-button color="primary" class="width">
+          Create Group
+        </button>
+      </div>
+    </div>
 
     <ng-container *ngFor="let course of courses">
       <mat-expansion-panel hideToggle class="course-block">
