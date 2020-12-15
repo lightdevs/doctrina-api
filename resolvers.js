@@ -723,6 +723,8 @@ module.exports = {
         }
       }
 
+      events = [... new Set(events)];
+
       events.sort((a, b) => {
         return a.dateStart > b.dateStart ? 1 : a.dateStart < b.dateStart ? -1 : 0;
       });
