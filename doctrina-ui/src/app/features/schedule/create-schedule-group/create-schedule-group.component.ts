@@ -50,16 +50,20 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
       .subscribe(res => {
         console.log(res.data.fullCoursesByPerson);
         this.courses = res.data.fullCoursesByPerson
-
       });
   }
+
   changeCourseSelection(id) {
     if (this.selectedCourses.indexOf(id) == -1) {
       this.selectedCourses.push(id);
     } else {
       this.selectedCourses = this.removeItemOnce( this.selectedCourses, id);
     }
-    console.log(this.selectedCourses);
+
+    const course = this.courses.find(x => x.course._id == id);
+    course.lessons.forEach(x => {
+      this.changeLessonSelection(x._id);
+    })
   }
 
   changeLessonSelection(id) {
@@ -68,7 +72,11 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
     } else {
       this.selectedLessons = this.removeItemOnce(this.selectedLessons, id);
     }
-    console.log(this.selectedLessons);
+    this.courses.forEach(x => {
+      return x.lessons.forEach(y => {
+        this.changeTaskSelection(y.lesson._id);
+      });
+    });
   }
 
   changeTaskSelection(id) {
@@ -77,7 +85,6 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
     } else {
       this.selectedTasks = this.removeItemOnce(this.selectedTasks, id);
     }
-    console.log(this.selectedTasks);
   }
 
   removeItemOnce(arr, value) {
