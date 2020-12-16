@@ -28,7 +28,7 @@
             <mat-checkbox
               class="example-margin"
               (change)="changeCourseSelection(course.course._id)"
-              [checked]="selectedCourses.indexOf(course.course._id) != -1"
+              [checked]="course.selected"
             >
               {{course.course.title}}
             </mat-checkbox>
@@ -39,7 +39,7 @@
           <li *ngFor="let lesson of course.lessons">
             <mat-checkbox
               (change)="changeLessonSelection(lesson.lesson._id)"
-              [checked]="selectedLessons.indexOf(lesson.lesson._id) != -1"
+              [checked]="lesson.lesson.selected"
             >
               {{lesson.lesson.title}}
             </mat-checkbox>
@@ -48,7 +48,7 @@
                 <li *ngFor="let task of lesson.tasks">
                   <mat-checkbox
                     (change)="changeTaskSelection(task._id)"
-                    [checked]="selectedTasks.indexOf(task._id) != -1"
+                    [checked]="task.selected"
                   >
                     {{task.title}}
                   </mat-checkbox>
