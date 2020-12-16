@@ -11,6 +11,7 @@ import {configureToastr, toastrTitle} from '../../../core/helpers';
 import {ToastrService} from 'ngx-toastr';
 import {Router} from '@angular/router';
 import {takeUntil} from "rxjs/operators";
+import {replaceTsWithNgInErrors} from "@angular/compiler-cli/src/ngtsc/diagnostics";
 
 
 @Component({
@@ -24,9 +25,6 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
 
   currentUser: IUserInfo;
   courses = [];
-  selectedCourses = [];
-  selectedLessons = [];
-  selectedTasks = [];
   groupTitle: string;
   groupId: string;
 
@@ -48,44 +46,56 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
     console.log(this.currentUser._id);
     this.scheduleService.getFullCoursesByPerson(this.currentUser._id)
       .subscribe(res => {
-        console.log(res.data.fullCoursesByPerson);
-        this.courses = res.data.fullCoursesByPerson
-
+        this.courses = res.data.fullCoursesByPerson.map(course => {
+          course.lessons.map(lesson => {
+            lesson.tasks.map(task => {
+              task.selected = false;
+              return task;
+            })
+            lesson.lesson.selected = false;
+            return lesson;
+          });
+          course.course.selected = false;
+          return course;
+        });
+        console.log(this.courses);
       });
   }
+
   changeCourseSelection(id) {
-    if (this.selectedCourses.indexOf(id) == -1) {
-      this.selectedCourses.push(id);
-    } else {
-      this.selectedCourses = this.removeItemOnce( this.selectedCourses, id);
-    }
-    console.log(this.selectedCourses);
+    this.courses.map(course => {
+      if (course.course._id == id) {
+        course.course.selected = !course.course.selected;
+        course.lessons.forEach(lesson => {
+          this.changeLessonSelection(lesson.lesson._id);
+        })
+      }
+    });
   }
 
   changeLessonSelection(id) {
-    if (this.selectedLessons.indexOf(id) == -1) {
-      this.selectedLessons.push(id);
-    } else {
-      this.selectedLessons = this.removeItemOnce(this.selectedLessons, id);
-    }
-    console.log(this.selectedLessons);
+    this.courses.map(course => {
+      course.lessons.map(lesson => {
+        if (lesson.lesson._id == id) {
+          lesson.lesson.selected = !lesson.lesson.selected;
+          lesson.tasks.forEach(task => {
+            this.changeTaskSelection(task._id);
+          })
+        }
+      })
+    });
   }
 
   changeTaskSelection(id) {
-    if (this.selectedTasks.indexOf(id) == -1) {
-      this.selectedTasks.push(id);
-    } else {
-      this.selectedTasks = this.removeItemOnce(this.selectedTasks, id);
-    }
-    console.log(this.selectedTasks);
-  }
-
-  removeItemOnce(arr, value) {
-    let index = arr.indexOf(value);
-    if (index > -1) {
-      arr.splice(index, 1);
-    }
-    return arr;
+    this.courses.map(course => {
+      course.lessons.map(lesson => {
+        lesson.tasks.forEach(task => {
+          if(task._id == id) {
+            task.selected = !task.selected;
+          }
+        })
+      })
+    });
   }
 
   createGroup(): void {
