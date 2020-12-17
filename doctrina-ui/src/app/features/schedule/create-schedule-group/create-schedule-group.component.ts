@@ -4,15 +4,10 @@ import {IUserInfo} from 'src/app/core/interfaces/user.interface';
 import {AuthenticationService} from '../../authentication/authentication.service';
 import {ScheduleService} from '../schedule.service';
 import {Subject} from 'rxjs';
-import {Message} from '../../../core/extension/messages';
 import {FormGroup, FormBuilder, Validators, FormGroupDirective} from '@angular/forms';
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
 import {configureToastr, toastrTitle} from '../../../core/helpers';
 import {ToastrService} from 'ngx-toastr';
-import {Router} from '@angular/router';
-import {takeUntil} from "rxjs/operators";
-import {replaceTsWithNgInErrors} from "@angular/compiler-cli/src/ngtsc/diagnostics";
-
 
 @Component({
   selector: 'app-create-schedule-group',
@@ -51,7 +46,7 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
             lesson.tasks.map(task => {
               task.selected = false;
               return task;
-            })
+            });
             lesson.lesson.selected = false;
             return lesson;
           });
@@ -64,11 +59,11 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
 
   changeCourseSelection(id) {
     this.courses.map(course => {
-      if (course.course._id == id) {
+      if (course.course._id === id) {
         course.course.selected = !course.course.selected;
         course.lessons.forEach(lesson => {
           this.changeLessonSelection(lesson.lesson._id);
-        })
+        });
       }
     });
   }
@@ -76,13 +71,13 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
   changeLessonSelection(id) {
     this.courses.map(course => {
       course.lessons.map(lesson => {
-        if (lesson.lesson._id == id) {
+        if (lesson.lesson._id === id) {
           lesson.lesson.selected = !lesson.lesson.selected;
           lesson.tasks.forEach(task => {
             this.changeTaskSelection(task._id);
-          })
+          });
         }
-      })
+      });
     });
   }
 
@@ -90,11 +85,11 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
     this.courses.map(course => {
       course.lessons.map(lesson => {
         lesson.tasks.forEach(task => {
-          if(task._id == id) {
+          if (task._id === id) {
             task.selected = !task.selected;
           }
-        })
-      })
+        });
+      });
     });
   }
 
@@ -105,6 +100,34 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
           this.groupId = result.data.createCourse._id;
         }
       );
+  }
+
+  addGroupEllements() {
+    const courses = [];
+    const lessons = [];
+    const tasks = [];
+
+    this.courses.forEach(course => {
+      const courseLessons = [];
+      course.lessons.forEach(lesson => {
+        const lessonTasks = [];
+        lesson.tasks.forEach(task => {
+          if (task.selected) {
+            lessonTasks.push(task._id);
+          }
+        });
+        if (lessonTasks.length === lesson.tasks.length) {
+          courseLessons.push(lesson._id);
+        } else {
+          tasks.push(lessonTasks);
+        }
+      });
+      if (courseLessons.length === course.lessons.length) {
+        courses.push(course._id);
+      } else {
+        lessons.push(courseLessons);
+      }
+    });
   }
 
   ngOnInit() {
