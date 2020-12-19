@@ -8,6 +8,7 @@ import {FormGroup, FormBuilder, Validators, FormGroupDirective} from '@angular/f
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
 import {configureToastr, toastrTitle} from '../../../core/helpers';
 import {ToastrService} from 'ngx-toastr';
+import {Message} from '../../../core/extension/messages';
 
 @Component({
   selector: 'app-create-schedule-group',
@@ -15,6 +16,8 @@ import {ToastrService} from 'ngx-toastr';
   styleUrls: ['./create-schedule-group.component.scss'],
 })
 export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
+
+  message = Message;
 
   @ViewChild(FormGroupDirective) formDirective: FormGroupDirective;
 
@@ -94,45 +97,82 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
   }
 
   createGroup(): void {
+    if (this.groupTitle === undefined) {
+      this.toastr.error(this.message.INVALID_GROUP_TITLE, toastrTitle.Success);
+      return;
+    }
     this.scheduleService.createGroup(this.groupTitle)
-      .subscribe(
-        (result) => {
-          this.groupId = result.data.createCourse._id;
+      .subscribe((result) => {
+          this.groupId = result.data.createGroup._id;
+          this.collectGroupEllements(result.data.createGroup._id);
         }
       );
   }
 
-  addGroupEllements() {
-    const courses = [];
-    const lessons = [];
-    const tasks = [];
+  collectGroupEllements(groupId) {
+    const courses: string[] = [];
+    const lessons: string[] = [];
+    const tasks: string[] = [];
 
     this.courses.forEach(course => {
-      const courseLessons = [];
+      const courseLessons: string[] = [];
       course.lessons.forEach(lesson => {
-        const lessonTasks = [];
+        const lessonTasks: string[] = [];
         lesson.tasks.forEach(task => {
           if (task.selected) {
             lessonTasks.push(task._id);
           }
         });
-        if (lessonTasks.length === lesson.tasks.length) {
-          courseLessons.push(lesson._id);
+        if (lessonTasks.length === lesson.tasks.length && lesson.tasks.length !== 0) {
+          courseLessons.push(lesson.lesson._id);
         } else {
-          tasks.push(lessonTasks);
+          tasks.push(...lessonTasks);
         }
       });
-      if (courseLessons.length === course.lessons.length) {
-        courses.push(course._id);
+      if (courseLessons.length === course.lessons.length  && course.lessons.length !== 0) {
+        courses.push(course.course._id);
       } else {
-        lessons.push(courseLessons);
+        lessons.push(...courseLessons);
       }
     });
+
+    console.log(courses.length);
+    console.log(lessons.length);
+    console.log(tasks.length);
+    if (courses.length === 0 && lessons.length === 0 && tasks.length === 0) {
+      this.toastr.error(this.message.DID_NOT_SELECT_ANY_ELEMENT, toastrTitle.Success);
+      return;
+    }
+
+    this.addGroupEllements(groupId, courses, lessons, tasks);
   }
 
+  addGroupEllements(groupId, courses, lessons, tasks) {
+    if (courses.length > 0) {
+      this.scheduleService.addGroupCourse(groupId, courses).subscribe((x) => {
+        console.log(x);
+      });
+    }
+
+    if (lessons.length > 0) {
+      this.scheduleService.addGroupLesson(groupId, lessons).subscribe((y) => {
+        console.log(y);
+      });
+    }
+
+    if (tasks.length > 0) {
+      this.scheduleService.addGroupLesson(groupId, tasks).subscribe((z) => {
+        console.log(z);
+      });
+    }
+
+    this.toastr.success(this.message.SCHEDULE_GROUP_CREATED, toastrTitle.Success);
+  }
+
+
   ngOnInit() {
-    this.getFullCoursesByPerson();
     configureToastr(this.toastr);
+    this.getFullCoursesByPerson();
   }
 
   ngOnDestroy() {
