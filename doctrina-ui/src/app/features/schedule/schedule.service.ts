@@ -50,7 +50,7 @@ export class ScheduleService {
     });
   }
 
-  addGroupCourse(idGroup: string, idCourse: string[]): Observable<any> {
+  addGroupCourses(idGroup: string, idCourse: string[]): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
       mutation addGroupCourse($idGroup: ID!, $idCourse: [ID!]) {
@@ -66,7 +66,7 @@ export class ScheduleService {
     });
   }
 
-  addGroupLesson(idGroup: string, idLesson: string[]): Observable<any> {
+  addGroupLessons(idGroup: string, idLesson: string[]): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
       mutation addGroupLesson($idGroup: ID!, $idLesson: [ID!]) {
@@ -82,7 +82,7 @@ export class ScheduleService {
     });
   }
 
-  addGroupTask(idGroup: string, idTask: string[]): Observable<any> {
+  addGroupTasks(idGroup: string, idTask: string[]): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
       mutation addGroupTask($idGroup: ID!, $idTask: [ID!]) {

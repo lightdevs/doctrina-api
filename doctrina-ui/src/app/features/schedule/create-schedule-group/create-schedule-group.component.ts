@@ -76,10 +76,11 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
       course.lessons.map(lesson => {
         if (lesson.lesson._id === id) {
           lesson.lesson.selected = !lesson.lesson.selected;
-          lesson.tasks.forEach(task => {
+          lesson.tasks.map(task => {
             this.changeTaskSelection(task._id);
           });
         }
+        return lesson;
       });
     });
   }
@@ -87,10 +88,11 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
   changeTaskSelection(id) {
     this.courses.map(course => {
       course.lessons.map(lesson => {
-        lesson.tasks.forEach(task => {
+        lesson.tasks.map(task => {
           if (task._id === id) {
             task.selected = !task.selected;
           }
+          return task;
         });
       });
     });
@@ -123,22 +125,18 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
             lessonTasks.push(task._id);
           }
         });
-        if (lessonTasks.length === lesson.tasks.length && lesson.tasks.length !== 0) {
+        tasks.push(...lessonTasks);
+
+        if (lesson.lesson.selected) {
           courseLessons.push(lesson.lesson._id);
-        } else {
-          tasks.push(...lessonTasks);
         }
       });
-      if (courseLessons.length === course.lessons.length  && course.lessons.length !== 0) {
+      lessons.push(...courseLessons);
+      if (course.course.selected) {
         courses.push(course.course._id);
-      } else {
-        lessons.push(...courseLessons);
       }
     });
 
-    console.log(courses.length);
-    console.log(lessons.length);
-    console.log(tasks.length);
     if (courses.length === 0 && lessons.length === 0 && tasks.length === 0) {
       this.toastr.error(this.message.DID_NOT_SELECT_ANY_ELEMENT, toastrTitle.Success);
       return;
@@ -149,19 +147,19 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
 
   addGroupEllements(groupId, courses, lessons, tasks) {
     if (courses.length > 0) {
-      this.scheduleService.addGroupCourse(groupId, courses).subscribe((x) => {
+      this.scheduleService.addGroupCourses(groupId, courses).subscribe((x) => {
         console.log(x);
       });
     }
 
     if (lessons.length > 0) {
-      this.scheduleService.addGroupLesson(groupId, lessons).subscribe((y) => {
+      this.scheduleService.addGroupLessons(groupId, lessons).subscribe((y) => {
         console.log(y);
       });
     }
 
     if (tasks.length > 0) {
-      this.scheduleService.addGroupLesson(groupId, tasks).subscribe((z) => {
+      this.scheduleService.addGroupTasks(groupId, tasks).subscribe((z) => {
         console.log(z);
       });
     }
