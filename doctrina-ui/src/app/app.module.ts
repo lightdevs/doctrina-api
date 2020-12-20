@@ -56,7 +56,7 @@ const myDefaultOptions: DefaultOptions = {
             cache: new InMemoryCache(),
             defaultOptions: myDefaultOptions,
             link: httpLink.create({
-              uri: 'http://localhost:5000/graphql',
+              uri: 'https://nameless-basin-88321.herokuapp.com/graphql',
             }),
           };
         },

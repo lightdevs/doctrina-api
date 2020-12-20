@@ -668,6 +668,7 @@ module.exports = {
         for (let taskId of group.tasks) {
           let task = await Task.findById(taskId);
           if (!task) continue;
+          task.currentGroup = groupId;
           if (args.dateEnd && args.dateStart) {
             if (task.dateEnd < args.dateEnd || task.dateStart > args.dateStart) {
               events.push(task);
@@ -678,6 +679,7 @@ module.exports = {
         for (let lessonId of group.lessons) {
           let lesson = await Lesson.findById(lessonId);
           if (!lesson) continue;
+          lesson.currentGroup = groupId;
           if (args.dateEnd && args.dateStart) {
             if (lesson.dateEnd < args.dateEnd || lesson.dateStart > args.dateStart) {
               events.push(lesson);
@@ -688,6 +690,7 @@ module.exports = {
             for (let taskId of lesson.tasks) {
               let task = await Task.findById(taskId);
               if (!task) continue;
+              task.currentGroup = groupId;
               if (args.dateEnd && args.dateStart) {
                 if (task.dateEnd < args.dateEnd || task.dateStart > args.dateStart) {
                   events.push(task);
@@ -704,6 +707,7 @@ module.exports = {
           for (let lessonId of course.lessons) {
             let lesson = await Lesson.findById(lessonId);
             if (!lesson) continue;
+            lesson.currentGroup = groupId;
             if (args.dateEnd && args.dateStart) {
               if (lesson.dateEnd < args.dateEnd || lesson.dateStart > args.dateStart) {
                 events.push(lesson);
@@ -713,6 +717,7 @@ module.exports = {
             for (let taskId of lesson.tasks) {
               let task = await Task.findById(taskId);
               if (!task) continue;
+              task.currentGroup = groupId;
               if (args.dateEnd && args.dateStart) {
                 if (task.dateEnd < args.dateEnd || task.dateStart > args.dateStart) {
                   events.push(task);
