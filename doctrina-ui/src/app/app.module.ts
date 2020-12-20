@@ -18,6 +18,9 @@ import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
 import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 import {ProfileModule} from './features/profile/profile.module';
 import {ScheduleModule} from "./features/schedule/schedule.module";
+import { CalendarModule, DateAdapter } from 'angular-calendar';
+import { SchedulerModule } from 'angular-calendar-scheduler';
+import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 
 const myDefaultOptions: DefaultOptions = {
   watchQuery: {
@@ -47,7 +50,7 @@ const myDefaultOptions: DefaultOptions = {
     LoadingBarHttpClientModule,
     LoadingBarRouterModule,
     ProfileModule,
-    ScheduleModule
+    ScheduleModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: Interceptor, multi: true },
@@ -58,7 +61,7 @@ const myDefaultOptions: DefaultOptions = {
             cache: new InMemoryCache(),
             defaultOptions: myDefaultOptions,
             link: httpLink.create({
-              uri: 'https://nameless-basin-88321.herokuapp.com/graphql',
+              uri: 'http://localhost:5000/graphql',
             }),
           };
         },
