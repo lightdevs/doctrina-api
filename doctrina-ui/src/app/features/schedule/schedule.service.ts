@@ -34,6 +34,24 @@ export class ScheduleService {
     });
   }
 
+  groupsByPerson(userId: string): Observable<any> {
+    return this.apollo.query<any>({
+      query: gql`query groupsByPerson($id: String!) {
+        groupsByPerson(id: $id) {
+          _id
+          author
+          title
+          courses
+          lessons
+          tasks
+        }
+      }`,
+      variables: {
+        id: userId,
+      },
+    });
+  }
+
   createGroup(title: string): Observable<any> {
     return this.apollo.mutate({
       mutation: gql`
@@ -94,6 +112,61 @@ export class ScheduleService {
       variables: {
         idGroup,
         idTask,
+      },
+    });
+  }
+
+  getScheduleByGroups(form: any): Observable<any> {
+    return this.apollo.query<any>({
+      query: gql`query getScheduleByGroups($groups: [ID!], $dateStart: Date, $dateEnd: Date, $expandLessons: Boolean) {
+        getScheduleByGroups(groups: $groups, dateStart: $dateStart, dateEnd: $dateEnd, expandLessons: $expandLessons) {
+          dateStart
+          dateEnd
+          events {
+            __typename
+            ... on Task {
+              title
+              _id
+              dateStart
+              dateEnd
+              parentInstance
+              currentGroup
+            }
+            ... on Lesson {
+              title
+              _id
+              course
+              dateStart
+              dateEnd
+              type
+              currentGroup
+            }
+          }
+        }
+      }
+    `,
+      variables: {
+        ...form
+      },
+    });
+  }
+
+  getLessonById(lessonId: string): Observable<any> {
+    return this.apollo.query<any>({
+      query: gql`query lessonById($id: String!) {
+        lessonById(id: $id) {
+          _id
+          course
+          title
+          description
+          type
+          dateStart
+          dateEnd
+          maxMark
+        }
+      }`,
+      variables: {
+        id: lessonId,
       },
     });
   }

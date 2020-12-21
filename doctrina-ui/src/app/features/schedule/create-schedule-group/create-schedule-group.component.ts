@@ -1,9 +1,9 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Apollo, gql} from 'apollo-angular';
 import {IUserInfo} from 'src/app/core/interfaces/user.interface';
 import {AuthenticationService} from '../../authentication/authentication.service';
 import {ScheduleService} from '../schedule.service';
-import {Subject} from 'rxjs';
+import {BehaviorSubject, Subject} from 'rxjs';
 import {FormGroup, FormBuilder, Validators, FormGroupDirective} from '@angular/forms';
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
 import {configureToastr, toastrTitle} from '../../../core/helpers';
@@ -19,6 +19,7 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
 
   message = Message;
 
+  @Input() refreshGroup: BehaviorSubject<any>;
   @ViewChild(FormGroupDirective) formDirective: FormGroupDirective;
 
   currentUser: IUserInfo;
@@ -163,6 +164,8 @@ export class CreateScheduleGroupComponent implements OnInit, OnDestroy {
         console.log(z);
       });
     }
+
+    this.refreshGroup.next(null);
 
     this.toastr.success(this.message.SCHEDULE_GROUP_CREATED, toastrTitle.Success);
   }
