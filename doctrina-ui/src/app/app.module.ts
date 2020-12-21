@@ -61,7 +61,7 @@ const myDefaultOptions: DefaultOptions = {
             cache: new InMemoryCache(),
             defaultOptions: myDefaultOptions,
             link: httpLink.create({
-              uri: 'https://immense-falls-33645.herokuapp.com//graphql',
+              uri: 'https://gentle-scrubland-53428.herokuapp.com/graphql',
             }),
           };
         },
