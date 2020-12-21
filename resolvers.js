@@ -29,6 +29,14 @@ function passCheck(info) {
   check(info.operation.selectionSet.selections[0].selectionSet);
 }
 
+function getUnique(arr, comp) {
+   const unique =  arr.map(e => e._id.toString())
+                  .map((e, i, final) => final.indexOf(e) === i && i)
+                 .filter((e) => arr[e]).map(e => arr[e]);
+
+   return unique;
+}
+
 Array.prototype.remove = function () {
   var what, a = arguments, L = a.length, ax;
   while (L && this.length) {
@@ -728,7 +736,7 @@ module.exports = {
         }
       }
 
-      events = [... new Set(events)];
+      events = getUnique(events, "_id");
 
       events.sort((a, b) => {
         return a.dateStart > b.dateStart ? 1 : a.dateStart < b.dateStart ? -1 : 0;
