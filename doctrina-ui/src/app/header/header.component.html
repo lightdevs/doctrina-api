@@ -1,4 +1,3 @@
-
 <mat-toolbar class="dark">
   <a class="navbar-brand" [routerLink]="['/courses']">Doctr<b class="logo-i">i</b>na</a>
   <div class="toolbar-spacer"></div>
@@ -29,7 +28,7 @@
   <a mat-tab-link [routerLink]="['/courses']" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
     COURSES
   </a>
-  <a mat-tab-link routerLinkActive #rla1="routerLinkActive" [active]="rla1.isActive">
+  <a mat-tab-link [routerLink]="['/schedule']" routerLinkActive #rla1="routerLinkActive" [active]="rla1.isActive">
     SCHEDULE
   </a>
   <a mat-tab-link routerLinkActive #rla2="routerLinkActive" [active]="rla2.isActive">

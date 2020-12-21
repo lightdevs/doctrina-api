@@ -1,0 +1,67 @@
+<div class="container">
+
+  <mat-expansion-panel hideToggle class="course-block">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <h2 class="bold pt-3">Create your own schedule</h2>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <div class="manage-block">
+      <div class="manage-part">
+        <mat-form-field class="example-full-width">
+          <mat-label>Group title</mat-label>
+          <input matInput placeholder="title" value="" [(ngModel)]="groupTitle">
+        </mat-form-field>
+      </div>
+      <div class="manage-part">
+        <button mat-flat-button color="primary" class="width" (click)="createGroup()">
+          Create Group
+        </button>
+      </div>
+    </div>
+
+    <ng-container *ngFor="let course of courses">
+      <mat-expansion-panel hideToggle class="course-block">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-checkbox
+              class="example-margin"
+              (change)="changeCourseSelection(course.course._id)"
+              [checked]="course.selected">
+              {{course.course.title}}
+            </mat-checkbox>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <span class="example-list-section">
+        <ul>
+          <li *ngFor="let lesson of course.lessons">
+            <mat-checkbox
+              (change)="changeLessonSelection(lesson.lesson._id)"
+              [checked]="lesson.lesson.selected"
+            >
+              {{lesson.lesson.title}}
+            </mat-checkbox>
+            <span class="example-list-section">
+              <ul>
+                <li *ngFor="let task of lesson.tasks">
+                  <mat-checkbox
+                    (change)="changeTaskSelection(task._id)"
+                    [checked]="task.selected"
+                  >
+                    {{task.title}}
+                  </mat-checkbox>
+                </li>
+              </ul>
+            </span>
+          </li>
+        </ul>
+      </span>
+      </mat-expansion-panel>
+
+    </ng-container>
+
+  </mat-expansion-panel>
+
+
+</div>

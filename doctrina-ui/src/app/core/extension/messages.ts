@@ -9,4 +9,7 @@ export enum Message {
     COURSE_DELETED = `Course deleted`,
     PROFILE_UPDATED = `Profile updated`,
     PROFILE_DELETED = `Profile deleted`,
+    INVALID_GROUP_TITLE = `You should fill title field`,
+    SCHEDULE_GROUP_CREATED = `Schedule grioub created`,
+    DID_NOT_SELECT_ANY_ELEMENT = `You did not select any schedule element`,
 }
