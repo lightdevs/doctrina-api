@@ -46,6 +46,7 @@ type Lesson {
     dateStart: Date
     dateEnd: Date
     maxMark: Int
+    currentGroup: ID
 }
 
 type Task {
@@ -58,6 +59,7 @@ type Task {
     answers: [ID!]
     links: [ID!]
     parentInstance: ID!
+    currentGroup: ID
 }
 
 type Answer {

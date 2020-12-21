@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Subject} from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 
 @Component({
@@ -9,6 +9,7 @@ import {Subject} from 'rxjs';
 })
 export class ScheduleComponent implements OnInit, OnDestroy {
 
+  refreshGroup = new BehaviorSubject<any>(null);
   private destroy$ = new Subject<void>();
 
   constructor() {

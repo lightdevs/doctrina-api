@@ -4,7 +4,7 @@
   "description": "task management system for distance learning",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js ",
+    "start": "concurrently \"npm run plain\" \"npm run client\" ",
     "server": "nodemon --exec \"npm run babel\" ",
     "client": "npm run start --prefix doctrina-ui",
     "plain": "node app.js",
@@ -45,6 +45,7 @@
     "md5": "^2.3.0",
     "mongoose": "^5.10.9",
     "morgan": "^1.10.0",
+    "ng": "0.0.0",
     "regenerator-runtime": "^0.13.7"
   },
   "devDependencies": {
